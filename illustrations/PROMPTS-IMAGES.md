@@ -40,6 +40,8 @@ Tu n'as **pas** à te soucier du fond, de la taille ni du cadrage :
 
 ## Vérifier une image en dix secondes
 
+- **Le bateau est-il entier ?** Mât, antenne, proue, poupe : rien ne doit
+  toucher le bord de l'image. Un mât coupé se voit tout de suite dans le jeu.
 - Vraiment de profil ? Si tu vois le pont d'en haut ou l'avant de face, jette.
 - Fond noir bien uni, sans dégradé ni halo ?
 - **Rien sous l'objet ?** Pas de reflet, pas d'image miroir, pas d'ombre au sol.
@@ -61,6 +63,10 @@ Reprends cette image et supprime le reflet sous l'objet. Fond noir uni, l'objet 
 
 ```
 Reprends cette image et efface toutes les inscriptions sur la coque. Aucun texte, aucun chiffre, aucune marque. La coque doit être entièrement lisse et anonyme.
+```
+
+```
+Reprends cette image en dézoomant : le bateau doit tenir entièrement dans le cadre, mât et antennes compris, sans que rien ne soit coupé par les bords. Garde le fond noir uni.
 ```
 
 ---
@@ -85,7 +91,9 @@ Fond parfaitement uni, noir #0A0A0B, absolument uniforme — aucun dégradé, au
 L'objet flotte dans le vide, posé sur rien. Aucun sol, aucune surface brillante, aucune table, et surtout AUCUN REFLET SOUS L'OBJET : ni reflet d'eau, ni reflet de studio, ni image miroir, ni symétrie verticale. Rien ne doit apparaître sous l'objet.
 
 CADRAGE
-L'image s'arrête net à la ligne de flottaison : on ne voit rien de la partie immergée. Aucune eau, aucun reflet dans l'eau, aucune écume, aucun sillage, aucun quai, aucun ciel. Le bateau touche les bords de l'image, sans marge.
+Le bateau est ENTIER dans l'image. Rien ne sort du cadre : ni le sommet du mât, ni l'antenne, ni le bout de la proue, ni l'arrière. Cadre au plus juste autour de lui, mais sans jamais le rogner — mieux vaut un peu de noir autour qu'un mât coupé.
+
+Aucune eau, aucun reflet dans l'eau, aucune écume, aucun sillage, aucun quai, aucun ciel.
 
 À NE JAMAIS FAIRE
 Aucune personne à bord ni à côté.
@@ -104,7 +112,7 @@ Fichier à déposer : **`rien.png`**
 ```
 Image suivante : un ponton de bois vide, vieilles planches grises, une bitte d'amarrage en fonte et un pare-battage suspendu au bord. Aucun bateau, aucune personne.
 
-Rappel des règles : photoréaliste, vue strictement de profil au téléobjectif, proue à droite, fond noir uni #0A0A0B, image coupée net à la ligne de flottaison, aucune eau, aucun reflet ni miroir sous l'objet, aucune personne, aucune inscription ni marque sur la coque.
+Rappel des règles : photoréaliste, vue strictement de profil au téléobjectif, proue à droite, fond noir uni #0A0A0B, bateau entier dans le cadre sans que rien ne soit coupé, aucune eau, aucun reflet ni miroir sous l'objet, aucune personne, aucune inscription ni marque sur la coque.
 ```
 
 ### 02 · Bouée canard

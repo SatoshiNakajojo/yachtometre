@@ -6,9 +6,14 @@
   "frite": 0.42,
   "matelas": 0.22,
   "kayak": 0.24,
-  "paddle": 0.30,
-  "pedalo": 0.20,
+  "paddle": 0.3,
+  "pedalo": 0.2,
   "barque": 0.24,
   "jetski": 0.15,
-  "rib": 0.14
+  "rib": 0.14,
+  "open7": 0.2,
+  "voilier": 0.06,
+  "vedette": 0.18,
+  "y15": 0.16,
+  "y20": 0.16
 }
