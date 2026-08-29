@@ -69,6 +69,13 @@ Reprends cette image et efface toutes les inscriptions sur la coque. Aucun texte
 Reprends cette image en dézoomant : le bateau doit tenir entièrement dans le cadre, mât et antennes compris, sans que rien ne soit coupé par les bords. Garde le fond noir uni.
 ```
 
+Et pour un sujet plus haut que large — le voilier — repasser en carré suffit
+souvent là où le dézoom échoue :
+
+```
+Refais cette image au format carré 1:1, en dézoomant assez pour que le mât entier tienne dans le cadre, tête de mât comprise, avec du noir au-dessus. Même bateau, même lumière, même fond noir uni.
+```
+
 ---
 
 ## RÈGLES — à coller en premier, une fois par conversation
@@ -239,8 +246,15 @@ Rappel des règles : photoréaliste, vue strictement de profil au téléobjectif
 
 Fichier à déposer : **`voilier.png`**
 
+> **Celui-ci est le seul difficile.** Un voilier est aussi haut que long : son
+> mât ne rentre pas dans une image large, et le générateur le coupe. La
+> parade tient en une phrase — **demande une image carrée**. C'est la
+> première ligne du bloc ci-dessous, ne la retire pas.
+
 ```
-Image suivante : un voilier de croisière habitable, mât unique, grand-voile et génois déployés, roof bas avec hublots, coque blanche.
+Image au format CARRÉ, 1:1. C'est impératif : le bateau est aussi haut que long, une image large lui couperait le mât.
+
+Image suivante : un voilier de croisière habitable, mât unique, grand-voile et génois déployés, roof bas avec hublots, coque blanche. Le mât entier, de la coque à la tête de mât girouette comprise, doit tenir dans l'image avec un peu de noir au-dessus.
 
 Longueur réelle : 9,5 mètres. Respecte scrupuleusement les proportions et le niveau de détail d'un objet de cette taille.
 

@@ -465,8 +465,8 @@ let VB_H=VB_H0, WATER=WATER0;
    tient la comparaison, et à huit pixels de haut — le superyacht de 180 m —
    une forme pleine reste lisible là où un trait disparaît.
    Hauteur totale exactement HUMAIN mètres, pieds sur la flottaison. */
-function humainSVG(x,pxm){
-  const h=HUMAIN*pxm, y=WATER;
+function humainSVG(x,pxm,sol){
+  const h=HUMAIN*pxm, y=(sol===undefined?WATER:sol);
   const t=h*0.082, ep=h*0.055;
   const R = (cx,cy,w,ht) => `<rect x="${cx}" y="${cy}" width="${w}" height="${ht}" rx="${w/2}"/>`;
   return `<g fill="var(--gris)" opacity=".9">
@@ -493,6 +493,8 @@ function coque(x0,x1,p){
    c'est ce qui garde le bonhomme de 1,75 m exact. */
 function bateauSVG(cls,L,ill,VH,bas,k){
   const dessin = (ill && ill.w>0 && ill.h>0) ? ill : null;
+  const P = ILLUS._ponton || {};
+  const ponton = dessin && cls==='rien';
   const cadre=Math.max(L,7), large=VB_W-X0-60;
   VB_H=VH||VB_H0; WATER=VB_H-(bas||MER0);
   const pxm=(k||1)*large/cadre;
@@ -500,7 +502,15 @@ function bateauSVG(cls,L,ill,VH,bas,k){
   const B='var(--blanc)', O='var(--btc)', N='var(--noir)', G='var(--gris)';
   let g='';
 
-  if(dessin){
+  if(dessin && ponton){
+    // Palier « rien du tout » : pas un bateau, un décor. Le ponton part du bord
+    // gauche — il continue vers la terre, hors cadre — ses pilotis plongent
+    // sous l'eau, et la silhouette se tient dessus, au bout, face au large.
+    const px=x0-VB_W*(P.debord_gauche||0), h=len*(dessin.h/dessin.w);
+    const py=WATER-h+h*(P.immersion||0);
+    g=`<image href="${dessin.u}" x="${px}" y="${py}" width="${len}" height="${h}"/>`
+      + humainSVG(px+len*(P.poste||0.8), pxm, py+h*(P.pont||0.1));
+  } else if(dessin){
     // Le dessin livré montre l'objet entier, carène comprise. On l'enfonce
     // donc de la part déclarée dans reperes.json, sinon le bateau est posé
     // sur l'eau comme un jouet de bain.
@@ -620,11 +630,11 @@ function bateauSVG(cls,L,ill,VH,bas,k){
       stroke="var(--bordure)" stroke-width="1" fill="none"/>
     <path d="M 0 ${WATER+34} q 40 -8 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0"
       stroke="var(--bordure)" stroke-width="1" fill="none" opacity=".6"/>`;
-  const quai=`<rect x="0" y="${WATER}" width="${X0-34}" height="${VB_H-WATER}" fill="var(--carte)"/>
+  const quai=ponton ? '' : `<rect x="0" y="${WATER}" width="${X0-34}" height="${VB_H-WATER}" fill="var(--carte)"/>
     <line x1="0" y1="${WATER}" x2="${X0-34}" y2="${WATER}" stroke="var(--gris)" stroke-width="2"/>`;
-  // Seul le paddle procédural porte déjà son rameur ; partout ailleurs c'est
-  // le jeu qui pose la silhouette, y compris devant un ponton vide.
-  const humain = (!dessin && cls==='paddle') ? '' : humainSVG(X0-62,pxm);
+  // Le paddle procédural porte déjà son rameur, et le ponton porte la sienne ;
+  // partout ailleurs c'est le jeu qui pose la silhouette sur le quai.
+  const humain = ((!dessin && cls==='paddle') || ponton) ? '' : humainSVG(X0-62,pxm);
   const echelle=`<text x="${VB_W-14}" y="${VB_H-12}" text-anchor="end" fill="var(--gris)"
     font-family="var(--mono)" font-size="11" letter-spacing="1.5">SILHOUETTE = 1,75 M</text>`;
 
@@ -812,7 +822,8 @@ function rendre(){
   const LAuj=longueurPourBudget(budgetAuj), LFut=longueurPourBudget(budgetFut);
   const pFut=palierPourBudget(budgetFut), iP=PALIERS.indexOf(pFut);
 
-  const LDessin=(pFut.L||LFut) || (ILLUS[pFut.id] ? PONTON_M : 0);
+  const LDessin=(pFut.L||LFut)
+    || (ILLUS[pFut.id] ? ((ILLUS._ponton||{}).longueur_m || PONTON_M) : 0);
   const svgCourant=poserScene($('scene'),pFut.cls,LDessin,ILLUS[pFut.id]);
   $('marker').style.left=posRegle(LFut)+'%';
   $('marker').querySelector('b').textContent=metres(LFut);

@@ -138,6 +138,10 @@ def illustrations():
             'w': w, 'h': h, 'o': len(octets),
             'im': reperes.get(f.stem, defaut),
         }
+    # Le ponton n'est pas un dessin de palier mais un décor : ses repères
+    # voyagent avec les dessins pour que le jeu sache où poser la silhouette.
+    if '_ponton' in reperes:
+        dessins['_ponton'] = reperes['_ponton']
     return dessins
 
 
@@ -159,6 +163,8 @@ def rapport(data, dessins):
     print("Illustrations incrustées :")
     for nom in sorted(dessins):
         d = dessins[nom]
+        if nom.startswith('_'):
+            continue          # repères de décor, pas un dessin
         poids = f"{d['o'] // 1024} Ko"
         L = longueurs.get(nom)
         if not L:

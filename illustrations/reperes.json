@@ -1,6 +1,14 @@
 {
   "_note": "Part de la hauteur de l'image qui passe sous la ligne de flottaison. Les générateurs livrent l'objet entier, coque comprise ; sans ça les bateaux sont posés sur l'eau comme des jouets de bain. Valeurs réglées à l'œil, sur photo. Une entrée absente prend _defaut.",
   "_defaut": 0.18,
+  "_ponton": {
+    "note": "Palier « rien du tout ». Le ponton est un décor, pas un bateau : pas d'échelle à tenir, mais la silhouette se tient dessus.",
+    "longueur_m": 4.2,
+    "immersion": 0.2,
+    "pont": 0.09,
+    "poste": 0.87,
+    "debord_gauche": 0.03
+  },
   "rien": 0.26,
   "canard": 0.27,
   "frite": 0.42,
