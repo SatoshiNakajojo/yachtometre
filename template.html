@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Le Yachtomètre</title>
+<meta name="theme-color" content="#0A0A0B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Yachtomètre">
+<meta name="description" content="Convertit ton stack de Bitcoin en longueur de bateau, du canard en plastique au superyacht de 180 mètres.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icones/icone-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icones/icone-180.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Le Yachtomètre">
+<meta property="og:description" content="Convertit ton stack de Bitcoin en longueur de bateau. Silhouette humaine à l'échelle, pour information.">
+<meta property="og:url" content="https://satoshinakajojo.github.io/yachtometre/">
+<meta property="og:image" content="https://satoshinakajojo.github.io/yachtometre/icones/icone-512.png">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --noir:#0A0A0B;
+  --carte:#141416;
+  --pont:#1A1A1D;
+  --bordure:#26262B;
+  --gris:#8A8A93;
+  --blanc:#FAF8F5;
+  --btc:#F7931A;
+  --btc-clair:#FFB55C;
+  --btc-sombre:#7A4A0D;
+  --mer:#0D1114;
+  --vert:#16C784;
+  --rouge:#EA3943;
+
+  --display:'Archivo Black','Arial Black',Impact,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --sans:'Inter',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--noir);color:var(--blanc);
+  font-family:var(--sans);font-size:16px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  padding-top:env(safe-area-inset-top);
+}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px calc(70px + env(safe-area-inset-bottom))}
+
+/* ── en-tête ─────────────────────────────────────────── */
+.masthead{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:14px;padding:20px 0 16px;border-bottom:1px solid var(--bordure);
+}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.logo{
+  width:36px;height:36px;border-radius:50%;background:var(--btc);
+  display:grid;place-items:center;flex:0 0 auto;
+  font-family:var(--mono);font-weight:800;font-size:21px;color:var(--noir);
+}
+.wordmark{
+  font-family:var(--display);font-size:clamp(19px,4.6vw,27px);
+  line-height:1;letter-spacing:-.02em;margin:0;text-transform:uppercase;
+}
+.ticker{text-align:right;flex:0 0 auto}
+.ticker .px{font-family:var(--mono);font-weight:600;font-size:clamp(15px,3.6vw,19px);color:var(--blanc)}
+.ticker .var{font-family:var(--mono);font-size:11px;letter-spacing:.04em}
+.ticker .var.up{color:var(--vert)} .ticker .var.down{color:var(--rouge)}
+.ticker .var.off{color:var(--gris)}
+.ticker button{
+  background:none;border:0;color:var(--gris);font-family:var(--mono);
+  font-size:10px;letter-spacing:.1em;cursor:pointer;padding:2px 0 0;text-transform:uppercase;
+}
+.ticker button:hover{color:var(--btc)}
+
+/* ── bulletin du matin ───────────────────────────────── */
+.bulletin{
+  margin-top:18px;background:var(--carte);border:1px solid var(--bordure);
+  border-left:3px solid var(--btc);padding:15px 17px;
+}
+.bulletin .titre{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gris);margin-bottom:6px}
+.bulletin p{margin:0;font-size:16px;line-height:1.5}
+.bulletin .sous{font-family:var(--mono);font-size:11px;color:var(--gris);margin-top:9px}
+
+/* ── console ─────────────────────────────────────────── */
+.console{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:1px;background:var(--bordure);border:1px solid var(--bordure);margin-top:18px;
+}
+.cell{background:var(--carte);padding:12px 14px}
+.cell label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gris);margin-bottom:6px}
+.cell input,.cell select{
+  width:100%;background:transparent;border:0;color:var(--blanc);
+  font-family:var(--mono);font-size:18px;font-weight:600;padding:0;
+}
+.cell select{cursor:pointer}
+.cell select option{background:var(--carte);color:var(--blanc)}
+.cell input:focus,.cell select:focus{outline:2px solid var(--btc);outline-offset:4px}
+.hint{font-family:var(--mono);font-size:10px;color:var(--gris);margin-top:5px}
+.hint.live{color:var(--btc)}
+
+/* ── scène ───────────────────────────────────────────── */
+.scene{
+  margin-top:18px;border:1px solid var(--bordure);border-bottom:0;
+  background:linear-gradient(180deg,var(--noir) 0%,var(--noir) 62%,var(--mer) 62%,#080B0D 100%);
+  overflow:hidden;
+}
+.scene svg{display:block;width:100%;height:auto}
+@media (prefers-reduced-motion:no-preference){
+  .bob{animation:bob 5.5s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-5px) rotate(-.35deg)}}
+}
+
+/* ── règle graduée : élément signature ───────────────── */
+.ruler{border:1px solid var(--bordure);border-bottom:0;background:var(--carte);padding:32px 18px 14px}
+.ruler-track{position:relative;height:24px;border-bottom:2px solid var(--gris)}
+.tick{position:absolute;bottom:0;transform:translateX(-50%);text-align:center}
+.tick i{display:block;width:1px;height:8px;background:var(--bordure);margin:0 auto}
+.tick.major i{height:16px;background:var(--gris)}
+.tick span{display:block;font-family:var(--mono);font-size:10px;color:var(--gris);margin-top:5px}
+.marker{position:absolute;bottom:0;transform:translateX(-50%);transition:left .7s cubic-bezier(.22,1,.36,1);z-index:2}
+.marker i{display:block;width:2px;height:28px;background:var(--btc);margin:0 auto}
+.marker b{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:12px;font-weight:600;color:var(--btc);white-space:nowrap;
+}
+.ghost{position:absolute;bottom:0;transform:translateX(-50%);transition:left .7s cubic-bezier(.22,1,.36,1)}
+.ghost i{display:block;width:2px;height:18px;background:var(--btc-sombre);margin:0 auto}
+.ghost b{position:absolute;bottom:21px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;color:var(--btc-sombre);white-space:nowrap}
+.ruler-legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--gris);margin-top:24px}
+.ruler-legend span::before{content:'';display:inline-block;width:14px;height:2px;vertical-align:middle;margin-right:6px}
+.ruler-legend .l1::before{background:var(--btc)}
+.ruler-legend .l2::before{background:var(--btc-sombre)}
+@media(max-width:520px){ .tick:not(.major){display:none} }
+
+/* ── verdict ─────────────────────────────────────────── */
+.verdict{border:1px solid var(--bordure);background:var(--pont);padding:22px 18px}
+.tier-len{font-family:var(--mono);font-size:clamp(32px,8vw,52px);font-weight:800;color:var(--btc);line-height:1;letter-spacing:-.02em}
+.tier-name{font-family:var(--display);font-size:clamp(20px,4.6vw,32px);text-transform:uppercase;line-height:1.05;margin:6px 0 0;letter-spacing:-.02em}
+.punch{margin:14px 0 0;max-width:62ch;font-size:16px}
+.capitaine{margin-top:16px;padding-top:14px;border-top:1px solid var(--bordure)}
+.capitaine .role{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--btc)}
+.capitaine .line{font-style:italic;color:var(--gris);margin:5px 0 0}
+
+/* ── fiche ───────────────────────────────────────────── */
+.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--bordure);border:1px solid var(--bordure);border-top:0}
+.stat{background:var(--carte);padding:13px 14px}
+.stat dt{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);margin:0 0 5px}
+.stat dd{margin:0;font-family:var(--mono);font-size:18px;font-weight:600}
+.stat dd small{display:block;font-size:11px;font-weight:400;color:var(--gris);margin-top:4px}
+
+/* ── blocs ───────────────────────────────────────────── */
+.block{margin-top:30px}
+.block-head{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--bordure);padding-bottom:8px;margin-bottom:14px}
+.block-head h2{font-family:var(--display);font-size:17px;text-transform:uppercase;margin:0;letter-spacing:-.01em}
+.block-head p{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gris);margin:0 0 0 auto}
+
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--bordure);border:1px solid var(--bordure)}
+@media(max-width:600px){.duo{grid-template-columns:1fr}}
+.duo>div{background:var(--carte);padding:16px}
+.duo .tagline{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris)}
+.duo h3{font-family:var(--display);font-size:20px;text-transform:uppercase;margin:7px 0 3px;line-height:1.1;letter-spacing:-.01em}
+.duo .len{font-family:var(--mono);font-size:14px;color:var(--btc);font-weight:600}
+.duo .note{font-size:14px;color:var(--gris);margin:11px 0 0}
+.duo .dream h3{color:var(--btc)}
+
+.conv{border:1px solid var(--bordure);background:var(--carte);padding:16px}
+.conv-input{display:flex;gap:9px;flex-wrap:wrap}
+.conv-input input{flex:1 1 140px;background:var(--noir);border:1px solid var(--bordure);color:var(--blanc);font-family:var(--mono);font-size:16px;padding:10px 12px}
+.conv-input input:focus{outline:2px solid var(--btc);outline-offset:2px}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.chip{background:transparent;border:1px solid var(--bordure);color:var(--gris);font-family:var(--mono);font-size:11px;padding:7px 11px;cursor:pointer;text-transform:uppercase;letter-spacing:.05em}
+.chip:hover,.chip:focus{border-color:var(--btc);color:var(--btc);outline:none}
+.conv-out{margin-top:16px;border-top:1px solid var(--bordure);padding-top:15px}
+.conv-out .big{font-family:var(--display);font-size:clamp(19px,4vw,29px);text-transform:uppercase;line-height:1.15;margin:0;letter-spacing:-.02em}
+.conv-out .big em{font-style:normal;color:var(--btc)}
+.conv-out p{margin:10px 0 0;color:var(--gris);max-width:60ch;font-size:14px}
+
+.tomorrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--bordure);border:1px solid var(--bordure)}
+.tomorrow>div{background:var(--carte);padding:13px 14px}
+.tomorrow .pct{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--gris)}
+.tomorrow .delta{font-family:var(--mono);font-size:21px;font-weight:600;margin-top:4px}
+.tomorrow .up{color:var(--vert)} .tomorrow .down{color:var(--rouge)}
+.tomorrow .msg{font-size:13px;color:var(--gris);margin-top:8px;line-height:1.45}
+
+.share{border:1px solid var(--bordure);background:var(--carte);padding:16px;display:flex;gap:18px;flex-wrap:wrap}
+.share canvas{width:100%;max-width:380px;height:auto;border:1px solid var(--bordure);display:block}
+.share-actions{flex:1 1 200px;display:flex;flex-direction:column;gap:9px;align-items:flex-start}
+.cap-preview{font-family:var(--mono);font-size:12px;color:var(--gris);line-height:1.6;border-top:1px solid var(--bordure);padding-top:11px;margin-top:3px}
+
+/* ── bandeau d'installation, masqué une fois l'app posée ─ */
+.install{
+  margin-top:26px;background:var(--carte);border:1px solid var(--bordure);
+  border-left:3px solid var(--gris);padding:13px 15px;
+  display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;
+}
+.install p{margin:0;flex:1 1 240px;font-size:14px;color:var(--gris)}
+.install[hidden]{display:none}
+
+footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font-family:var(--mono);font-size:11px;color:var(--gris);line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="brand">
+      <div class="logo">₿</div>
+      <h1 class="wordmark">Le Yachtomètre</h1>
+    </div>
+    <div class="ticker">
+      <div class="px" id="tickPx">—</div>
+      <div class="var off" id="tickVar">chargement</div>
+      <button type="button" id="refresh">Actualiser</button>
+    </div>
+  </header>
+
+  <div class="bulletin" id="bulletin" style="display:none">
+    <div class="titre">Ce matin</div>
+    <p id="bulletinTexte"></p>
+    <div class="sous" id="bulletinSous"></div>
+  </div>
+
+  <div class="console">
+    <div class="cell">
+      <label for="btc">Ton stack</label>
+      <input id="btc" type="number" step="0.001" min="0" value="0.35" inputmode="decimal">
+      <div class="hint">en BTC</div>
+    </div>
+    <div class="cell">
+      <label for="annee">Tu holdes jusqu'en</label>
+      <select id="annee"></select>
+      <div class="hint" id="hintAnnee"></div>
+    </div>
+    <div class="cell">
+      <label for="bande">Ton niveau de foi</label>
+      <select id="bande"></select>
+      <div class="hint" id="hintBande"></div>
+    </div>
+    <div class="cell">
+      <label for="prix">Cours du BTC</label>
+      <input id="prix" type="number" step="100" min="1" value="68000" inputmode="decimal">
+      <div class="hint" id="hintPrix">en euros</div>
+    </div>
+  </div>
+
+  <div class="scene"><div id="scene"></div></div>
+
+  <div class="ruler">
+    <div class="ruler-track" id="track">
+      <div class="ghost" id="ghost"><b>aujourd'hui</b><i></i></div>
+      <div class="marker" id="marker"><b>—</b><i></i></div>
+    </div>
+    <div class="ruler-legend">
+      <span class="l1">Ton bateau <span id="legAnnee"></span></span>
+      <span class="l2">Ton bateau aujourd'hui</span>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <div class="tier-len" id="tierLen">—</div>
+    <h2 class="tier-name" id="tierName">—</h2>
+    <p class="punch" id="punch"></p>
+    <div class="capitaine">
+      <div class="role" id="capRole">Capitaine</div>
+      <p class="line" id="capLine"></p>
+    </div>
+  </div>
+
+  <dl class="sheet">
+    <div class="stat"><dt>Budget projeté</dt><dd id="sBudget">—</dd></div>
+    <div class="stat"><dt>Prix d'achat</dt><dd id="sPrix">—</dd></div>
+    <div class="stat"><dt>Entretien / an</dt><dd id="sEntretien">—</dd></div>
+    <div class="stat"><dt>BTC projeté</dt><dd id="sBtc">—</dd></div>
+  </dl>
+
+  <section class="block">
+    <div class="block-head"><h2>Acheter n'est pas garder</h2><p>règle des 4 %</p></div>
+    <div class="duo">
+      <div class="dream">
+        <div class="tagline">Le bateau que tu peux acheter</div>
+        <h3 id="dreamName">—</h3>
+        <div class="len" id="dreamLen">—</div>
+        <p class="note" id="dreamNote"></p>
+      </div>
+      <div class="real">
+        <div class="tagline">Le bateau que tu peux entretenir</div>
+        <h3 id="realName">—</h3>
+        <div class="len" id="realLen">—</div>
+        <p class="note" id="realNote"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>Le mètre de yacht</h2><p>coût d'opportunité</p></div>
+    <div class="conv">
+      <div class="conv-input">
+        <input id="depense" type="number" step="1" min="0" value="3" inputmode="decimal" aria-label="Montant en euros">
+        <input id="depenseNom" type="text" value="un café" aria-label="Ce que tu achètes">
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="conv-out">
+        <p class="big" id="convBig">—</p>
+        <p id="convNote"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>Et si demain…</h2><p>simulation</p></div>
+    <div class="tomorrow" id="tomorrow"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>Carte de partage</h2><p>1080 × 1080</p></div>
+    <div class="share">
+      <canvas id="carte" width="1080" height="1080" aria-label="Aperçu de la carte de partage"></canvas>
+      <div class="share-actions">
+        <button class="chip" type="button" id="dlCard">Télécharger le PNG</button>
+        <button class="chip" type="button" id="cpCap">Copier la légende</button>
+        <button class="chip" type="button" id="rerollCap">Autre légende</button>
+        <span class="cap-preview" id="capText"></span>
+      </div>
+    </div>
+  </section>
+
+  <div class="install" id="install" hidden>
+    <p id="installTexte"></p>
+    <button class="chip" type="button" id="installFermer"></button>
+  </div>
+
+  <footer>
+    Le rainbow chart est une régression logarithmique sur le passé. C'est une courbe rigolote, pas une prédiction.<br>
+    Ton stack reste sur ton téléphone. Aucune donnée n'est envoyée nulle part.
+  </footer>
+</div>
+
+<script>
+const CONTENU = /*__CONTENU__*/;
+
+/* ══════════════════════════════════════════════════════
+   MOTEUR
+   ══════════════════════════════════════════════════════ */
+const SEED = Math.floor(Math.random()*99991);
+const pick = (a,s=0) => (!a||!a.length) ? '' : a[(SEED+s)%a.length];
+const remplir = (t,v) => Object.keys(v).reduce((s,k)=>s.split('{'+k+'}').join(v[k]), t);
+function seau(table,v){
+  for(const c of Object.keys(table)){
+    const s = table[c].seuil || table[c].seuil_m;
+    if(s && v>=s[0] && v<s[1]) return c;
+  }
+  return Object.keys(table)[0];
+}
+
+/* Rainbow chart, ajusté sur les cycles réels en euros.
+   log10(prix) = 2,1 · ln(jours depuis genesis) + b */
+const GENESIS = Date.UTC(2009,0,3);
+const RB_A = 2.1, RB_B = -13.35;
+const BANDES = [
+  {off:-0.56, nom:"Ton beau-frère qui dit que c'est une bulle"},
+  {off:-0.28, nom:"Réaliste"},
+  {off: 0.00, nom:"Optimiste raisonnable"},
+  {off:+0.28, nom:"Ton pote sur X"},
+  {off:+0.56, nom:"Michael Saylor"}
+];
+const jrs = d => Math.max(1,(d.getTime()-GENESIS)/86400000);
+const prixRainbow = (d,off) => Math.pow(10, RB_A*Math.log(jrs(d)) + RB_B + off);
+let CAL = 1;
+const recalibrer = p => { CAL = p / prixRainbow(new Date(),0); };
+const prixProjete = (d,off) => prixRainbow(d,off)*CAL;
+
+const PALIERS = CONTENU.paliers.map(p=>({
+  p:p.prix, L:p.longueur, cls:p.classe, cap:p.cap, nom:p.nom, punch:p.punch, dit:p.dit
+}));
+const CAP = CONTENU.capitaine;
+
+const COURBE = PALIERS.filter(p=>p.p>0).filter((p,i,t)=> i===0 || p.L>t[i-1].L).map(p=>({p:p.p,L:p.L}));
+
+function longueurPourBudget(b){
+  if(b<=COURBE[0].p) return 0;
+  const last = COURBE[COURBE.length-1];
+  if(b>=last.p) return last.L;
+  for(let i=0;i<COURBE.length-1;i++){
+    const a=COURBE[i], z=COURBE[i+1];
+    if(b>=a.p && b<=z.p){
+      const t=(Math.log(b)-Math.log(a.p))/(Math.log(z.p)-Math.log(a.p));
+      return Math.exp(Math.log(a.L)+t*(Math.log(z.L)-Math.log(a.L)));
+    }
+  }
+  return last.L;
+}
+function palierPourBudget(b){
+  let i=0; PALIERS.forEach((p,k)=>{ if(b>=p.p) i=k; }); return PALIERS[i];
+}
+
+/* ── formatage ─────────────────────────────────────── */
+function eur(n){
+  if(n>=1e9) return (n/1e9).toFixed(2).replace('.',',')+' Md€';
+  if(n>=1e6) return (n/1e6).toFixed(n<1e7?2:1).replace('.',',')+' M€';
+  if(n>=1000) return Math.round(n).toLocaleString('fr-FR')+' €';
+  return n.toFixed(n<10?2:0).replace('.',',')+' €';
+}
+const metres = m => m<=0 ? '0 m' : m<1 ? (m*100).toFixed(0)+' cm'
+                 : m.toFixed(m<10?2:1).replace('.',',')+' m';
+
+/* Mesure fine : descend jusqu'au millimètre.
+   Un café ne fait pas « 0 m » de yacht, il fait 0,4 mm. */
+function mesure(m){
+  if(m<=0) return '0 mm';
+  const mm = m*1000;
+  if(mm<10)  return mm.toFixed(mm<1?2:1).replace('.',',')+' mm';
+  if(mm<1000) return (mm<100 ? mm.toFixed(0) : (m*100).toFixed(1).replace('.',',')+' c') + (mm<100?' mm':'m');
+  return metres(m);
+}
+
+/* ══════════════════════════════════════════════════════
+   BATEAUX — silhouette humaine constante à 1,75 m
+   ══════════════════════════════════════════════════════ */
+const VB_W=1000, VB_H=320, WATER=244, X0=96, HUMAIN=1.75;
+
+function humainSVG(x,pxm){
+  const h=HUMAIN*pxm, y=WATER, t=h*0.13;
+  return `<g opacity=".85">
+    <circle cx="${x}" cy="${y-h+t}" r="${t}" fill="var(--gris)"/>
+    <path d="M ${x} ${y-h+t*2.1} L ${x} ${y-h*0.44} M ${x-h*0.1} ${y-h*0.68} L ${x+h*0.1} ${y-h*0.62}
+             M ${x} ${y-h*0.44} L ${x-h*0.09} ${y} M ${x} ${y-h*0.44} L ${x+h*0.09} ${y}"
+      stroke="var(--gris)" stroke-width="${Math.max(1,h*0.055)}" fill="none" stroke-linecap="round"/></g>`;
+}
+function coque(x0,x1,p){
+  const len=x1-x0, y=WATER;
+  return `M ${x0} ${y-p*0.5} L ${x1} ${y-p*0.95} L ${x1-len*0.03} ${y+p*0.85}
+          Q ${x0+len*0.32} ${y+p*1.2} ${x0+len*0.015} ${y+p*0.55} Z`;
+}
+
+function bateauSVG(cls,L){
+  const cadre=Math.max(L,7), pxm=(VB_W-X0-60)/cadre;
+  const x0=X0, x1=X0+L*pxm, len=Math.max(x1-x0,2);
+  const B='var(--blanc)', O='var(--btc)', N='var(--noir)', G='var(--gris)';
+  let g='';
+
+  if(cls==='rien'){
+    g=`<text x="${VB_W/2}" y="${WATER-40}" text-anchor="middle" fill="var(--gris)"
+        font-family="var(--mono)" font-size="17" letter-spacing="3">RIEN À L'HORIZON</text>`;
+  } else if(cls==='duck'){
+    const r=len*0.42;
+    g=`<ellipse cx="${x0+len*0.5}" cy="${WATER-r*0.15}" rx="${r}" ry="${r*0.55}" fill="${O}"/>
+       <ellipse cx="${x0+len*0.5}" cy="${WATER-r*0.15}" rx="${r*0.45}" ry="${r*0.24}" fill="${N}"/>
+       <circle cx="${x0+len*0.86}" cy="${WATER-r*0.95}" r="${r*0.34}" fill="${O}"/>
+       <circle cx="${x0+len*0.93}" cy="${WATER-r*1.05}" r="${r*0.07}" fill="${N}"/>
+       <path d="M ${x0+len*1.13} ${WATER-r*0.92} l ${r*0.3} ${r*0.1} l ${-r*0.3} ${r*0.14} z" fill="${B}"/>`;
+  } else if(cls==='noodle'){
+    g=`<rect x="${x0}" y="${WATER-len*0.09}" width="${len}" height="${len*0.14}" rx="${len*0.07}" fill="${O}"/>`;
+  } else if(cls==='mattress'){
+    g=`<rect x="${x0}" y="${WATER-len*0.11}" width="${len}" height="${len*0.16}" rx="${len*0.03}" fill="${B}" opacity=".9"/>
+       <rect x="${x0}" y="${WATER-len*0.11}" width="${len}" height="${len*0.05}" fill="${O}"/>
+       <circle cx="${x0+len*0.72}" cy="${WATER-len*0.16}" r="${len*0.022}" fill="${G}" opacity=".8"/>
+       <circle cx="${x0+len*0.78}" cy="${WATER-len*0.24}" r="${len*0.015}" fill="${G}" opacity=".6"/>
+       <circle cx="${x0+len*0.74}" cy="${WATER-len*0.31}" r="${len*0.01}" fill="${G}" opacity=".45"/>`;
+  } else if(cls==='kayak'){
+    g=`<path d="M ${x0} ${WATER-len*0.02} Q ${x0+len*0.5} ${WATER-len*0.2} ${x1} ${WATER-len*0.02}
+                Q ${x0+len*0.5} ${WATER+len*0.13} ${x0} ${WATER-len*0.02} Z" fill="${O}"/>
+       <ellipse cx="${x0+len*0.5}" cy="${WATER-len*0.05}" rx="${len*0.17}" ry="${len*0.045}" fill="${N}"/>`;
+  } else if(cls==='paddle'){
+    g=`<rect x="${x0}" y="${WATER-len*0.045}" width="${len}" height="${len*0.05}" rx="${len*0.025}" fill="${B}"/>
+       ${humainSVG(x0+len*0.45,pxm)}
+       <line x1="${x0+len*0.56}" y1="${WATER-HUMAIN*pxm*1.05}" x2="${x0+len*0.62}" y2="${WATER+6}"
+             stroke="${O}" stroke-width="${Math.max(2,pxm*0.05)}"/>`;
+  } else if(cls==='pedalo'){
+    const p=len*0.28;
+    g=`<path d="${coque(x0,x1,p)}" fill="${B}"/>
+       <rect x="${x0+len*0.18}" y="${WATER-p*2.4}" width="${len*0.5}" height="${p*0.22}" fill="${O}"/>
+       <line x1="${x0+len*0.2}" y1="${WATER-p*2.3}" x2="${x0+len*0.2}" y2="${WATER-p*0.6}" stroke="${B}" stroke-width="3"/>
+       <line x1="${x0+len*0.64}" y1="${WATER-p*2.3}" x2="${x0+len*0.64}" y2="${WATER-p*0.6}" stroke="${B}" stroke-width="3"/>
+       <path d="M ${x0+len*0.1} ${WATER-p*2.2} Q ${x0-len*0.14} ${WATER-p*1.2} ${x0-len*0.16} ${WATER+p*0.4}"
+             stroke="${O}" stroke-width="${Math.max(4,p*0.28)}" fill="none" stroke-linecap="round"/>`;
+  } else if(cls==='barque'){
+    const p=len*0.2;
+    g=`<path d="${coque(x0,x1,p)}" fill="${B}"/>
+       <rect x="${x0+len*0.3}" y="${WATER-p*0.62}" width="${len*0.3}" height="${p*0.16}" fill="${N}"/>
+       <rect x="${x0-len*0.02}" y="${WATER-p*1.5}" width="${len*0.1}" height="${p*1.05}" fill="${N}"/>`;
+  } else if(cls==='jetski'){
+    const p=len*0.24;
+    g=`<path d="M ${x0} ${WATER-p*0.2} L ${x0+len*0.72} ${WATER-p*0.75} L ${x1} ${WATER-p*0.15}
+                L ${x1-len*0.08} ${WATER+p*0.5} L ${x0+len*0.05} ${WATER+p*0.45} Z" fill="${O}"/>
+       <path d="M ${x0+len*0.36} ${WATER-p*0.8} l ${len*0.2} ${-p*0.5} l ${len*0.1} ${p*0.1}"
+             stroke="${B}" stroke-width="${Math.max(2,p*0.12)}" fill="none" stroke-linecap="round"/>`;
+  } else if(cls==='rib'){
+    const p=len*0.18;
+    g=`<path d="${coque(x0,x1,p)}" fill="${N}"/>
+       <rect x="${x0}" y="${WATER-p*0.85}" width="${len}" height="${p*0.5}" rx="${p*0.25}" fill="${B}"/>
+       <rect x="${x0+len*0.4}" y="${WATER-p*1.9}" width="${len*0.16}" height="${p*1.1}" fill="${O}"/>`;
+  } else if(cls==='open'){
+    const p=len*0.17;
+    g=`<path d="${coque(x0,x1,p)}" fill="${B}"/>
+       <path d="M ${x0+len*0.42} ${WATER-p*0.75} l ${len*0.16} ${-p*0.85} l ${len*0.09} ${p*0.2} l ${-len*0.06} ${p*0.7} z" fill="${O}" opacity=".8"/>
+       <rect x="${x0+len*0.1}" y="${WATER-p*0.8}" width="${len*0.24}" height="${p*0.12}" fill="${N}"/>`;
+  } else if(cls==='sail'){
+    const p=len*0.14, mh=len*0.95;
+    g=`<path d="${coque(x0,x1,p)}" fill="${B}"/>
+       <line x1="${x0+len*0.45}" y1="${WATER-p*0.7}" x2="${x0+len*0.45}" y2="${WATER-mh}" stroke="${G}" stroke-width="${Math.max(2,p*0.14)}"/>
+       <path d="M ${x0+len*0.47} ${WATER-mh*0.97} L ${x0+len*0.47} ${WATER-p*1.4} L ${x0+len*0.84} ${WATER-p*1.4} Z" fill="${B}" opacity=".9"/>
+       <path d="M ${x0+len*0.43} ${WATER-mh*0.94} L ${x0+len*0.43} ${WATER-p*1.4} L ${x0+len*0.16} ${WATER-p*1.4} Z" fill="${O}" opacity=".75"/>`;
+  } else if(cls==='vedette'){
+    const p=len*0.15;
+    g=`<path d="${coque(x0,x1,p)}" fill="${B}"/>
+       <path d="M ${x0+len*0.24} ${WATER-p*0.8} L ${x0+len*0.62} ${WATER-p*0.8} L ${x0+len*0.56} ${WATER-p*2.1} L ${x0+len*0.3} ${WATER-p*2.1} Z" fill="${B}" opacity=".85"/>
+       <rect x="${x0+len*0.32}" y="${WATER-p*1.95}" width="${len*0.2}" height="${p*0.5}" fill="${N}" opacity=".8"/>
+       <line x1="${x0+len*0.42}" y1="${WATER-p*2.1}" x2="${x0+len*0.42}" y2="${WATER-p*3.1}" stroke="${G}" stroke-width="2"/>`;
+  } else {
+    const grand = cls==='super';
+    const p = len*(grand?0.085:0.12);
+    const ponts = L<26?2 : L<45?3 : L<80?4 : 5;
+    const hp = p*1.15;
+    if(L>=100){
+      const s=0.42, sx0=x0+len*0.02, sl=len*s, sp=p*0.7;
+      g+=`<g opacity=".22" transform="translate(0,${-p*2.2})">
+            <path d="${coque(sx0,sx0+sl,sp)}" fill="${G}"/>
+            <rect x="${sx0+sl*0.1}" y="${WATER-sp*1.9}" width="${sl*0.42}" height="${sp*1.2}" fill="${G}"/></g>`;
+    }
+    g+=`<path d="${coque(x0,x1,p)}" fill="${B}"/>`;
+    g+=`<path d="M ${x0+len*0.02} ${WATER-p*0.12} L ${x1-len*0.05} ${WATER-p*0.5}"
+          stroke="${O}" stroke-width="${Math.max(1.4,p*0.11)}"/>`;
+    for(let i=0;i<ponts;i++){
+      const xa=x0+len*(0.07+i*0.055), xb=x0+len*(0.70-i*0.075);
+      const ya=WATER-p*0.7-hp*(i+1);
+      if(xb<=xa) break;
+      g+=`<rect x="${xa}" y="${ya}" width="${xb-xa}" height="${hp}" fill="${B}" opacity="${0.92-i*0.08}"/>
+          <rect x="${xa+(xb-xa)*0.06}" y="${ya+hp*0.3}" width="${(xb-xa)*0.82}" height="${hp*0.28}" fill="${N}" opacity=".6"/>`;
+    }
+    const sommet = WATER-p*0.7-hp*ponts;
+    g+=`<line x1="${x0+len*0.2}" y1="${sommet}" x2="${x0+len*0.2}" y2="${sommet-hp*1.5}" stroke="${G}" stroke-width="${Math.max(1.2,p*0.09)}"/>
+        <circle cx="${x0+len*0.2}" cy="${sommet-hp*1.5}" r="${Math.max(2,p*0.22)}" fill="${G}"/>`;
+    if(L>=60){
+      const cx=x0+len*0.83, cy=WATER-p*1.05, r=len*0.052;
+      g+=`<ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${r*0.3}" fill="none" stroke="${O}" stroke-width="${Math.max(1,r*0.14)}"/>
+          <text x="${cx}" y="${cy+r*0.16}" text-anchor="middle" fill="${O}" font-family="var(--mono)"
+                font-size="${Math.max(6,r*0.7)}" font-weight="600">H</text>`;
+    }
+    if(L>=80){
+      const sl=len*0.055, sx=x0+len*0.10, sy=WATER-p*0.95;
+      g+=`<ellipse cx="${sx}" cy="${sy}" rx="${sl}" ry="${sl*0.42}" fill="${O}"/>
+          <circle cx="${sx+sl*0.4}" cy="${sy}" r="${sl*0.2}" fill="${N}"/>`;
+    }
+  }
+
+  const eau=`<line x1="0" y1="${WATER}" x2="${VB_W}" y2="${WATER}" stroke="var(--bordure)" stroke-width="1.5"/>
+    <path d="M 0 ${WATER+16} q 30 -7 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0"
+      stroke="var(--bordure)" stroke-width="1" fill="none"/>
+    <path d="M 0 ${WATER+34} q 40 -8 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0"
+      stroke="var(--bordure)" stroke-width="1" fill="none" opacity=".6"/>`;
+  const quai=`<rect x="0" y="${WATER}" width="${X0-34}" height="${VB_H-WATER}" fill="var(--carte)"/>
+    <line x1="0" y1="${WATER}" x2="${X0-34}" y2="${WATER}" stroke="var(--gris)" stroke-width="2"/>`;
+  const humain = cls==='paddle' ? '' : humainSVG(X0-62,pxm);
+  const echelle=`<text x="${VB_W-14}" y="${VB_H-12}" text-anchor="end" fill="var(--gris)"
+    font-family="var(--mono)" font-size="11" letter-spacing="1.5">SILHOUETTE = 1,75 M</text>`;
+
+  return `<svg viewBox="0 0 ${VB_W} ${VB_H}" xmlns="http://www.w3.org/2000/svg" role="img"
+    aria-label="Silhouette du bateau à l'échelle">${quai}${humain}<g class="bob">${g}</g>${eau}${echelle}</svg>`;
+}
+
+/* ══════════════════════════════════════════════════════
+   CARTE DE PARTAGE
+   ══════════════════════════════════════════════════════ */
+const COULEURS={'--noir':'#0A0A0B','--carte':'#141416','--pont':'#1A1A1D','--bordure':'#26262B',
+  '--gris':'#8A8A93','--blanc':'#FAF8F5','--btc':'#F7931A','--mer':'#0D1114'};
+function svgAutonome(svg){
+  let s = svg.replace(/class="bob"/g,'');
+  s = s.replace(/<text[\s\S]*?<\/text>/g, m => m.includes('SILHOUETTE') ? '' : m);
+  for(const [k,v] of Object.entries(COULEURS)) s = s.split('var('+k+')').join(v);
+  return s.split('var(--mono)').join('monospace');
+}
+const cacheImg=new Map();
+function imageBateau(svg){
+  const src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgAutonome(svg));
+  if(cacheImg.has(src)) return Promise.resolve(cacheImg.get(src));
+  return new Promise(r=>{ const i=new Image();
+    i.onload=()=>{cacheImg.set(src,i); r(i);}; i.onerror=()=>r(null); i.src=src; });
+}
+function lignesTexte(ctx,txt,maxW){
+  const mots=txt.split(' '), out=[]; let l='';
+  for(const m of mots){ const t=l?l+' '+m:m;
+    if(ctx.measureText(t).width>maxW && l){ out.push(l); l=m; } else l=t; }
+  if(l) out.push(l); return out;
+}
+let legendeIdx=0;
+async function dessinerCarte(pal,L,annee,svg){
+  const cv=$('carte'); if(!cv) return;
+  const c=cv.getContext('2d'), W=1080, M=76;
+  c.fillStyle=COULEURS['--noir']; c.fillRect(0,0,W,W);
+
+  c.beginPath(); c.arc(M+22,106,22,0,Math.PI*2); c.fillStyle=COULEURS['--btc']; c.fill();
+  c.fillStyle=COULEURS['--noir']; c.font='700 26px "JetBrains Mono", monospace';
+  c.textAlign='center'; c.fillText('₿',M+22,116); c.textAlign='left';
+  c.fillStyle=COULEURS['--blanc']; c.font='34px "Archivo Black", Impact, sans-serif';
+  c.fillText('LE YACHTOMÈTRE',M+58,117);
+  c.fillStyle=COULEURS['--gris']; c.font='600 26px "JetBrains Mono", monospace';
+  c.textAlign='right'; c.fillText(String(annee),W-M,116); c.textAlign='left';
+
+  const im=await imageBateau(svg);
+  if(im) c.drawImage(im,40,250,1000,320);
+
+  c.strokeStyle=COULEURS['--bordure']; c.lineWidth=2;
+  c.beginPath(); c.moveTo(M,640); c.lineTo(W-M,640); c.stroke();
+
+  c.fillStyle=COULEURS['--btc']; c.font='800 100px "JetBrains Mono", monospace';
+  c.fillText(pal.L>0?metres(L):'—',M,748);
+
+  c.fillStyle=COULEURS['--blanc'];
+  let t=58; c.font=t+'px "Archivo Black", Impact, sans-serif';
+  while(c.measureText(pal.nom.toUpperCase()).width>W-2*M && t>28){ t-=2; c.font=t+'px "Archivo Black", Impact, sans-serif'; }
+  c.fillText(pal.nom.toUpperCase(),M,824);
+
+  c.fillStyle=COULEURS['--gris']; c.font='30px Inter, system-ui, sans-serif';
+  lignesTexte(c,pick(pal.punch,PALIERS.indexOf(pal)),W-2*M).slice(0,4)
+    .forEach((l,i)=>c.fillText(l,M,890+i*42));
+
+  c.fillStyle=COULEURS['--bordure']; c.font='22px "JetBrains Mono", monospace';
+  c.fillText('SILHOUETTE HUMAINE = 1,75 M',M,W-58);
+  c.textAlign='right'; c.fillText('LE YACHTOMÈTRE',W-M,W-58); c.textAlign='left';
+}
+
+/* ══════════════════════════════════════════════════════
+   MÉMOIRE — le bateau vivant
+   ══════════════════════════════════════════════════════ */
+const MEM='yachtometre-v2';
+const memLire = () => { try{ return JSON.parse(localStorage.getItem(MEM))||{}; }catch(_){ return {}; } };
+const memEcrire = o => { try{ localStorage.setItem(MEM,JSON.stringify(o)); }catch(_){} };
+const jourISO = () => new Date().toISOString().slice(0,10);
+
+function relever(spot){
+  const m=memLire();
+  const btc=Math.max(0,parseFloat($('btc').value)||0);
+  const annee=parseInt($('annee').value,10);
+  const bande=BANDES[parseInt($('bande').value,10)];
+  const L=longueurPourBudget(btc*prixProjete(new Date(annee,11,31),bande.off));
+
+  if(m.mesure && m.mesure.date!==jourISO() && m.mesure.prix>0 && btc>0){
+    const v=(spot-m.mesure.prix)/m.mesure.prix, d=L-m.mesure.longueur;
+    const cle=seau(CONTENU.notifications,v);
+    $('bulletinTexte').textContent=remplir(pick(CONTENU.notifications[cle].lignes,Math.round(Math.abs(d)*10)),{
+      pct:(v>0?'+':'')+(v*100).toFixed(1).replace('.',',')+' %',
+      delta:mesure(Math.abs(d)), longueur:metres(L)});
+    const j=Math.max(1,Math.round((new Date(jourISO())-new Date(m.mesure.date))/86400000));
+    $('bulletinSous').textContent=`Depuis ${j} jour${j>1?'s':''} · ${metres(m.mesure.longueur)} → ${metres(L)}`;
+    $('bulletin').style.borderLeftColor = d>=0 ? 'var(--vert)' : 'var(--rouge)';
+    $('bulletin').style.display='block';
+  }
+  memEcrire({...m, mesure:{date:jourISO(), longueur:L, prix:spot}});
+}
+
+/* ══════════════════════════════════════════════════════
+   INTERFACE
+   ══════════════════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+const AN_MIN=new Date().getFullYear(), AN_MAX=AN_MIN+16;
+
+for(let a=AN_MIN;a<=AN_MAX;a++){
+  const o=document.createElement('option'); o.value=a; o.textContent=a;
+  if(a===AN_MIN+6) o.selected=true; $('annee').appendChild(o);
+}
+BANDES.forEach((b,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=b.nom;
+  if(i===2) o.selected=true; $('bande').appendChild(o); });
+
+const R_MIN=Math.log(0.5), R_MAX=Math.log(180);
+const posRegle = L => L<=0?0:Math.min(100,Math.max(0,(Math.log(Math.max(L,0.5))-R_MIN)/(R_MAX-R_MIN)*100));
+[1,2,5,10,20,40,60,100,140,180].forEach(v=>{
+  const d=document.createElement('div');
+  d.className='tick'+([1,10,60,180].includes(v)?' major':'');
+  d.style.left=posRegle(v)+'%'; d.innerHTML=`<i></i><span>${v}</span>`;
+  $('track').appendChild(d);
+});
+
+CONTENU.raccourcis_depense.forEach(([nom,p])=>{
+  const b=document.createElement('button');
+  b.className='chip'; b.type='button'; b.textContent=nom;
+  b.onclick=()=>{ $('depense').value=p; $('depenseNom').value=nom; rendre(); };
+  $('chips').appendChild(b);
+});
+
+function rendre(){
+  const btc=Math.max(0,parseFloat($('btc').value)||0);
+  const annee=parseInt($('annee').value,10);
+  const bande=BANDES[parseInt($('bande').value,10)];
+  const spot=Math.max(1,parseFloat($('prix').value)||1);
+
+  recalibrer(spot);
+  const prixFutur=prixProjete(new Date(annee,11,31),bande.off);
+  const budgetAuj=btc*spot, budgetFut=btc*prixFutur;
+  const LAuj=longueurPourBudget(budgetAuj), LFut=longueurPourBudget(budgetFut);
+  const pFut=palierPourBudget(budgetFut), iP=PALIERS.indexOf(pFut);
+
+  const svgCourant=bateauSVG(pFut.cls,pFut.L||LFut);
+  $('scene').innerHTML=svgCourant;
+  $('marker').style.left=posRegle(LFut)+'%';
+  $('marker').querySelector('b').textContent=metres(LFut);
+  $('ghost').style.left=posRegle(LAuj)+'%';
+  $('ghost').querySelector('b').textContent=metres(LAuj);
+  $('legAnnee').textContent='en '+annee;
+
+  $('tierLen').textContent=pFut.L>0?metres(LFut):'—';
+  $('tierName').textContent=pFut.nom;
+  $('punch').textContent=pick(pFut.punch,iP);
+  $('capRole').textContent=CAP[pFut.cap].role;
+  $('capLine').textContent='« '+pick(pFut.dit.concat(CAP[pFut.cap].repliques),iP+1)+' »';
+
+  const prixBateau=pFut.p;
+  $('sBudget').textContent=eur(budgetFut);
+  $('sPrix').textContent=prixBateau?eur(prixBateau):'—';
+  $('sEntretien').innerHTML=(prixBateau?eur(prixBateau*0.10):'—')+'<small>≈ 10 % du prix</small>';
+  $('sBtc').innerHTML=eur(prixFutur)+`<small>« ${bande.nom} »</small>`;
+
+  const charge=prixBateau?(prixBateau*0.10)/Math.max(budgetFut,1):0;
+  const etat=charge<=0.04?'confortable':charge<=0.08?'juste':'intenable';
+  const tenable=palierPourBudget(budgetFut*0.40), LTen=longueurPourBudget(budgetFut*0.40);
+  $('dreamName').textContent=pFut.nom;
+  $('dreamLen').textContent=pFut.L>0?metres(LFut):'—';
+  $('dreamNote').textContent=prixBateau
+    ? `Entretien : ${eur(prixBateau*0.10)} par an, soit ${(charge*100).toFixed(1).replace('.',',')} % de ton stack chaque année. `
+      + remplir(pick(CONTENU.entretien[etat].lignes,3),{ans:charge>0?Math.max(1,Math.round(1/charge)):0,montant:eur(prixBateau*0.10)})
+    : `Rien à entretenir. C'est le seul avantage.`;
+  $('realName').textContent=tenable.nom;
+  $('realLen').textContent=tenable.L>0?metres(LTen):'—';
+  $('realNote').textContent=tenable.p
+    ? pick(CONTENU.entretien.confortable.lignes,7)
+    : `À ce niveau tu ne peux entretenir aucun bateau sans entamer ton stack. Le canard en plastique reste une option honorable.`;
+
+  /* mètre de yacht — au millimètre près */
+  const dep=Math.max(0,parseFloat($('depense').value)||0);
+  const nom=$('depenseNom').value.trim()||'cet achat';
+  const btcDep=dep/spot, valFut=btcDep*prixFutur;
+  const perte=Math.max(LFut-longueurPourBudget(Math.max(budgetFut-valFut,0)),0);
+  const mmParEuro=budgetFut>0?(LFut/budgetFut)*1000:0;
+
+  if(dep<=0){
+    $('convBig').textContent='—';
+    $('convNote').textContent=pick(CONTENU.systeme.vide,1);
+  } else {
+    $('convBig').innerHTML=`${nom.charAt(0).toUpperCase()+nom.slice(1)}, c'est <em>${mesure(perte)}</em> de yacht en ${annee}.`;
+    $('convNote').textContent=
+      `${eur(dep)} aujourd'hui, c'est ${btcDep.toFixed(6).replace('.',',')} BTC, soit ${eur(valFut)} en ${annee}. `
+      + remplir(pick(CONTENU.opportunite[seau(CONTENU.opportunite,perte)].lignes,Math.round(perte*100)),
+                {delta:mesure(perte),objet:nom})
+      + (mmParEuro>0?` — Taux du jour : 1 € = ${mmParEuro.toFixed(mmParEuro<1?3:2).replace('.',',')} mm de yacht.`:'');
+  }
+
+  /* et si demain */
+  $('tomorrow').innerHTML=[-0.14,-0.06,-0.02,0.00,0.03,0.07,0.16].map((v,i)=>{
+    const L2=longueurPourBudget(btc*prixFutur*(1+v)), d=L2-LFut;
+    const txt=remplir(pick(CONTENU.notifications[seau(CONTENU.notifications,v)].lignes,i),{
+      pct:(v>0?'+':'')+(v*100).toFixed(0)+' %', delta:mesure(Math.abs(d)), longueur:metres(L2)});
+    return `<div><div class="pct">BTC ${v>0?'+':''}${(v*100).toFixed(0)} %</div>
+      <div class="delta ${d>=0?'up':'down'}">${d>=0?'+':'−'}${mesure(Math.abs(d))}</div>
+      <div class="msg">${txt}</div></div>`;
+  }).join('');
+
+  dessinerCarte(pFut,LFut,annee,svgCourant);
+  $('capText').textContent=remplir(CONTENU.partage[legendeIdx%CONTENU.partage.length],
+    {longueur:metres(LFut),annee:annee,nom:pFut.nom});
+
+  memEcrire({...memLire(), btc:$('btc').value, annee:$('annee').value, bande:$('bande').value,
+             depense:$('depense').value, depenseNom:$('depenseNom').value});
+
+  $('hintAnnee').textContent=`dans ${annee-AN_MIN} an${annee-AN_MIN>1?'s':''}`;
+  $('hintBande').textContent=`× ${(prixFutur/spot).toFixed(1).replace('.',',')} d'ici ${annee}`;
+}
+
+/* ── cours du BTC : trois sources, la première qui répond ── */
+const SOURCES=[
+  { nom:'CoinGecko',
+    url:'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur&include_24hr_change=true',
+    lire:j=>({prix:j?.bitcoin?.eur, var24:j?.bitcoin?.eur_24h_change}) },
+  { nom:'Coinbase',
+    url:'https://api.coinbase.com/v2/prices/BTC-EUR/spot',
+    lire:j=>({prix:parseFloat(j?.data?.amount), var24:null}) },
+  { nom:'Binance',
+    url:'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCEUR',
+    lire:j=>({prix:parseFloat(j?.lastPrice), var24:parseFloat(j?.priceChangePercent)}) }
+];
+
+async function chargerCours(){
+  $('tickVar').className='var off'; $('tickVar').textContent='chargement';
+  for(const s of SOURCES){
+    try{
+      const r=await fetch(s.url,{cache:'no-store'});
+      if(!r.ok) continue;
+      const {prix,var24}=s.lire(await r.json());
+      if(!prix || !isFinite(prix)) continue;
+      $('prix').value=Math.round(prix);
+      $('tickPx').textContent=eur(prix);
+      if(var24!=null && isFinite(var24)){
+        $('tickVar').className='var '+(var24>=0?'up':'down');
+        $('tickVar').textContent=(var24>=0?'▲ +':'▼ ')+var24.toFixed(2).replace('.',',')+' % · 24 h';
+      } else {
+        $('tickVar').className='var off';
+        $('tickVar').textContent='via '+s.nom;
+      }
+      $('hintPrix').textContent='cours live · '+s.nom;
+      $('hintPrix').classList.add('live');
+      rendre(); relever(prix);
+      return;
+    }catch(_){ /* source suivante */ }
+  }
+  $('tickPx').textContent=eur(parseFloat($('prix').value)||68000);
+  $('tickVar').className='var off';
+  $('tickVar').textContent='cours manuel';
+  $('hintPrix').textContent=CONTENU.systeme.erreurs.cours_indisponible;
+  rendre(); relever(Math.max(1,parseFloat($('prix').value)||68000));
+}
+
+['btc','annee','bande','prix','depense','depenseNom'].forEach(id=>{
+  $(id).addEventListener('input',rendre);
+  $(id).addEventListener('change',rendre);
+});
+$('refresh').onclick=chargerCours;
+$('dlCard').onclick=()=>{ const a=document.createElement('a');
+  a.download='yachtometre.png'; a.href=$('carte').toDataURL('image/png'); a.click(); };
+$('cpCap').onclick=async e=>{
+  try{ await navigator.clipboard.writeText($('capText').textContent);
+       e.target.textContent='Copié'; setTimeout(()=>e.target.textContent='Copier la légende',1500); }
+  catch(_){ e.target.textContent='Copie refusée'; }
+};
+$('rerollCap').onclick=()=>{ legendeIdx++; rendre(); };
+
+(function restaurer(){
+  const m=memLire();
+  if(m.btc!==undefined)        $('btc').value=m.btc;
+  if(m.annee!==undefined)      $('annee').value=m.annee;
+  if(m.bande!==undefined)      $('bande').value=m.bande;
+  if(m.depense!==undefined)    $('depense').value=m.depense;
+  if(m.depenseNom!==undefined) $('depenseNom').value=m.depenseNom;
+})();
+
+/* ══════════════════════════════════════════════════════
+   INSTALLATION — poser le jeu sur l'écran d'accueil
+   ══════════════════════════════════════════════════════ */
+(function installation(){
+  const posee = matchMedia('(display-mode: standalone)').matches || navigator.standalone===true;
+  if(posee || location.protocol==='file:' || memLire().installMasque) return;
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent)
+           || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  $('installTexte').textContent  = CONTENU.systeme.installation[ios?'ios':'autre'];
+  $('installFermer').textContent = CONTENU.systeme.installation.fermer;
+  $('installFermer').onclick = () => {
+    $('install').hidden = true;
+    memEcrire({...memLire(), installMasque:1});
+  };
+  $('install').hidden = false;
+})();
+
+/* Le service worker garde le jeu disponible hors ligne une fois hébergé.
+   Sans lui — fichier ouvert d'un double-clic — tout fonctionne pareil. */
+if('serviceWorker' in navigator && isSecureContext && location.protocol.startsWith('http')){
+  addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(rendre);
+rendre();
+chargerCours();
+</script>
+</body>
+</html>

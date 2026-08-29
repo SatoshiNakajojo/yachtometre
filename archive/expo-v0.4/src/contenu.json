@@ -1,0 +1,610 @@
+{
+  "_meta": {
+    "projet": "Le Yachtomètre",
+    "version": "0.2",
+    "note": "Source de vérité pour tous les textes du jeu. Réutilisable tel quel en React Native. Ne jamais écrire de texte en dur dans le code.",
+    "jetons": {
+      "{pct}": "variation du BTC, ex : 6 %",
+      "{delta}": "variation de longueur, ex : 3,20 m",
+      "{longueur}": "longueur actuelle du bateau",
+      "{annee}": "année de projection",
+      "{objet}": "ce que l'utilisateur vient d'acheter",
+      "{montant}": "somme en euros",
+      "{ans}": "nombre d'années"
+    }
+  },
+
+  "paliers": [
+    {
+      "id": "rien", "prix": 0, "longueur": 0, "classe": "rien", "cap": 0,
+      "nom": "Rien du tout",
+      "punch": [
+        "Tu peux te permettre de regarder des photos de bateaux. C'est gratuit, et ça ne coule pas.",
+        "Aucun bateau, aucun entretien, aucun souci. Il y a des gens qui paient très cher pour en arriver là."
+      ],
+      "dit": [
+        "Il n'y a pas d'équipage. Il n'y a pas de bateau. Il y a toi, et une photo.",
+        "Je suis payé pour ne rien faire. C'est le seul poste rentable de la flotte."
+      ]
+    },
+    {
+      "id": "canard", "prix": 5, "longueur": 1.1, "classe": "duck", "cap": 1,
+      "nom": "Bouée canard",
+      "punch": [
+        "Elle a un visage. Ça fait déjà un membre d'équipage de plus que prévu.",
+        "Un mètre dix de polymère jaune. Le premier chiffre de ta carrière navale."
+      ],
+      "dit": [
+        "Ouais bon. On y va ou pas.",
+        "Faut souffler dedans. C'est pas moi qui souffle."
+      ]
+    },
+    {
+      "id": "frite", "prix": 12, "longueur": 1.6, "classe": "noodle", "cap": 1,
+      "nom": "Frite de piscine",
+      "punch": [
+        "Techniquement plus longue que la bouée canard, et deux fois moins chère. Le marché est irrationnel.",
+        "Une seule pièce, aucune soudure, aucune panne possible. Le bateau le plus fiable de toute cette liste."
+      ],
+      "dit": [
+        "Tu tiens ça sous les bras et tu bats des jambes. C'est le concept.",
+        "Elle est en mousse. Elle sera encore là dans quatre cents ans."
+      ]
+    },
+    {
+      "id": "matelas", "prix": 25, "longueur": 1.9, "classe": "mattress", "cap": 1,
+      "nom": "Matelas gonflable Décathlon",
+      "punch": [
+        "Il a une fuite. Le vendeur le savait. Toi aussi, maintenant.",
+        "Un mètre quatre-vingt-dix de PVC bleu, dont environ un mètre soixante-dix encore gonflé."
+      ],
+      "dit": [
+        "Je regonfle toutes les vingt minutes. C'est pas dans ma fiche de poste.",
+        "Le vent vient de terre. Je préfère te le dire tout de suite."
+      ]
+    },
+    {
+      "id": "kayak", "prix": 90, "longueur": 2.0, "classe": "kayak", "cap": 1,
+      "nom": "Kayak gonflable",
+      "punch": [
+        "Deux mètres. Le premier vrai bateau de la liste. Ne le dis à personne.",
+        "Il a une coque, une proue et une poupe. Sur le papier, c'est un navire."
+      ],
+      "dit": [
+        "Y'a une pagaie. Une seule. Elle est en plastique.",
+        "Faut pas s'asseoir sur le côté. Enfin, tu verras."
+      ]
+    },
+    {
+      "id": "paddle", "prix": 400, "longueur": 3.2, "classe": "paddle", "cap": 1,
+      "nom": "Paddle",
+      "punch": [
+        "Debout, les bras qui brûlent, à quatre cents mètres du bord. C'est ça, la liberté financière.",
+        "Le seul bateau de la liste où tu es en même temps la coque, le moteur et le gouvernail."
+      ],
+      "dit": [
+        "Faut se mettre debout. Non, plus au milieu. Voilà. Non.",
+        "Le courant te ramène jamais. Jamais dans le bon sens, je veux dire."
+      ]
+    },
+    {
+      "id": "pedalo", "prix": 1200, "longueur": 3.0, "classe": "pedalo", "cap": 1,
+      "nom": "Pédalo avec toboggan",
+      "punch": [
+        "Il y a un toboggan. Personne ne pourra jamais t'enlever ça.",
+        "Trois mètres, deux places, un toboggan. Le rapport joie-sur-mètre le plus élevé de toute la gamme."
+      ],
+      "dit": [
+        "Le toboggan finit dans l'eau. C'est un peu le principe.",
+        "On pédale à deux. Enfin, en théorie on pédale à deux."
+      ]
+    },
+    {
+      "id": "barque", "prix": 2500, "longueur": 4.5, "classe": "barque", "cap": 1,
+      "nom": "Barque de pêche",
+      "punch": [
+        "Un moteur de six chevaux, une glacière, et beaucoup de temps pour réfléchir.",
+        "Quatre mètres cinquante de silence. C'est plus rare que ça en a l'air."
+      ],
+      "dit": [
+        "On part à cinq heures. Non, cinq heures du matin.",
+        "Y'a du poisson. Pas aujourd'hui, mais y'a du poisson."
+      ]
+    },
+    {
+      "id": "jetski", "prix": 5000, "longueur": 3.3, "classe": "jetski", "cap": 1,
+      "nom": "Jet-ski « vendu en l'état »",
+      "punch": [
+        "« Vendu en l'état » signifie qu'il démarre une fois sur trois, et jamais devant témoin.",
+        "Plus cher que la barque, plus court que la barque, et il tombe en panne. Tu as choisi le style."
+      ],
+      "dit": [
+        "Faut le lancer en pente. J'ai pas dit que c'était normal.",
+        "Le compteur marche pas mais crois-moi, on va vite."
+      ]
+    },
+    {
+      "id": "rib", "prix": 12000, "longueur": 5.5, "classe": "rib", "cap": 2,
+      "nom": "Semi-rigide",
+      "punch": [
+        "Rapide, bruyant, mouillé. Tes invités rentreront en taxi.",
+        "Cinq mètres cinquante de boudins gonflables et de mauvaise foi. On adore."
+      ],
+      "dit": [
+        "Je vous conseille de tenir la poignée. Sincèrement.",
+        "Vous serez trempés. Tout le monde est toujours trempé."
+      ]
+    },
+    {
+      "id": "open7", "prix": 30000, "longueur": 7.0, "classe": "open", "cap": 2,
+      "nom": "Bateau open 7 m",
+      "punch": [
+        "Assez grand pour un apéro, trop petit pour la nuit. Le format est assumé.",
+        "Sept mètres. La taille exacte à partir de laquelle les gens demandent à monter."
+      ],
+      "dit": [
+        "Il n'y a pas de toilettes à bord. Organisez-vous.",
+        "Six personnes maximum. Ce n'est pas une suggestion du constructeur."
+      ]
+    },
+    {
+      "id": "voilier", "prix": 70000, "longueur": 9.5, "classe": "sail", "cap": 2,
+      "nom": "Voilier de croisière",
+      "punch": [
+        "Gratuit à faire avancer, ruineux à posséder. Le grand classique.",
+        "Neuf mètres cinquante, zéro litre de gasoil, et une facture d'hivernage qui te fera pleurer."
+      ],
+      "dit": [
+        "Le vent est gratuit. Le reste, non.",
+        "Nous arriverons quand nous arriverons. C'est le contrat."
+      ]
+    },
+    {
+      "id": "vedette", "prix": 250000, "longueur": 12, "classe": "vedette", "cap": 2,
+      "nom": "Vedette 12 m",
+      "punch": [
+        "Tu as une couchette, un frigo, et une place de port qui coûte plus cher qu'un studio.",
+        "Douze mètres. Tu peux dormir dessus. Tu vas dormir dessus. Tu vas surtout parler du fait que tu dors dessus."
+      ],
+      "dit": [
+        "La place au port est réservée à l'année. Oui, même en février.",
+        "Le frigo consomme sur les batteries. Choisissez : la glace ou la lumière."
+      ]
+    },
+    {
+      "id": "y15", "prix": 500000, "longueur": 15.5, "classe": "yacht", "cap": 2,
+      "nom": "Yacht 15 m",
+      "punch": [
+        "On commence à dire « à bord » au lieu de « dedans ». C'est un cap.",
+        "Quinze mètres. Le moment exact où des gens que tu n'as pas vus depuis dix ans reprennent contact."
+      ],
+      "dit": [
+        "On dit bâbord et tribord. Je vous laisse deux jours.",
+        "Vos chaussures restent sur le ponton. Toutes vos chaussures."
+      ]
+    },
+    {
+      "id": "y20", "prix": 1100000, "longueur": 20, "classe": "yacht", "cap": 2,
+      "nom": "Yacht 20 m",
+      "punch": [
+        "Tu franchis la ligne à partir de laquelle il faut quelqu'un pour t'aider à te garer.",
+        "Vingt mètres, et une manœuvre de port que tout le quai vient regarder en silence."
+      ],
+      "dit": [
+        "Ne touchez pas aux manettes pendant la manœuvre. Merci.",
+        "Nous avons un propulseur d'étrave. Il ne fait pas de miracles."
+      ]
+    },
+    {
+      "id": "y26", "prix": 2500000, "longueur": 26, "classe": "yacht", "cap": 3,
+      "nom": "Yacht 26 m",
+      "punch": [
+        "Équipage de deux. Ils te vouvoient. Tu ne sais absolument pas quoi en faire.",
+        "Vingt-six mètres et deux salaires. Le bateau était la partie simple."
+      ],
+      "dit": [
+        "Monsieur souhaite-t-il appareiller, ou monsieur préfère-t-il rester au ponton ?",
+        "L'équipage prend ses repas à onze heures. Je le précise pour éviter les croisements."
+      ]
+    },
+    {
+      "id": "y32", "prix": 6000000, "longueur": 32, "classe": "yacht", "cap": 3,
+      "nom": "Yacht 32 m",
+      "punch": [
+        "Le flybridge. La vraie raison pour laquelle tu as tenu jusqu'ici.",
+        "Trente-deux mètres. Il y a un endroit du bateau où tu n'es encore jamais allé."
+      ],
+      "dit": [
+        "Le flybridge est prêt. Il l'était déjà hier.",
+        "Nous avons fait le plein. Je préfère ne pas donner le montant à voix haute."
+      ]
+    },
+    {
+      "id": "s41", "prix": 12000000, "longueur": 41, "classe": "super", "cap": 3,
+      "nom": "Superyacht 41 m",
+      "punch": [
+        "Un bateau assez grand pour que tu y perdes ton téléphone pendant deux jours.",
+        "Quarante et un mètres. L'ascenseur n'est pas encore là, mais l'idée commence à se poser."
+      ],
+      "dit": [
+        "Nous l'avons retrouvé. Dans le sauna.",
+        "Monsieur était attendu au pont supérieur. Depuis une heure et demie."
+      ]
+    },
+    {
+      "id": "s52", "prix": 24000000, "longueur": 52, "classe": "super", "cap": 3,
+      "nom": "Superyacht 52 m",
+      "punch": [
+        "Carré d'équipage, buanderie, et un budget gasoil qui se compte en pleins de voiture par heure.",
+        "Cinquante-deux mètres. Il y a une machine à laver à bord, et quelqu'un dont c'est le métier."
+      ],
+      "dit": [
+        "Nous consommons environ quatre cents litres à l'heure. À l'arrêt, nettement moins.",
+        "La buanderie tourne en continu. Ne descendez pas au pont inférieur, il y fait quarante."
+      ]
+    },
+    {
+      "id": "s60", "prix": 35000000, "longueur": 60, "classe": "super", "cap": 3,
+      "nom": "Superyacht 60 m — héliport",
+      "punch": [
+        "Héliport. Tu n'as pas d'hélicoptère. Ce n'est pas la question.",
+        "Soixante mètres et une hélisurface homologuée, vide, propre, prête. Elle attend."
+      ],
+      "dit": [
+        "L'hélisurface est certifiée. Nous attendons l'hélicoptère depuis quatorze mois.",
+        "Nous l'avons repeinte au printemps. Personne ne s'y est posé depuis."
+      ]
+    },
+    {
+      "id": "s72", "prix": 58000000, "longueur": 72, "classe": "super", "cap": 3,
+      "nom": "Superyacht 72 m",
+      "punch": [
+        "Beach club à l'arrière, cinéma au milieu. Tu regardes des séries à huit nœuds.",
+        "Soixante-douze mètres. Le beach club est plus grand que ton premier appartement."
+      ],
+      "dit": [
+        "La séance est à vingt et une heures. Nous serons au large de la Corse.",
+        "Le beach club est ouvert. Il l'est toujours. Personne n'y descend jamais."
+      ]
+    },
+    {
+      "id": "s80", "prix": 78000000, "longueur": 80, "classe": "super", "cap": 3,
+      "nom": "Superyacht 80 m — sous-marin",
+      "punch": [
+        "Sous-marin de poche. Il sert deux fois par an, il coûte plus cher que ta maison, et il est parfait.",
+        "Quatre-vingts mètres, et un engin dans le garage arrière dont personne ne connaît la procédure de démarrage."
+      ],
+      "dit": [
+        "Le submersible descend à trois cents mètres. Nous n'y sommes jamais allés.",
+        "Le pilote du sous-marin est à bord toute l'année. Il lit beaucoup."
+      ]
+    },
+    {
+      "id": "s100", "prix": 150000000, "longueur": 100, "classe": "super", "cap": 4,
+      "nom": "Superyacht 100 m — shadow boat",
+      "punch": [
+        "À cette taille, tu achètes un deuxième bateau pour transporter le premier. Ça s'appelle un shadow boat et ça existe vraiment.",
+        "Cent mètres. Et un navire de soutien qui suit à six milles, chargé de tout ce qui ne rentre pas."
+      ],
+      "dit": [
+        "Le commandant fait savoir que le navire de soutien arrivera avec deux heures de retard.",
+        "Le commandant fait savoir que vos jet-skis sont sur l'autre bateau. Les deux."
+      ]
+    },
+    {
+      "id": "s120", "prix": 245000000, "longueur": 120, "classe": "super", "cap": 4,
+      "nom": "Superyacht 120 m",
+      "punch": [
+        "Deux hélicoptères. Ils ne se croisent jamais. C'est une règle, et personne ne sait pourquoi.",
+        "Cent vingt mètres. Il existe un organigramme du bateau. Tu n'y figures pas."
+      ],
+      "dit": [
+        "Le commandant fait savoir qu'il ne commente pas la question des hélicoptères.",
+        "Le commandant fait savoir que la seconde hélisurface est réservée aux arrivées."
+      ]
+    },
+    {
+      "id": "s140", "prix": 375000000, "longueur": 140, "classe": "super", "cap": 4,
+      "nom": "Superyacht 140 m",
+      "punch": [
+        "Ton équipage est plus nombreux que ton village natal. Certains y sont nés à bord.",
+        "Cent quarante mètres, soixante-douze personnes, et une hiérarchie interne à laquelle tu n'as jamais été présenté."
+      ],
+      "dit": [
+        "Le commandant fait savoir que l'effectif est de soixante-douze personnes, dont un boulanger.",
+        "Le commandant fait savoir qu'un mariage a eu lieu à bord. Il n'était pas invité non plus."
+      ]
+    },
+    {
+      "id": "s180", "prix": 760000000, "longueur": 180, "classe": "super", "cap": 4,
+      "nom": "Superyacht 180 m",
+      "punch": [
+        "Trop grand pour entrer à Monaco. Tu mouilles au large et tu te fais chier, en regardant le port avec des jumelles.",
+        "Cent quatre-vingts mètres. Le plus grand bateau de la liste, et le seul qui ne peut aller nulle part."
+      ],
+      "dit": [
+        "Le commandant fait savoir que le port a refusé. Le commandant ne souhaite pas en reparler.",
+        "Le commandant fait savoir que nous resterons au large. Comme l'an dernier."
+      ]
+    }
+  ],
+
+  "capitaine": [
+    {
+      "niveau": 0, "role": "Personne",
+      "portrait": "Aucun équipage. Un fauteuil vide et une photo de bateau.",
+      "repliques": [
+        "Il n'y a personne à bord. Il n'y a pas de bord.",
+        "Je suis payé pour ne rien faire. C'est le seul poste rentable de la flotte."
+      ]
+    },
+    {
+      "niveau": 1, "role": "Le mousse",
+      "portrait": "Un ado en tongs qui vapote, casquette à l'envers, ne se lève pas.",
+      "repliques": [
+        "Ouais. Bonjour.",
+        "J'ai pas de brevet mais j'ai un permis bateau. Enfin, mon frère l'a.",
+        "On peut y aller mais faut ramener de l'essence.",
+        "Y'a un gilet. Un seul. Il est à moi.",
+        "Je finis ma vape et j'arrive.",
+        "C'est toi le capitaine en vrai. Moi je regarde.",
+        "Faut pas aller trop loin, j'ai du réseau que près de la plage.",
+        "Ça flotte. Franchement, c'est déjà pas mal.",
+        "Ma mère veut que je rentre à dix-neuf heures.",
+        "Si ça coule tu me préviens."
+      ]
+    },
+    {
+      "niveau": 2, "role": "Le skipper",
+      "portrait": "Chemise blanche repassée, lunettes de soleil, légèrement condescendant.",
+      "repliques": [
+        "Bonjour. Nous appareillons dans vingt minutes.",
+        "Je vous conseille de ne pas laisser vos affaires sur le pont.",
+        "La météo est correcte. Correcte, pas bonne.",
+        "Non, on ne peut pas s'arrêter là. Il y a des rochers.",
+        "Vous pouvez tenir la barre. Je reste à côté.",
+        "La consommation est ce qu'elle est, monsieur.",
+        "Nous rentrerons avant la tombée du jour. Ce n'est pas négociable.",
+        "Vos amis ont beaucoup apprécié. Le pont, un peu moins.",
+        "J'ai réparé ça ce matin. Je le répare tous les matins.",
+        "Une bière au retour, pas avant. Je tiens à mon permis."
+      ]
+    },
+    {
+      "niveau": 3, "role": "Le commandant",
+      "portrait": "Monégasque en blazer, galons dorés, ne te regarde pas dans les yeux.",
+      "repliques": [
+        "Monsieur.",
+        "Le navire est paré. Il l'était à sept heures.",
+        "Je me permets de signaler que le mouillage est occupé par un quatre-vingt-dix mètres.",
+        "Nous avons décliné l'invitation en votre nom.",
+        "L'équipage a été renouvelé. Vous ne l'aviez pas remarqué.",
+        "Le chef propose du loup de ligne. Ce n'est pas tout à fait une proposition.",
+        "Nous éviterons Saint-Tropez cette semaine. Pour des raisons de convenance.",
+        "Monsieur souhaitait descendre à terre ? Je fais préparer l'annexe. La grande.",
+        "Le pavillon a été changé. C'était devenu nécessaire.",
+        "Je préfère que monsieur ne descende pas à la salle des machines."
+      ]
+    },
+    {
+      "niveau": 4, "role": "Son assistant",
+      "portrait": "Un jeune homme en polo brodé, tablette à la main. Le commandant reste invisible.",
+      "repliques": [
+        "Le commandant fait savoir qu'il est en manœuvre.",
+        "Le commandant a pris note de votre message.",
+        "Le commandant ne se déplace plus pour les questions de restauration.",
+        "Le commandant vous fait dire que tout va bien à bord.",
+        "Le commandant demande si votre requête peut attendre lundi.",
+        "Le commandant est actuellement sur l'autre navire.",
+        "Je transmettrai. Je ne peux pas vous garantir de réponse.",
+        "Le commandant fait savoir qu'il ne fait pas savoir.",
+        "Le commandant vous remercie et poursuit sa journée.",
+        "Le commandant n'a pas souhaité que je vous transmette sa réponse."
+      ]
+    }
+  ],
+
+  "notifications": {
+    "krach": {
+      "seuil": [-1.0, -0.10],
+      "lignes": [
+        "Le BTC a pris {pct} cette nuit. Ton bateau a perdu {delta}. Le chantier a rappelé pour reprendre la moitié arrière.",
+        "{pct}. Ton bateau mesure {longueur}. L'équipage a été prévenu par un autre canal.",
+        "Réveil difficile : {delta} en une nuit. Le sauna est parti en premier, comme toujours.",
+        "Le marché a coupé {delta} dans ta coque. Techniquement, tu as toujours un bateau.",
+        "{pct} cette nuit. Ne consulte pas l'application aujourd'hui. Trop tard, tu l'as ouverte.",
+        "Ton bateau a rétréci de {delta}. Ce n'est pas grave, tu ne l'avais pas encore acheté.",
+        "Journée noire. {delta} en moins. Le boulanger de bord a été remercié.",
+        "{delta}. Le commandant demande à être débarqué au prochain port."
+      ]
+    },
+    "baisse": {
+      "seuil": [-0.10, -0.04],
+      "lignes": [
+        "{pct} cette nuit. Ton bateau perd {delta}. Le skipper a démissionné par SMS.",
+        "{delta} de moins. On a retiré le jacuzzi. Il reste le trou.",
+        "Petite nuit pour le marché : {delta}. Deux cabines invitées ont été condamnées.",
+        "Ton bateau fait maintenant {longueur}. Il en faisait plus hier. On ne va pas se mentir.",
+        "{pct}. La piscine a été convertie en local technique.",
+        "{delta} envolés. Le chef reste, mais il fait la tête.",
+        "On a démonté le beach club cette nuit. {delta}. Personne ne l'utilisait de toute façon."
+      ]
+    },
+    "grignotage": {
+      "seuil": [-0.04, -0.01],
+      "lignes": [
+        "Petite érosion cette nuit : {delta}. Un transat en moins sur le pont arrière.",
+        "{pct}. Rien de dramatique. On a juste retiré une bouée de sauvetage.",
+        "{delta}. À ce rythme il faudra deux ans pour perdre la passerelle.",
+        "Ton bateau a maigri de {delta}. Personne à bord ne s'en est aperçu.",
+        "{delta} en moins. On a arrêté d'arroser les plantes du pont."
+      ]
+    },
+    "plat": {
+      "seuil": [-0.01, 0.01],
+      "lignes": [
+        "Rien n'a bougé. Ton bateau fait toujours {longueur}. L'équipage s'ennuie.",
+        "Marché plat. {longueur}. C'est reposant, un marché plat. Profites-en.",
+        "Aucun mouvement. Le capitaine est allé pêcher.",
+        "{longueur}, comme hier, comme avant-hier. Le calme plat existe aussi en mer.",
+        "Zéro variation. Ta coque est exactement là où tu l'as laissée."
+      ]
+    },
+    "hausse": {
+      "seuil": [0.01, 0.04],
+      "lignes": [
+        "{pct}. Tu gagnes {delta}. On a rajouté un transat.",
+        "Ton bateau a grandi de {delta}. C'est peu, mais c'est dans le bon sens.",
+        "{delta} de plus. Le second t'a salué ce matin. C'est nouveau.",
+        "{pct}. Une cabine supplémentaire. Elle n'a pas de fenêtre.",
+        "{delta}. Les plantes du pont sont de nouveau arrosées."
+      ]
+    },
+    "envolee": {
+      "seuil": [0.04, 0.10],
+      "lignes": [
+        "{pct} cette nuit. {delta} de bateau en plus. Le jacuzzi est de retour.",
+        "Ton bateau atteint {longueur}. Le chantier a rappelé, cette fois pour te féliciter.",
+        "{delta} gagnés pendant que tu dormais. C'est le meilleur moment pour dormir.",
+        "{pct}. On a réembauché le boulanger.",
+        "Belle nuit : {delta}. Le skipper a retiré sa démission.",
+        "{delta}. Le beach club rouvre samedi."
+      ]
+    },
+    "moon": {
+      "seuil": [0.10, 10.0],
+      "lignes": [
+        "{pct}. {delta} de bateau en une nuit. Va au port. Regarde les autres. Souris.",
+        "Ton bateau fait {longueur}. Hier il était plus court de {delta}. Ne dis rien à personne, savoure.",
+        "{pct} cette nuit. L'application recommande de ne prendre aucune décision importante aujourd'hui.",
+        "{delta}. Le commandant demande s'il doit préparer l'hélisurface. Tu n'as toujours pas d'hélicoptère.",
+        "{delta} en une nuit. Deux personnes que tu ne connais pas t'ont ajouté sur LinkedIn."
+      ]
+    }
+  },
+
+  "opportunite": {
+    "negligeable": {
+      "seuil_m": [0, 0.01],
+      "lignes": [
+        "Ça ne se voit même pas sur la coque. Vas-y.",
+        "Invisible à l'œil nu, y compris au tien. Fais-toi plaisir.",
+        "À ce niveau c'est de la poussière de yacht. Personne ne compte la poussière.",
+        "Tu peux te l'offrir sans que le bateau change de forme."
+      ]
+    },
+    "visible": {
+      "seuil_m": [0.01, 0.5],
+      "lignes": [
+        "Tu viens de raboter {delta} de bateau. C'est une décision, pas un accident.",
+        "{delta} en moins. Ça se voit, si on cherche bien.",
+        "Un bout de {delta}. Suffisamment pour qu'un jour tu t'en souviennes.",
+        "{objet} te coûte {delta} de coque. Note-le quelque part."
+      ]
+    },
+    "douloureux": {
+      "seuil_m": [0.5, 3],
+      "lignes": [
+        "{delta} de yacht. C'est une cabine. Tu viens d'échanger une cabine contre {objet}.",
+        "Sur un bateau, {delta}, c'est un endroit où dormir. Tu l'as échangé contre {objet}.",
+        "{delta}. J'espère vraiment que ça valait le coup.",
+        "{objet} : {delta}. Le commandant a préféré ne pas commenter."
+      ]
+    },
+    "catastrophique": {
+      "seuil_m": [3, 999],
+      "lignes": [
+        "{delta} de bateau. On ne parle plus d'un achat, on parle d'un arbitrage de vie.",
+        "Tu viens de rayer {delta} de ton bateau pour {objet}. Le capitaine s'est assis.",
+        "{delta}. C'est un pont entier. Regarde bien {objet} et demande-toi.",
+        "{objet} coûte {delta} de yacht. Il existe des gens qui ont un bateau entier de cette taille."
+      ]
+    }
+  },
+
+  "entretien": {
+    "confortable": {
+      "note": "entretien ≤ 4 % du stack",
+      "lignes": [
+        "Celui-là, tu le gardes à vie sans jamais toucher au capital. Il est plus petit. Il est à toi pour toujours.",
+        "L'entretien est couvert par les intérêts. Tu peux dormir à bord sans faire de calculs.",
+        "Un bateau que tu possèdes vraiment, plutôt qu'un bateau qui te possède."
+      ]
+    },
+    "juste": {
+      "note": "entretien entre 4 et 8 % du stack",
+      "lignes": [
+        "Ça passe, mais ça frotte. Une mauvaise année et tu vends l'annexe.",
+        "Tenable tant que rien ne casse. Sur un bateau, quelque chose casse toujours.",
+        "Tu y arrives. Tu y penses tous les mois, mais tu y arrives."
+      ]
+    },
+    "intenable": {
+      "note": "entretien > 8 % du stack",
+      "lignes": [
+        "Tu peux l'acheter. Tu ne peux pas le garder. C'est la différence que personne n'explique jamais.",
+        "Ce bateau te mangera en {ans} ans. Il est magnifique. Il te mangera quand même.",
+        "{montant} par an, chaque année, pour un objet qui passe onze mois sur douze à l'attache."
+      ]
+    },
+    "naufrage": {
+      "note": "état final si l'entretien n'est plus payé (phase 9)",
+      "lignes": [
+        "Faute d'entretien, la coque a été vendue au poids. Il te reste la cloche.",
+        "Le bateau a été saisi par le port pour impayés. Ils ont gardé le canot.",
+        "Il est toujours à quai. Il ne bougera plus. Les mouettes ont pris le pont supérieur."
+      ]
+    }
+  },
+
+  "paper_hands": {
+    "note": "mode phase 9 — l'utilisateur a déclaré une vente",
+    "lignes": [
+      "Tu as vendu. Le bateau que tu aurais eu mesure {longueur}. Il est amarré ici, dans cet écran.",
+      "Depuis ta vente, ton fantôme a gagné {delta}. Il navigue bien. Il ne demande pas de tes nouvelles.",
+      "Ton bateau réel : néant. Ton bateau fantôme : {longueur}. Bonne journée.",
+      "Le fantôme a embauché un boulanger. Tu n'es pas invité."
+    ]
+  },
+
+  "systeme": {
+    "chargement": [
+      "Relevé du cours…",
+      "Mesure de la coque…",
+      "Réveil de l'équipage…",
+      "Consultation du chantier naval…",
+      "Calcul du tirant d'eau…",
+      "Négociation de la place au port…",
+      "Vérification des gilets…"
+    ],
+    "vide": [
+      "Saisis ton stack. On s'occupe du reste.",
+      "Aucun bitcoin déclaré. Aucun bateau à mesurer. On attend."
+    ],
+    "erreurs": {
+      "cours_indisponible": "Cours indisponible. Saisis le prix à la main, comme en 2013.",
+      "hors_ligne": "Pas de réseau. Le bateau est toujours là, on ne peut juste plus le mesurer.",
+      "negatif": "On ne peut pas holder un nombre négatif de bitcoins. Enfin, pas légalement.",
+      "plafond": "Au-delà de cent quatre-vingts mètres ce n'est plus un yacht, c'est un porte-conteneurs. On s'arrête là.",
+      "date_passee": "On ne projette pas dans le passé. Le rainbow chart n'a pas de marche arrière."
+    },
+    "avertissement": "Le rainbow chart est une régression logarithmique sur le passé. C'est une courbe rigolote, pas une prédiction."
+  },
+
+  "partage": [
+    "{longueur} de yacht. Le reste, c'est de la conviction.",
+    "Mon bateau en {annee} : {longueur}. Mesuré au Yachtomètre.",
+    "{longueur}. Silhouette humaine à l'échelle, pour information.",
+    "En {annee} je suis à {longueur}. On en reparle."
+  ],
+
+  "raccourcis_depense": [
+    ["un café", 3],
+    ["un plein", 85],
+    ["une soirée resto", 60],
+    ["un iPhone", 1200],
+    ["un loyer", 900],
+    ["des vacances", 2500],
+    ["une voiture", 22000]
+  ]
+}

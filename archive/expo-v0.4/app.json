@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Le Yachtomètre",
+    "slug": "yachtometre",
+    "version": "0.4.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#08171F",
+    "splash": { "backgroundColor": "#08171F", "resizeMode": "contain" },
+    "ios": { "supportsTablet": true, "bundleIdentifier": "com.yachtometre.app" },
+    "android": {
+      "package": "com.yachtometre.app",
+      "adaptiveIcon": { "backgroundColor": "#08171F" }
+    },
+    "plugins": ["expo-font", "expo-notifications"]
+  }
+}
