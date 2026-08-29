@@ -59,11 +59,20 @@ le jeu le reconnaît — on se moque de la situation, pas de lui.
 Les SVG procéduraux actuels tiennent la route mais plafonnent la qualité perçue.
 Parallélisable : ça n'empêche aucun autre chantier d'avancer.
 
-**Le branchement est fait.** Un SVG déposé dans `illustrations/`, nommé d'après
-l'id du palier, remplace la silhouette de ce palier — dessin par dessin, sans
-code à écrire, et la publication se relance seule. Les portraits de capitaine
-ont eux aussi leur emplacement dans la fiche. Il ne reste que la commande des
-dessins. Contraintes de livraison : `illustrations/LISEZMOI.md`.
+**Le branchement est fait, et les prompts sont écrits.** Un PNG ou un SVG
+déposé dans `illustrations/`, nommé d'après l'id du palier, remplace la
+silhouette de ce palier — dessin par dessin, sans code à écrire, et la
+publication se relance seule. Le jeu calcule l'échelle depuis les dimensions du
+fichier et pose lui-même la silhouette de 1,75 m, ce qui rend l'invariant n° 1
+indépendant de qui dessine.
+
+Deux voies possibles :
+- `illustrations/PROMPTS-GEMINI.md` : 31 prompts prêts à coller, gratuits,
+  utilisables ce soir.
+- `brief-illustrations.md` : la commande à envoyer à un illustrateur humain,
+  400 à 900 € pour ce volume en style plat.
+
+Contraintes de livraison dans `illustrations/LISEZMOI.md`.
 
 ### Phase 8b — Mobile natif — *priorité 3*
 Le seul argument qui reste pour le natif est **la notification du matin**, que ni

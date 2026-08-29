@@ -1,44 +1,56 @@
 # illustrations/
 
-Dépose un fichier SVG ici et il remplace la silhouette correspondante dans le
-jeu. Rien d'autre à faire : le build l'incruste dans le HTML, et la publication
-se déclenche toute seule.
+Dépose un fichier ici et il remplace la silhouette correspondante dans le jeu.
+Rien d'autre à faire : le recadrage, l'incrustation et la publication se font
+tout seuls.
 
 Le dossier peut rester vide. Dans ce cas le jeu utilise ses silhouettes
 procédurales, qui ne sont qu'un gabarit de proportions.
 
+**Les prompts prêts à coller dans Gemini sont dans `PROMPTS-GEMINI.md`.**
+
 ## Le nom du fichier fait tout
 
-`<id>.svg`, où `<id>` est l'identifiant du palier dans `contenu.json` :
+`<id>.png` ou `<id>.svg`, où `<id>` est l'identifiant du palier dans
+`contenu.json` :
 
 ```
 rien     canard   frite    matelas  kayak    paddle   pedalo   barque
 jetski   rib      open7    voilier  vedette  y15      y20      y26
-y32      s41      s52      s60      s72      s80      s100     s120
-s140     s180
+y32      s41      s52      s60      s72      s80      s100     s140
+s120     s180
 ```
 
-Et pour les cinq portraits : `capitaine-0.svg` à `capitaine-4.svg`
+Et pour les cinq portraits : `capitaine-0.png` à `capitaine-4.png`
 (0 personne, 1 le mousse, 2 le skipper, 3 le commandant, 4 son assistant).
 
-Un dessin peut arriver seul : les 25 autres paliers continuent d'utiliser la
-silhouette procédurale en attendant.
+Un dessin peut arriver seul : les autres paliers gardent leur silhouette
+procédurale en attendant.
+
+## La règle qui compte : l'objet seul, coupé à la flottaison
+
+Un dessin de bateau ne contient **que le bateau**, sur fond transparent,
+tranché net à la ligne de flottaison — rien de ce qui est sous l'eau.
+
+C'est le jeu qui dessine la mer, le quai, et surtout **la silhouette humaine
+de 1,75 m**, qu'il met à l'échelle exacte à partir des dimensions de l'image :
+la largeur du dessin vaut la longueur du bateau. Un générateur d'image ne sait
+pas tenir une échelle ; le code, si. C'est pourquoi les dessins ne doivent
+jamais contenir de personnage.
+
+Les portraits de capitaine échappent à cette règle : ils s'affichent dans un
+carré et gardent leur propre fond.
 
 ## Contraintes techniques
 
-Le livrable du jeu est **un fichier HTML unique**. Les dessins sont donc
-recopiés dedans, pas chargés à côté. Il en découle :
+Le livrable du jeu est **un fichier HTML unique**. Les dessins y sont recopiés
+en base64, pas chargés à côté. Il en découle :
 
-- **Un `viewBox`, pas d'attributs `width` ni `height`.** N'importe quelles
-  proportions conviennent, le cadre s'y adapte.
-- **Rien d'extérieur** : pas de `<image href="http…">`, pas de police liée,
-  pas de feuille de style externe. Les textes sont vectorisés.
-- **Pas de `<style>` ni de `<script>`** : couleurs et traits en attributs de
-  présentation, sinon le style déborde sur le reste de la page.
-- **Identifiants préfixés** par le nom du fichier (`voilier-mat`, pas `mat`) :
-  un bateau et un portrait cohabitent dans la même page.
-- **60 Ko par fichier au maximum**, sinon le jeu devient lourd à ouvrir sur un
-  téléphone. Le build prévient au-delà de 2 Mo au total.
-
-Le reste — style, palette, silhouette humaine de 1,75 m, équipements par
-seuil — est dans `brief-illustrations.md`, qui est la commande à envoyer.
+- **PNG avec transparence, ou SVG avec un `viewBox`.** Rien d'autre.
+- **Aucune marge** autour de l'objet — mais `outils/recadrer.py` rogne les
+  marges transparentes automatiquement à chaque publication, donc ce n'est pas
+  à toi d'y veiller.
+- **Rien d'extérieur dans un SVG** : pas d'image liée, pas de police liée,
+  textes vectorisés, pas de `<style>` ni de `<script>`.
+- **300 Ko par fichier au maximum.** Le build prévient au-delà de 2 Mo au
+  total : à ce stade le jeu devient lourd à ouvrir sur un téléphone.

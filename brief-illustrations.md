@@ -60,19 +60,22 @@
 
 ## Livraison — ce qui rend le fichier utilisable tel quel
 
-Un SVG par visuel, nommé d'après l'identifiant du palier (`voilier.svg`,
-`s180.svg`, `capitaine-3.svg`…). La liste exacte des noms est dans
+Un fichier par visuel, nommé d'après l'identifiant du palier (`voilier.png`,
+`s180.png`, `capitaine-3.png`…). La liste exacte des noms est dans
 `illustrations/LISEZMOI.md`. Déposés dans ce dossier, les fichiers entrent dans
 le jeu sans une ligne de code.
 
-Le jeu est un fichier HTML unique, les dessins y sont recopiés. Donc :
+**Chaque bateau est livré seul, sur fond transparent, coupé net à la ligne de
+flottaison** — rien de ce qui est immergé. La mer, le quai et la silhouette
+humaine de 1,75 m sont dessinés par le jeu, qui déduit l'échelle des
+dimensions du fichier. **Ne dessine donc aucun personnage sur les bateaux :**
+c'est ce qui garantit que le rapport de taille reste exact, et le rapport de
+taille est toute la blague.
 
-- un `viewBox`, pas de `width` ni `height` — les proportions sont libres ;
-- aucune ressource externe : pas d'image liée, pas de police liée, textes
-  vectorisés ;
-- pas de `<style>` ni de `<script>`, couleurs en attributs de présentation ;
-- identifiants internes préfixés par le nom du fichier ;
-- 60 Ko par fichier au maximum.
+Format : PNG avec transparence, ou SVG avec un `viewBox` et sans `width` ni
+`height`. Pour un SVG, aucune ressource externe, textes vectorisés, ni
+`<style>` ni `<script>`, identifiants internes préfixés par le nom du fichier.
+300 Ko par fichier au maximum.
 
 Les visuels peuvent arriver un par un : chaque palier non livré garde sa
 silhouette procédurale en attendant.

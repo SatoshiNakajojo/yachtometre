@@ -10,7 +10,7 @@ Aucune dépendance.
 
     python3 build.py
 """
-import hashlib, json, pathlib, re, sys
+import base64, hashlib, json, pathlib, re, struct, sys
 
 ICI      = pathlib.Path(__file__).parent
 TEMPLATE = ICI / 'template.html'
@@ -24,28 +24,57 @@ MARQ_ILL = '/*__ILLUSTRATIONS__*/'
 PLAFOND  = 2_000_000   # au-delà, le fichier devient pénible à ouvrir sur un mobile
 
 
-def illustrations():
-    """Incruste les SVG d'illustrations/, nommés d'après l'id du palier.
+def dimensions_svg(texte, nom):
+    m = re.search(r'viewBox\s*=\s*"([^"]+)"', texte)
+    if not m:
+        sys.exit(f"illustrations/{nom} n'a pas de viewBox, impossible de le mettre à l'échelle")
+    v = [float(x) for x in re.split(r'[\s,]+', m.group(1).strip()) if x]
+    if len(v) != 4 or v[2] <= 0 or v[3] <= 0:
+        sys.exit(f"illustrations/{nom} a un viewBox inexploitable")
+    return v[2], v[3]
 
-    Le nom du fichier fait tout : `voilier.svg` remplace la silhouette du
-    voilier, `capitaine-3.svg` donne son portrait au commandant. Dossier vide
-    ou absent : le jeu retombe sur les silhouettes procédurales, sans erreur.
-    Tout est incrusté dans le HTML, jamais chargé à côté — le livrable doit
-    rester un fichier unique.
+
+def illustrations():
+    """Incruste les dessins d'illustrations/, nommés d'après l'id du palier.
+
+    Le nom du fichier fait tout : `voilier.png` remplace la silhouette du
+    voilier, `capitaine-3.png` donne son portrait au commandant. PNG ou SVG.
+    Dossier vide ou absent : le jeu retombe sur les silhouettes procédurales.
+
+    Chaque dessin est incrusté en base64 dans le HTML, jamais chargé à côté —
+    le livrable doit rester un fichier unique. On relève aussi ses dimensions :
+    c'est ce qui permet au jeu de le poser à l'échelle exacte du bateau, et
+    donc de garder le bonhomme de 1,75 m honnête.
     """
     dessins = {}
     if not DESSINS.is_dir():
         return dessins
-    for f in sorted(DESSINS.glob('*.svg')):
-        svg = f.read_text(encoding='utf-8')
-        svg = re.sub(r'<\?xml.*?\?>', '', svg, flags=re.S)
-        svg = re.sub(r'<!DOCTYPE.*?>', '', svg, flags=re.S)
-        svg = re.sub(r'<!--.*?-->', '', svg, flags=re.S)
-        svg = re.sub(r'>\s+<', '><', svg).strip()
-        if '<svg' not in svg:
-            sys.exit(f"illustrations/{f.name} ne contient pas de balise <svg>")
-        dessins[f.stem] = svg
+    for f in sorted(DESSINS.iterdir()):
+        ext = f.suffix.lower()
+        if ext not in ('.png', '.svg'):
+            continue
+        octets = f.read_bytes()
+        if ext == '.png':
+            if octets[:8] != b'\x89PNG\r\n\x1a\n':
+                sys.exit(f"illustrations/{f.name} porte l'extension .png mais n'en est pas un")
+            w, h = struct.unpack('>II', octets[16:24])
+            mime = 'image/png'
+        else:
+            texte = octets.decode('utf-8')
+            texte = re.sub(r'<\?xml.*?\?>', '', texte, flags=re.S)
+            texte = re.sub(r'<!DOCTYPE.*?>', '', texte, flags=re.S)
+            texte = re.sub(r'<!--.*?-->', '', texte, flags=re.S)
+            texte = re.sub(r'>\s+<', '><', texte).strip()
+            if '<svg' not in texte:
+                sys.exit(f"illustrations/{f.name} ne contient pas de balise <svg>")
+            w, h = dimensions_svg(texte, f.name)
+            octets, mime = texte.encode('utf-8'), 'image/svg+xml'
+        dessins[f.stem] = {
+            'u': f'data:{mime};base64,' + base64.b64encode(octets).decode('ascii'),
+            'w': w, 'h': h,
+        }
     return dessins
+
 
 def main():
     tpl = TEMPLATE.read_text(encoding='utf-8')

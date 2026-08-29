@@ -88,12 +88,30 @@ téléphone qui a déjà posé l'application garderait l'ancienne version dans s
 cache. Aucune dépendance, aucun `node_modules`, rien à installer.
 
 `illustrations/` est la prise où brancher les dessins de la phase 3. Un fichier
-nommé d'après l'id du palier (`voilier.svg`, `s180.svg`, `capitaine-3.svg`) est
-**incrusté** dans le HTML au build et remplace la silhouette procédurale de ce
-palier ; les autres gardent la leur. Incrusté, pas chargé à côté : c'est ce qui
-préserve l'invariant du fichier unique. Le dossier peut rester vide sans rien
-casser. Les contraintes à imposer à l'illustrateur sont dans
-`illustrations/LISEZMOI.md`, reprises à la fin de `brief-illustrations.md`.
+PNG ou SVG nommé d'après l'id du palier (`voilier.png`, `s180.png`,
+`capitaine-3.png`) est **incrusté en base64** dans le HTML au build et remplace
+la silhouette procédurale de ce palier ; les autres gardent la leur. Incrusté,
+pas chargé à côté : c'est ce qui préserve l'invariant du fichier unique. Le
+dossier peut rester vide sans rien casser.
+
+**La convention, et la raison derrière.** Un dessin de bateau ne contient que
+le bateau, sur fond transparent, coupé net à la flottaison. Le jeu en déduit
+l'échelle — la largeur de l'image vaut la longueur du bateau — puis dessine
+lui-même la mer, le quai et la silhouette de 1,75 m. Autrement dit
+**l'invariant n° 1 n'est plus confié à l'illustrateur, il est calculé.** Un
+générateur d'image ne sait pas tenir une échelle ; un humain dessiné dans le
+fichier la casserait. `outils/recadrer.py`, appelé à chaque publication, rogne
+les marges transparentes qui fausseraient ce calcul.
+
+Quand un dessin est présent, le cadre de la scène s'allonge — jusqu'à 660
+unités de haut — plutôt que de rapetisser le bateau pour faire tenir un mât.
+Le chemin procédural, lui, garde son cadre plat de 320 : rien n'a changé pour
+ce que le jeu affiche aujourd'hui.
+
+Les prompts prêts à coller dans Gemini sont dans
+`illustrations/PROMPTS-GEMINI.md`, générés depuis `contenu.json`. Les
+contraintes de livraison sont dans `illustrations/LISEZMOI.md`, reprises à la
+fin de `brief-illustrations.md`.
 
 `.github/workflows/publier.yml` rejoue exactement ce build à chaque push sur
 `main`, recommite les fichiers générés et redéploie Pages. Conséquence utile :
@@ -229,14 +247,12 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
    `illustrations/` suffit, il n'y a pas de code à écrire à la livraison, y
    compris dessin par dessin.
 
-   Note de cadrage à connaître avant de commander : les silhouettes
-   procédurales **débordent du cadre dès le voilier** — 244 unités d'air
-   au-dessus de la flottaison, alors qu'un mât en réclame trois fois plus, donc
-   le haut est coupé. Ce n'est pas un bug introduit récemment, c'est le gabarit
-   qui est trop plat. Les dessins livrés n'en héritent pas : ils déclarent leur
-   propre `viewBox` et le cadre s'y adapte. Réparer le procédural coûterait un
-   arbitrage visuel (rétrécir le bateau ou allonger le cadre, avec un effet sur
-   la carte de partage) pour un rendu qui a vocation à disparaître.
+   Note de cadrage : les silhouettes procédurales **débordent du cadre dès le
+   voilier** — 244 unités d'air au-dessus de la flottaison, alors qu'un mât en
+   réclame trois fois plus, donc le haut est coupé. Défaut d'origine, pas une
+   régression. Les dessins livrés n'en héritent pas : le cadre s'allonge pour
+   eux. Réparer le procédural coûterait un arbitrage visuel pour un rendu qui
+   a vocation à disparaître, d'où le choix de le laisser tel quel.
 2. **Le vrai push quotidien** (phase 8b). Voir la limite ci-dessous.
 3. **Le mode multi-actifs.** Le même moteur marche avec des actions. C'est ce qui
    ouvrirait un second public.

@@ -371,9 +371,9 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
 <script>
 const CONTENU = /*__CONTENU__*/;
 
-/* Illustrations déposées dans illustrations/ et incrustées au build.
-   Vide tant qu'aucun dessin n'est livré : on retombe alors sur les
-   silhouettes procédurales, qui ne sont qu'un gabarit de proportions. */
+/* Illustrations déposées dans illustrations/ et incrustées au build, sous la
+   forme {u: donnée base64, w, h}. Vide tant qu'aucun dessin n'est livré : on
+   retombe alors sur les silhouettes procédurales, qui ne sont qu'un gabarit. */
 const ILLUS = /*__ILLUSTRATIONS__*/;
 
 /* ══════════════════════════════════════════════════════
@@ -454,7 +454,12 @@ function mesure(m){
 /* ══════════════════════════════════════════════════════
    BATEAUX — silhouette humaine constante à 1,75 m
    ══════════════════════════════════════════════════════ */
-const VB_W=1000, VB_H=320, WATER=244, X0=96, HUMAIN=1.75;
+const VB_W=1000, VB_H0=320, WATER0=244, X0=96, HUMAIN=1.75, VB_HMAX=660;
+/* Le cadre est plat par défaut. Un dessin livré peut demander plus d'air —
+   un mât fait facilement une fois et demie la longueur du bateau — alors on
+   allonge le cadre plutôt que de rapetisser le bateau. Ces deux valeurs sont
+   fixées en tête de bateauSVG et lues par tout ce qu'elle appelle. */
+let VB_H=VB_H0, WATER=WATER0;
 
 function humainSVG(x,pxm){
   const h=HUMAIN*pxm, y=WATER, t=h*0.13;
@@ -470,13 +475,37 @@ function coque(x0,x1,p){
           Q ${x0+len*0.32} ${y+p*1.2} ${x0+len*0.015} ${y+p*0.55} Z`;
 }
 
-function bateauSVG(cls,L){
-  const cadre=Math.max(L,7), pxm=(VB_W-X0-60)/cadre;
+/* `ill` est le dessin livré pour ce palier : l'objet seul, coupé net à la
+   ligne de flottaison. Sa largeur vaut donc la longueur du bateau, et sa
+   hauteur suit. C'est le jeu qui décide de l'échelle, jamais l'illustrateur :
+   c'est ce qui garde le bonhomme de 1,75 m exact. */
+function bateauSVG(cls,L,ill){
+  const dessin = (ill && ill.w>0 && ill.h>0) ? ill : null;
+  const cadre=Math.max(L,7), large=VB_W-X0-60;
+  VB_H=VB_H0; WATER=WATER0;
+  let pxm=large/cadre;
+  if(dessin && L>0){
+    // On allonge le cadre jusqu'à ce que le dessin tienne, dans la limite du
+    // raisonnable ; au-delà on réduit l'échelle. Le bonhomme suit la même
+    // réduction, donc le rapport de taille reste exact dans tous les cas.
+    const rapport=dessin.h/dessin.w;
+    VB_H=Math.min(Math.max(VB_H0, Math.round(L*pxm*rapport+90)), VB_HMAX);
+    WATER=VB_H-76;
+    const air=WATER-14;
+    if(L*pxm*rapport > air) pxm = air/(L*rapport);
+  }
   const x0=X0, x1=X0+L*pxm, len=Math.max(x1-x0,2);
   const B='var(--blanc)', O='var(--btc)', N='var(--noir)', G='var(--gris)';
   let g='';
 
-  if(cls==='rien'){
+  if(dessin && L>0){
+    const h=len*(dessin.h/dessin.w);
+    g=`<image href="${dessin.u}" x="${x0}" y="${WATER-h}" width="${len}" height="${h}"/>`;
+  } else if(dessin){
+    // Palier « rien du tout » : aucun bateau, donc aucune échelle à tenir.
+    const w=(VB_W-X0-60)*0.45, h=w*(dessin.h/dessin.w);
+    g=`<image href="${dessin.u}" x="${X0}" y="${WATER-h}" width="${w}" height="${h}"/>`;
+  } else if(cls==='rien'){
     g=`<text x="${VB_W/2}" y="${WATER-40}" text-anchor="middle" fill="var(--gris)"
         font-family="var(--mono)" font-size="17" letter-spacing="3">RIEN À L'HORIZON</text>`;
   } else if(cls==='duck'){
@@ -588,7 +617,9 @@ function bateauSVG(cls,L){
       stroke="var(--bordure)" stroke-width="1" fill="none" opacity=".6"/>`;
   const quai=`<rect x="0" y="${WATER}" width="${X0-34}" height="${VB_H-WATER}" fill="var(--carte)"/>
     <line x1="0" y1="${WATER}" x2="${X0-34}" y2="${WATER}" stroke="var(--gris)" stroke-width="2"/>`;
-  const humain = cls==='paddle' ? '' : humainSVG(X0-62,pxm);
+  // Seul le paddle procédural porte déjà son rameur ; partout ailleurs c'est
+  // le jeu qui pose la silhouette, y compris devant un ponton vide.
+  const humain = (!dessin && cls==='paddle') ? '' : humainSVG(X0-62,pxm);
   const echelle=`<text x="${VB_W-14}" y="${VB_H-12}" text-anchor="end" fill="var(--gris)"
     font-family="var(--mono)" font-size="11" letter-spacing="1.5">SILHOUETTE = 1,75 M</text>`;
 
@@ -611,9 +642,9 @@ function svgAutonome(svg){
    On lit son viewBox pour l'insérer sans l'écraser. */
 function aspectSVG(svg){
   const m=svg.match(/viewBox\s*=\s*"([^"]+)"/);
-  if(!m) return VB_W/VB_H;
+  if(!m) return VB_W/VB_H0;
   const v=m[1].trim().split(/[\s,]+/).map(Number);
-  return (v.length===4 && v[2]>0 && v[3]>0) ? v[2]/v[3] : VB_W/VB_H;
+  return (v.length===4 && v[2]>0 && v[3]>0) ? v[2]/v[3] : VB_W/VB_H0;
 }
 const cacheImg=new Map();
 function imageBateau(svg){
@@ -740,7 +771,7 @@ function rendre(){
   const LAuj=longueurPourBudget(budgetAuj), LFut=longueurPourBudget(budgetFut);
   const pFut=palierPourBudget(budgetFut), iP=PALIERS.indexOf(pFut);
 
-  const svgCourant=ILLUS[pFut.id] || bateauSVG(pFut.cls,pFut.L||LFut);
+  const svgCourant=bateauSVG(pFut.cls,pFut.L||LFut,ILLUS[pFut.id]);
   $('scene').innerHTML=svgCourant;
   $('marker').style.left=posRegle(LFut)+'%';
   $('marker').querySelector('b').textContent=metres(LFut);
@@ -754,7 +785,7 @@ function rendre(){
   $('capRole').textContent=CAP[pFut.cap].role;
   $('capLine').textContent='« '+pick(pFut.dit.concat(CAP[pFut.cap].repliques),iP+1)+' »';
   const portrait=ILLUS['capitaine-'+pFut.cap];
-  $('capPortrait').innerHTML=portrait||'';
+  $('capPortrait').innerHTML=portrait ? `<img src="${portrait.u}" alt="">` : '';
   $('capPortrait').hidden=!portrait;
 
   const prixBateau=pFut.p;

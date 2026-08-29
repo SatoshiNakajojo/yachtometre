@@ -30,6 +30,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Recadrer les illustrations déposées
+        run: python3 outils/recadrer.py
+
       - name: Régénérer le jeu depuis contenu.json
         run: python3 build.py
 
