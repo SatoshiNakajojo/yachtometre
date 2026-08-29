@@ -94,6 +94,17 @@ la silhouette procédurale de ce palier ; les autres gardent la leur. Incrusté,
 pas chargé à côté : c'est ce qui préserve l'invariant du fichier unique. Le
 dossier peut rester vide sans rien casser.
 
+**Le cadre est mesuré, pas deviné.** `poserScene()` dessine la scène, lit le
+`getBBox()` du résultat, et recommence — trois fois au plus — jusqu'à ce que
+rien ne dépasse. Elle allonge le cadre en priorité (jusqu'à `VB_HMAX`, 660) et
+ne réduit l'échelle qu'en dernier recours ; la silhouette de 1,75 m suivant la
+même réduction, le rapport de taille reste exact dans tous les cas. Avant ça,
+le cadre était figé à 320 unités et tout ce qui dépassait — le mât du voilier,
+les ponts hauts des yachts, la carène sous la flottaison — était tranché. Ne
+remplace pas cette mesure par une table de hauteurs par classe : elle serait
+fausse dès le premier dessin livré, dont on ne connaît pas les proportions à
+l'avance.
+
 **La convention, et la raison derrière.** Un dessin de bateau ne contient que
 le bateau, sur fond transparent, coupé net à la flottaison. Le jeu en déduit
 l'échelle — la largeur de l'image vaut la longueur du bateau — puis dessine
@@ -126,7 +137,7 @@ rebuilder, sinon tu l'effaces.
 
 ## 5. Le contenu — c'est le vrai produit
 
-`contenu.json` contient **244 textes** et constitue la source de vérité unique.
+`contenu.json` contient **250 textes** et constitue la source de vérité unique.
 Aucun texte visible par l'utilisateur ne doit être écrit en dur ailleurs.
 
 Structure :
@@ -134,6 +145,7 @@ Structure :
 | Clé | Contenu |
 |---|---|
 | `paliers` | 26 paliers, chacun avec `punch` (2 variantes) et `dit` (2 répliques du capitaine) |
+| `bandes` | 5 bandes du rainbow : nom affiché et décalage log |
 | `capitaine` | 5 niveaux, 10 répliques génériques chacun |
 | `notifications` | 7 seaux par ampleur du mouvement, de `krach` à `moon` |
 | `opportunite` | 4 seaux selon la longueur perdue |
@@ -247,12 +259,8 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
    `illustrations/` suffit, il n'y a pas de code à écrire à la livraison, y
    compris dessin par dessin.
 
-   Note de cadrage : les silhouettes procédurales **débordent du cadre dès le
-   voilier** — 244 unités d'air au-dessus de la flottaison, alors qu'un mât en
-   réclame trois fois plus, donc le haut est coupé. Défaut d'origine, pas une
-   régression. Les dessins livrés n'en héritent pas : le cadre s'allonge pour
-   eux. Réparer le procédural coûterait un arbitrage visuel pour un rendu qui
-   a vocation à disparaître, d'où le choix de le laisser tel quel.
+   Le cadrage a été réparé au passage, pour les deux chemins à la fois : voir
+   `poserScene()` ci-dessous.
 2. **Le vrai push quotidien** (phase 8b). Voir la limite ci-dessous.
 3. **Le mode multi-actifs.** Le même moteur marche avec des actions. C'est ce qui
    ouvrirait un second public.
@@ -305,7 +313,7 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
 | Palette Bitcoin (noir + `#F7931A`) | Demande explicite de John. C'était auparavant une palette nautique bleu-craie. |
 | Nom : Le Yachtomètre | Tranché. |
 | Un seul fichier HTML plutôt qu'une app native | Choix imposé par le niveau de John et par la vitesse d'itération. Le natif viendra quand le rituel quotidien aura fait ses preuves. |
-| La carte de partage est une fonctionnalité de premier plan | C'est le seul canal d'acquisition du jeu. |
+| La carte de partage est une fonctionnalité de premier plan | C'est le seul canal d'acquisition du jeu. Elle porte l'adresse du jeu, et le bouton passe par la feuille de partage du système : sur iPhone, un lien de téléchargement vers un `data:` ne fait souvent rien, surtout depuis l'application posée sur l'écran d'accueil. |
 | Les paliers bas et hauts sont figés | John les a validés nommément. Tu peux en ajouter entre, pas en retirer. |
 | Prix en euros | Par défaut. Une bascule de devise serait un plus, pas une correction. |
 | PWA hébergée sur GitHub Pages plutôt qu'app native | Donne l'icône, le plein écran et le hors ligne sans rien changer au livrable ni imposer un store. Le natif ne se justifiera que pour la notification poussée à 8 h. |

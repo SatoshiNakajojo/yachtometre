@@ -108,13 +108,13 @@ def main():
     SW.write_text(sw, encoding='utf-8')
 
     n  = sum(len(p['punch']) + len(p['dit']) for p in data['paliers'])
-    n += sum(len(c['repliques']) for c in data['capitaine'])
+    n += sum(len(c['repliques']) for c in data['capitaine']) + len(data['bandes'])
     for bloc in ('notifications', 'opportunite', 'entretien'):
         n += sum(len(b['lignes']) for b in data[bloc].values())
     n += len(data['paper_hands']['lignes']) + len(data['paper_hands']['lignes_tout_vendu'])
     n += 4   # vide, prix_manquant, cout, bien_joue
     n += len(data['systeme']['chargement'])
-    n += len(data['systeme']['vide']) + len(data['systeme']['erreurs'])
+    n += len(data['systeme']['vide']) + len(data['systeme']['erreurs']) + 1  # adresse
     n += len(data['systeme']['installation']) + len(data['partage'])
 
     dessine = f"{len(dessins)} dessin{'s' if len(dessins) > 1 else ''}" if dessins \

@@ -329,6 +329,14 @@
     }
   ],
 
+  "bandes": [
+    { "off": -0.56, "nom": "Ton beau-frère qui dit que c'est une bulle" },
+    { "off": -0.28, "nom": "Réaliste" },
+    { "off":  0.00, "nom": "Optimiste raisonnable" },
+    { "off":  0.28, "nom": "Ton pote du Bitcoin Club" },
+    { "off":  0.56, "nom": "Michael Saylor" }
+  ],
+
   "capitaine": [
     {
       "niveau": 0, "role": "Personne",
@@ -600,6 +608,7 @@
       "plafond": "Au-delà de cent quatre-vingts mètres ce n'est plus un yacht, c'est un porte-conteneurs. On s'arrête là.",
       "date_passee": "On ne projette pas dans le passé. Le rainbow chart n'a pas de marche arrière."
     },
+    "adresse": "satoshinakajojo.github.io/yachtometre",
     "avertissement": "Le rainbow chart est une régression logarithmique sur le passé. C'est une courbe rigolote, pas une prédiction."
   },
 

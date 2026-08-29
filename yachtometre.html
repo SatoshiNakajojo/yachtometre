@@ -349,7 +349,7 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
     <div class="share">
       <canvas id="carte" width="1080" height="1080" aria-label="Aperçu de la carte de partage"></canvas>
       <div class="share-actions">
-        <button class="chip" type="button" id="dlCard">Télécharger le PNG</button>
+        <button class="chip" type="button" id="dlCard">Partager la carte</button>
         <button class="chip" type="button" id="cpCap">Copier la légende</button>
         <button class="chip" type="button" id="rerollCap">Autre légende</button>
         <span class="cap-preview" id="capText"></span>
@@ -802,6 +802,28 @@ const CONTENU = {
    ]
   }
  ],
+ "bandes": [
+  {
+   "off": -0.56,
+   "nom": "Ton beau-frère qui dit que c'est une bulle"
+  },
+  {
+   "off": -0.28,
+   "nom": "Réaliste"
+  },
+  {
+   "off": 0.0,
+   "nom": "Optimiste raisonnable"
+  },
+  {
+   "off": 0.28,
+   "nom": "Ton pote du Bitcoin Club"
+  },
+  {
+   "off": 0.56,
+   "nom": "Michael Saylor"
+  }
+ ],
  "capitaine": [
   {
    "niveau": 0,
@@ -1106,6 +1128,7 @@ const CONTENU = {
    "plafond": "Au-delà de cent quatre-vingts mètres ce n'est plus un yacht, c'est un porte-conteneurs. On s'arrête là.",
    "date_passee": "On ne projette pas dans le passé. Le rainbow chart n'a pas de marche arrière."
   },
+  "adresse": "satoshinakajojo.github.io/yachtometre",
   "avertissement": "Le rainbow chart est une régression logarithmique sur le passé. C'est une courbe rigolote, pas une prédiction."
  },
  "partage": [
@@ -1169,13 +1192,10 @@ function seau(table,v){
    log10(prix) = 2,1 · ln(jours depuis genesis) + b */
 const GENESIS = Date.UTC(2009,0,3);
 const RB_A = 2.1, RB_B = -13.35;
-const BANDES = [
-  {off:-0.56, nom:"Ton beau-frère qui dit que c'est une bulle"},
-  {off:-0.28, nom:"Réaliste"},
-  {off: 0.00, nom:"Optimiste raisonnable"},
-  {off:+0.28, nom:"Ton pote sur X"},
-  {off:+0.56, nom:"Michael Saylor"}
-];
+/* Les cinq bandes viennent de contenu.json : leurs noms sont du texte visible,
+   ils n'ont rien à faire dans le code. Les décalages, eux, sont la calibration
+   du rainbow — les toucher oblige à incrémenter la clé localStorage. */
+const BANDES = CONTENU.bandes;
 const jrs = d => Math.max(1,(d.getTime()-GENESIS)/86400000);
 const prixRainbow = (d,off) => Math.pow(10, RB_A*Math.log(jrs(d)) + RB_B + off);
 let CAL = 1;
@@ -1229,7 +1249,7 @@ function mesure(m){
 /* ══════════════════════════════════════════════════════
    BATEAUX — silhouette humaine constante à 1,75 m
    ══════════════════════════════════════════════════════ */
-const VB_W=1000, VB_H0=320, WATER0=244, X0=96, HUMAIN=1.75, VB_HMAX=660;
+const VB_W=1000, VB_H0=320, WATER0=244, MER0=76, X0=96, HUMAIN=1.75, VB_HMAX=660;
 /* Le cadre est plat par défaut. Un dessin livré peut demander plus d'air —
    un mât fait facilement une fois et demie la longueur du bateau — alors on
    allonge le cadre plutôt que de rapetisser le bateau. Ces deux valeurs sont
@@ -1254,21 +1274,11 @@ function coque(x0,x1,p){
    ligne de flottaison. Sa largeur vaut donc la longueur du bateau, et sa
    hauteur suit. C'est le jeu qui décide de l'échelle, jamais l'illustrateur :
    c'est ce qui garde le bonhomme de 1,75 m exact. */
-function bateauSVG(cls,L,ill){
+function bateauSVG(cls,L,ill,VH,bas,k){
   const dessin = (ill && ill.w>0 && ill.h>0) ? ill : null;
   const cadre=Math.max(L,7), large=VB_W-X0-60;
-  VB_H=VB_H0; WATER=WATER0;
-  let pxm=large/cadre;
-  if(dessin && L>0){
-    // On allonge le cadre jusqu'à ce que le dessin tienne, dans la limite du
-    // raisonnable ; au-delà on réduit l'échelle. Le bonhomme suit la même
-    // réduction, donc le rapport de taille reste exact dans tous les cas.
-    const rapport=dessin.h/dessin.w;
-    VB_H=Math.min(Math.max(VB_H0, Math.round(L*pxm*rapport+90)), VB_HMAX);
-    WATER=VB_H-76;
-    const air=WATER-14;
-    if(L*pxm*rapport > air) pxm = air/(L*rapport);
-  }
+  VB_H=VH||VB_H0; WATER=VB_H-(bas||MER0);
+  const pxm=(k||1)*large/cadre;
   const x0=X0, x1=X0+L*pxm, len=Math.max(x1-x0,2);
   const B='var(--blanc)', O='var(--btc)', N='var(--noir)', G='var(--gris)';
   let g='';
@@ -1402,6 +1412,34 @@ function bateauSVG(cls,L,ill){
     aria-label="Silhouette du bateau à l'échelle">${quai}${humain}<g class="bob">${g}</g>${eau}${echelle}</svg>`;
 }
 
+/* Un mât fait facilement une fois et demie la longueur du bateau, et le cadre
+   par défaut n'offre que 244 unités d'air : tout ce qui dépasse était coupé.
+   Plutôt que de deviner la hauteur de chaque classe — et de se tromper dès
+   qu'un dessin livré arrive — on dessine une fois, on mesure ce qui sort du
+   cadre, et on redessine avec la place qu'il faut. On allonge le cadre en
+   priorité ; on ne réduit l'échelle que si l'allonger ne suffit pas. La
+   silhouette de 1,75 m suit la même réduction, donc le rapport reste exact. */
+function poserScene(hote,cls,L,ill){
+  let VH=VB_H0, bas=MER0, k=1, svg='';
+  for(let essai=0; essai<3; essai++){
+    svg=bateauSVG(cls,L,ill,VH,bas,k);
+    hote.innerHTML=svg;
+    const el=hote.firstElementChild;
+    if(!el || !el.getBBox) return svg;
+    let bb; try{ bb=el.getBBox(); }catch(_){ return svg; }
+    if(bb.y>=4 && bb.y+bb.height<=VB_H-4) return svg;
+
+    // Hauteurs réellement occupées, ramenées à l'échelle 1 pour rester
+    // comparables d'un essai à l'autre.
+    const haut=(WATER-bb.y)/k;
+    const prof=Math.max(MER0, (bb.y+bb.height-WATER)/k);
+    VH  = Math.min(Math.round((haut+prof+14)/10)*10, VB_HMAX);
+    bas = Math.min(Math.round(prof), Math.round(VH*0.4));
+    k   = Math.min(1, (VH-bas-14)/haut);
+  }
+  return svg;
+}
+
 /* ══════════════════════════════════════════════════════
    CARTE DE PARTAGE
    ══════════════════════════════════════════════════════ */
@@ -1434,7 +1472,7 @@ function lignesTexte(ctx,txt,maxW){
     if(ctx.measureText(t).width>maxW && l){ out.push(l); l=m; } else l=t; }
   if(l) out.push(l); return out;
 }
-let legendeIdx=0;
+let legendeIdx=0, cartePNG=null;
 async function dessinerCarte(pal,L,annee,svg){
   const cv=$('carte'); if(!cv) return;
   const c=cv.getContext('2d'), W=1080, M=76;
@@ -1450,7 +1488,7 @@ async function dessinerCarte(pal,L,annee,svg){
 
   const im=await imageBateau(svg);
   if(im){
-    const bx=40, by=238, bw=1000, bh=352, a=aspectSVG(svg);
+    const bx=40, by=152, bw=1000, bh=468, a=aspectSVG(svg);
     let w=bw, h=bw/a;
     if(h>bh){ h=bh; w=bh*a; }
     c.drawImage(im, bx+(bw-w)/2, by+(bh-h)/2, w, h);
@@ -1473,7 +1511,13 @@ async function dessinerCarte(pal,L,annee,svg){
 
   c.fillStyle=COULEURS['--bordure']; c.font='22px "JetBrains Mono", monospace';
   c.fillText('SILHOUETTE HUMAINE = 1,75 M',M,W-58);
-  c.textAlign='right'; c.fillText('LE YACHTOMÈTRE',W-M,W-58); c.textAlign='left';
+  // Sans l'adresse, la carte fait sourire et ne mène nulle part.
+  c.fillStyle=COULEURS['--btc']; c.textAlign='right';
+  c.fillText(CONTENU.systeme.adresse,W-M,W-58); c.textAlign='left';
+
+  // Le PNG est préparé d'avance : Safari refuse navigator.share() si on le
+  // fait attendre après le clic, et le partage est tout l'intérêt de la carte.
+  cv.toBlob(b=>{ cartePNG=b; },'image/png');
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1546,8 +1590,7 @@ function rendre(){
   const LAuj=longueurPourBudget(budgetAuj), LFut=longueurPourBudget(budgetFut);
   const pFut=palierPourBudget(budgetFut), iP=PALIERS.indexOf(pFut);
 
-  const svgCourant=bateauSVG(pFut.cls,pFut.L||LFut,ILLUS[pFut.id]);
-  $('scene').innerHTML=svgCourant;
+  const svgCourant=poserScene($('scene'),pFut.cls,pFut.L||LFut,ILLUS[pFut.id]);
   $('marker').style.left=posRegle(LFut)+'%';
   $('marker').querySelector('b').textContent=metres(LFut);
   $('ghost').style.left=posRegle(LAuj)+'%';
@@ -1704,10 +1747,28 @@ async function chargerCours(){
   $(id).addEventListener('change',rendre);
 });
 $('refresh').onclick=chargerCours;
-$('dlCard').onclick=()=>{ const a=document.createElement('a');
-  a.download='yachtometre.png'; a.href=$('carte').toDataURL('image/png'); a.click(); };
+/* Sur iPhone, un lien de téléchargement vers un data: ne fait souvent rien du
+   tout, surtout depuis l'application posée sur l'écran d'accueil. On passe donc
+   par la feuille de partage du système, et on ne retombe sur le téléchargement
+   que là où elle n'existe pas. */
+$('dlCard').onclick=async e=>{
+  const legende=$('capText').textContent+'\n'+CONTENU.systeme.adresse;
+  if(cartePNG && navigator.canShare){
+    const f=new File([cartePNG],'yachtometre.png',{type:'image/png'});
+    if(navigator.canShare({files:[f]})){
+      try{ await navigator.share({files:[f], text:legende}); }
+      catch(_){ /* partage annulé */ }
+      return;
+    }
+  }
+  const a=document.createElement('a');
+  a.download='yachtometre.png';
+  a.href=cartePNG ? URL.createObjectURL(cartePNG) : $('carte').toDataURL('image/png');
+  a.click();
+  if(cartePNG) setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+};
 $('cpCap').onclick=async e=>{
-  try{ await navigator.clipboard.writeText($('capText').textContent);
+  try{ await navigator.clipboard.writeText($('capText').textContent+'\n'+CONTENU.systeme.adresse);
        e.target.textContent='Copié'; setTimeout(()=>e.target.textContent='Copier la légende',1500); }
   catch(_){ e.target.textContent='Copie refusée'; }
 };
