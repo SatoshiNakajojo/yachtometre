@@ -125,6 +125,14 @@ remplace pas cette mesure par une table de hauteurs par classe : elle serait
 fausse dès le premier dessin livré, dont on ne connaît pas les proportions à
 l'avance.
 
+**Le ponton en bois est le quai de toutes les scènes.** `illustrations/rien.webp`
+ne sert pas qu'au palier « rien du tout » : c'est le quai sur lequel se tient la
+silhouette à chaque palier, posé à la même échelle que le reste — minuscule à
+côté d'un superyacht de 180 m, ce qui est juste. Son extrémité affleure le nez
+du bateau et le reste continue vers la terre, hors cadre. Sans bateau, il avance
+dans le cadre : l'échelle ne change pas — sinon il rétrécirait d'un coup à
+l'apparition du premier bateau — seule sa position bouge.
+
 **Les dessins montrent l'objet entier, pas coupé à la flottaison.** C'est ce que
 livrent les générateurs, et c'est plus lisible. `illustrations/reperes.json`
 déclare donc, par palier, quelle part de la hauteur de l'image passe sous
@@ -155,7 +163,10 @@ en_png.py  →  recadrer.py  →  comprimer.py  →  build.py
                et recadre
 ```
 
-`en_png.py` convertit en PNG ce qui arrive en JPEG et plafonne la largeur à
+`en_png.py` commence par **rapatrier les images déposées à la racine du dépôt** :
+le téléversement par le site de GitHub dépose là où l'on se trouve, et quatre
+visuels sont déjà restés invisibles pour cette raison. Puis il convertit en PNG
+ce qui arrive en JPEG et plafonne la largeur à
 1600 pixels. **Il ne touche jamais aux `.webp`** : `comprimer.py` en produit en
 fin de chaîne, et les reconvertir à la publication suivante ferait perdre de la
 qualité à chaque passage. La chaîne est inerte au second passage, c'est
@@ -315,14 +326,24 @@ Deux fonctions distinctes, ne les confonds pas :
 
 ---
 
+### Les onglets
+
+Les cinq blocs sous le noyau — entretien, mètre de yacht, fantôme, simulation,
+partage — sont en onglets, et la barre est **épinglée en bas de l'écran**.
+Empilés, ils faisaient cinq écrans de haut sur un téléphone, et la carte de
+partage, seul canal d'acquisition, se retrouvait tout en bas. L'onglet ouvert
+est mémorisé avec le reste. Les libellés sont courts pour tenir sur un iPhone SE
+sans défilement horizontal : vérifié sur SE, 13 et 13 Pro Max.
+
+---
+
 ## 8. Ce qui reste à faire
 
 Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
 
-1. **Les 26 illustrations** (phase 3), en **photoréaliste**. Vingt-deux sont
-   livrées ; manquent le voilier — que les générateurs coupent, un mât ne
-   rentrant pas dans une image large, d'où la consigne de format carré — et les
-   trois plus grands superyachts, plus les cinq portraits de capitaine. Le brief est dans
+1. **Les cinq portraits de capitaine** (fin de la phase 3). Les 26 bateaux sont
+   livrés. Le voilier a demandé une image carrée : un mât ne rentre pas dans un
+   cadre large, et le générateur le coupait systématiquement. Le brief est dans
    `brief-illustrations.md`, les prompts dans `illustrations/PROMPTS-IMAGES.md`,
    tous deux générés depuis `contenu.json`. Les silhouettes SVG actuelles sont
    procédurales et servent de gabarit de proportions, pas de modèle de style. **La prise est posée** : déposer un SVG dans

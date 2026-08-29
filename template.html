@@ -153,7 +153,7 @@ body{
 .cap-portrait[hidden]{display:none}
 
 /* ── fiche ───────────────────────────────────────────── */
-.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--bordure);border:1px solid var(--bordure);border-top:0}
+.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--bordure);border:1px solid var(--bordure);margin-bottom:1px}
 .stat{background:var(--carte);padding:13px 14px}
 .stat dt{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);margin:0 0 5px}
 .stat dd{margin:0;font-family:var(--mono);font-size:18px;font-weight:600}
@@ -161,6 +161,32 @@ body{
 
 /* ── blocs ───────────────────────────────────────────── */
 .block{margin-top:30px}
+
+/* ── onglets : la page tenait sur cinq écrans de haut ─── */
+.tabs{
+  display:flex;gap:1px;margin-top:30px;overflow-x:auto;
+  background:var(--bordure);border:1px solid var(--bordure);
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  /* Épinglée en bas de l'écran : les onglets sont atteignables dès l'ouverture,
+     sans défiler, et restent sous la main pendant la lecture d'un panneau. */
+  position:sticky;bottom:calc(env(safe-area-inset-bottom));z-index:5;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{
+  flex:1 0 auto;background:var(--carte);border:0;cursor:pointer;
+  color:var(--gris);font-family:var(--mono);font-size:10px;
+  letter-spacing:.06em;text-transform:uppercase;padding:13px 8px;white-space:nowrap;
+}
+.tabs button:hover{color:var(--blanc)}
+.tabs button[aria-selected="true"]{
+  background:var(--pont);color:var(--btc);box-shadow:inset 0 -2px 0 var(--btc);
+}
+.tabs button:focus-visible{outline:2px solid var(--btc);outline-offset:-2px}
+.panneau[hidden]{display:none}
+@media(max-width:370px){
+  .tabs button{font-size:9px;letter-spacing:.03em;padding:12px 5px}
+}
+.panneau .block{margin-top:16px}
 .block-head{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--bordure);padding-bottom:8px;margin-bottom:14px}
 .block-head h2{font-family:var(--display);font-size:17px;text-transform:uppercase;margin:0;letter-spacing:-.01em}
 .block-head p{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gris);margin:0 0 0 auto}
@@ -280,85 +306,102 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
     </div>
   </div>
 
-  <dl class="sheet">
+  <nav class="tabs" role="tablist" id="tabs">
+    <button type="button" role="tab" data-cible="p-entretien" aria-controls="p-entretien" aria-selected="false">Entretien</button>
+    <button type="button" role="tab" data-cible="p-metre" aria-controls="p-metre" aria-selected="false">Mètre</button>
+    <button type="button" role="tab" data-cible="p-paperhands" aria-controls="p-paperhands" aria-selected="false">Fantôme</button>
+    <button type="button" role="tab" data-cible="p-demain" aria-controls="p-demain" aria-selected="false">Demain</button>
+    <button type="button" role="tab" data-cible="p-partage" aria-controls="p-partage" aria-selected="false">Partage</button>
+  </nav>
+
+  <div class="panneau" id="p-entretien" role="tabpanel" hidden>
+    <section class="block">
+      <div class="block-head"><h2>Acheter n'est pas garder</h2><p>règle des 4 %</p></div>
+    <dl class="sheet">
     <div class="stat"><dt>Budget projeté</dt><dd id="sBudget">—</dd></div>
     <div class="stat"><dt>Prix d'achat</dt><dd id="sPrix">—</dd></div>
     <div class="stat"><dt>Entretien / an</dt><dd id="sEntretien">—</dd></div>
     <div class="stat"><dt>BTC projeté</dt><dd id="sBtc">—</dd></div>
-  </dl>
+    </dl>
+      <div class="duo">
+        <div class="dream">
+          <div class="tagline">Le bateau que tu peux acheter</div>
+          <h3 id="dreamName">—</h3>
+          <div class="len" id="dreamLen">—</div>
+          <p class="note" id="dreamNote"></p>
+        </div>
+        <div class="real">
+          <div class="tagline">Le bateau que tu peux entretenir</div>
+          <h3 id="realName">—</h3>
+          <div class="len" id="realLen">—</div>
+          <p class="note" id="realNote"></p>
+        </div>
+      </div>
+    </section>
+  </div>
 
-  <section class="block">
-    <div class="block-head"><h2>Acheter n'est pas garder</h2><p>règle des 4 %</p></div>
-    <div class="duo">
-      <div class="dream">
-        <div class="tagline">Le bateau que tu peux acheter</div>
-        <h3 id="dreamName">—</h3>
-        <div class="len" id="dreamLen">—</div>
-        <p class="note" id="dreamNote"></p>
+  <div class="panneau" id="p-metre" role="tabpanel" hidden>
+    <section class="block">
+      <div class="block-head"><h2>Le mètre de yacht</h2><p>coût d'opportunité</p></div>
+      <div class="conv">
+        <div class="conv-input">
+          <input id="depense" type="number" step="1" min="0" value="3" inputmode="decimal" aria-label="Montant en euros">
+          <input id="depenseNom" type="text" value="un café" aria-label="Ce que tu achètes">
+        </div>
+        <div class="chips" id="chips"></div>
+        <div class="conv-out">
+          <p class="big" id="convBig">—</p>
+          <p id="convNote"></p>
+        </div>
       </div>
-      <div class="real">
-        <div class="tagline">Le bateau que tu peux entretenir</div>
-        <h3 id="realName">—</h3>
-        <div class="len" id="realLen">—</div>
-        <p class="note" id="realNote"></p>
-      </div>
-    </div>
-  </section>
+    </section>
+  </div>
 
-  <section class="block">
-    <div class="block-head"><h2>Le mètre de yacht</h2><p>coût d'opportunité</p></div>
-    <div class="conv">
-      <div class="conv-input">
-        <input id="depense" type="number" step="1" min="0" value="3" inputmode="decimal" aria-label="Montant en euros">
-        <input id="depenseNom" type="text" value="un café" aria-label="Ce que tu achètes">
+  <div class="panneau" id="p-paperhands" role="tabpanel" hidden>
+    <section class="block">
+      <div class="block-head"><h2>Paper hands</h2><p>le bateau fantôme</p></div>
+      <div class="console">
+        <div class="cell">
+          <label for="vendu">Tu as vendu</label>
+          <input id="vendu" type="number" step="0.001" min="0" value="0" inputmode="decimal">
+          <div class="hint">en BTC</div>
+        </div>
+        <div class="cell">
+          <label for="prixVente">À quel cours</label>
+          <input id="prixVente" type="number" step="100" min="0" value="0" inputmode="decimal">
+          <div class="hint">en euros</div>
+        </div>
       </div>
-      <div class="chips" id="chips"></div>
-      <div class="conv-out">
-        <p class="big" id="convBig">—</p>
-        <p id="convNote"></p>
+      <div class="conv">
+        <div class="conv-out">
+          <p class="big" id="phBig">—</p>
+          <p id="phNote"></p>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 
-  <section class="block">
-    <div class="block-head"><h2>Paper hands</h2><p>le bateau fantôme</p></div>
-    <div class="console">
-      <div class="cell">
-        <label for="vendu">Tu as vendu</label>
-        <input id="vendu" type="number" step="0.001" min="0" value="0" inputmode="decimal">
-        <div class="hint">en BTC</div>
-      </div>
-      <div class="cell">
-        <label for="prixVente">À quel cours</label>
-        <input id="prixVente" type="number" step="100" min="0" value="0" inputmode="decimal">
-        <div class="hint">en euros</div>
-      </div>
-    </div>
-    <div class="conv">
-      <div class="conv-out">
-        <p class="big" id="phBig">—</p>
-        <p id="phNote"></p>
-      </div>
-    </div>
-  </section>
+  <div class="panneau" id="p-demain" role="tabpanel" hidden>
+    <section class="block">
+      <div class="block-head"><h2>Et si demain…</h2><p>simulation</p></div>
+      <div class="tomorrow" id="tomorrow"></div>
+    </section>
+  </div>
 
-  <section class="block">
-    <div class="block-head"><h2>Et si demain…</h2><p>simulation</p></div>
-    <div class="tomorrow" id="tomorrow"></div>
-  </section>
-
-  <section class="block">
-    <div class="block-head"><h2>Carte de partage</h2><p>1080 × 1080</p></div>
-    <div class="share">
-      <canvas id="carte" width="1080" height="1080" aria-label="Aperçu de la carte de partage"></canvas>
-      <div class="share-actions">
-        <button class="chip" type="button" id="dlCard">Partager la carte</button>
-        <button class="chip" type="button" id="cpCap">Copier la légende</button>
-        <button class="chip" type="button" id="rerollCap">Autre légende</button>
-        <span class="cap-preview" id="capText"></span>
+  <div class="panneau" id="p-partage" role="tabpanel" hidden>
+    <section class="block">
+      <div class="block-head"><h2>Carte de partage</h2><p>1080 × 1080</p></div>
+      <div class="share">
+        <canvas id="carte" width="1080" height="1080" aria-label="Aperçu de la carte de partage"></canvas>
+        <div class="share-actions">
+          <button class="chip" type="button" id="dlCard">Partager la carte</button>
+          <button class="chip" type="button" id="cpCap">Copier la légende</button>
+          <button class="chip" type="button" id="rerollCap">Autre légende</button>
+          <span class="cap-preview" id="capText"></span>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 
   <div class="install" id="install" hidden>
     <p id="installTexte"></p>
@@ -522,13 +565,7 @@ function bateauSVG(cls,L,ill,VH,bas,k){
   let g='';
 
   if(dessin && ponton){
-    // Palier « rien du tout » : pas un bateau, un décor. Le ponton part du bord
-    // gauche — il continue vers la terre, hors cadre — ses pilotis plongent
-    // sous l'eau, et la silhouette se tient dessus, au bout, face au large.
-    const px=x0-VB_W*(P.debord_gauche||0), h=len*(dessin.h/dessin.w);
-    const py=WATER-h+h*(P.immersion||0);
-    g=`<image href="${dessin.u}" x="${px}" y="${py}" width="${len}" height="${h}"/>`
-      + humainSVG(px+len*(P.poste||0.8), pxm, py+h*(P.pont||0.1));
+    g='';   // le ponton est le quai, dessiné plus bas pour tous les paliers
   } else if(dessin){
     // Le dessin livré montre l'objet entier, carène comprise. On l'enfonce
     // donc de la part déclarée dans reperes.json, sinon le bateau est posé
@@ -652,18 +689,36 @@ function bateauSVG(cls,L,ill,VH,bas,k){
       stroke="var(--bordure)" stroke-width="1" fill="none"/>
     <path d="M 0 ${WATER+34} q 40 -8 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0"
       stroke="var(--bordure)" stroke-width="1" fill="none" opacity=".6"/>`;
-  const quai=ponton ? '' : `<rect x="0" y="${WATER}" width="${X0-34}" height="${VB_H-WATER}" fill="var(--carte)"/>
-    <line x1="0" y1="${WATER}" x2="${X0-34}" y2="${WATER}" stroke="var(--gris)" stroke-width="2"/>`;
-  // Le paddle procédural porte déjà son rameur, et le ponton porte la sienne ;
-  // partout ailleurs c'est le jeu qui pose la silhouette sur le quai.
-  const humain = ((!dessin && cls==='paddle') || ponton) ? '' : humainSVG(X0-62,pxm);
+  /* Le ponton en bois est le quai de toutes les scènes, pas seulement de
+     celle du palier « rien du tout ». Il est posé à l'échelle comme le reste :
+     à côté d'un superyacht de 180 m il devient minuscule, ce qui est juste.
+     Son extrémité affleure le nez du bateau, le reste continue vers la terre
+     hors du cadre. La silhouette se tient dessus. */
+  const pont = ILLUS.rien;
+  let quai, humain;
+  if(pont && pont.w>0){
+    const pw=(P.longueur_m||4.2)*pxm, ph=pw*(pont.h/pont.w);
+    // Sans bateau, on avance le ponton dans le cadre : son échelle ne change
+    // pas — sinon il rétrécirait d'un coup à l'apparition du premier bateau —
+    // seule sa position bouge, et la scène du vide respire.
+    const bout=(cls==='rien') ? VB_W*0.52 : X0-8;
+    const px=bout-pw, py=WATER-ph+ph*(P.immersion||0.2);
+    quai=`<image href="${pont.u}" x="${px}" y="${py}" width="${pw}" height="${ph}"/>`;
+    humain=humainSVG(px+pw*(P.poste||0.87), pxm, py+ph*(P.pont||0.09));
+  } else {
+    quai=`<rect x="0" y="${WATER}" width="${X0-34}" height="${VB_H-WATER}" fill="var(--carte)"/>
+      <line x1="0" y1="${WATER}" x2="${X0-34}" y2="${WATER}" stroke="var(--gris)" stroke-width="2"/>`;
+    humain=humainSVG(X0-62,pxm);
+  }
+  if(!dessin && cls==='paddle') humain='';   // le paddle procédural a son rameur
+
   const echelle=`<text x="${VB_W-14}" y="${VB_H-12}" text-anchor="end" fill="var(--gris)"
     font-family="var(--mono)" font-size="11" letter-spacing="1.5">SILHOUETTE = 1,75 M</text>`;
 
   // Le décor — quai, mer, légende — est fixe et tient toujours dans le cadre.
   // Seul le groupe « mesure » sert à décider de la taille du cadre.
   return `<svg viewBox="0 0 ${VB_W} ${VB_H}" xmlns="http://www.w3.org/2000/svg" role="img"
-    aria-label="Silhouette du bateau à l'échelle"><g id="mesure">${humain}<g class="bob">${g}</g></g>${mer}${quai}${eau}${echelle}</svg>`;
+    aria-label="Silhouette du bateau à l'échelle"><g id="mesure">${quai}${humain}<g class="bob">${g}</g></g>${mer}${eau}${echelle}</svg>`;
 }
 
 /* Un mât fait facilement une fois et demie la longueur du bateau, et le cadre
@@ -1066,6 +1121,33 @@ $('avertissement').textContent=CONTENU.systeme.avertissement;
   if(m.depenseNom!==undefined) $('depenseNom').value=m.depenseNom;
   if(m.vendu!==undefined)      $('vendu').value=m.vendu;
   if(m.prixVente!==undefined)  $('prixVente').value=m.prixVente;
+})();
+
+/* Les cinq blocs du bas sont en onglets : empilés, ils faisaient cinq écrans
+   de haut sur un téléphone, et la carte de partage — seul canal d'acquisition
+   du jeu — se retrouvait tout en bas. L'onglet ouvert est mémorisé. */
+(function onglets(){
+  const boutons=[...$('tabs').querySelectorAll('button')];
+  const montrer=id=>{
+    boutons.forEach(b=>{
+      const actif=b.dataset.cible===id;
+      b.setAttribute('aria-selected',actif);
+      $(b.dataset.cible).hidden=!actif;
+    });
+    memEcrire({...memLire(), onglet:id});
+  };
+  boutons.forEach(b=>{
+    b.onclick=()=>montrer(b.dataset.cible);
+    b.onkeydown=e=>{
+      const d = e.key==='ArrowRight' ? 1 : e.key==='ArrowLeft' ? -1 : 0;
+      if(!d) return;
+      e.preventDefault();
+      const suivant=boutons[(boutons.indexOf(b)+d+boutons.length)%boutons.length];
+      suivant.focus(); montrer(suivant.dataset.cible);
+    };
+  });
+  const garde=memLire().onglet;
+  montrer(boutons.some(b=>b.dataset.cible===garde) ? garde : boutons[0].dataset.cible);
 })();
 
 /* ══════════════════════════════════════════════════════

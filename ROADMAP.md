@@ -53,15 +53,14 @@ le jeu le reconnaît — on se moque de la situation, pas de lui.
 
 ## À faire
 
-### Phase 3 — Les illustrations — *en cours, 22 sur 26*
+### Phase 3 — Les illustrations — *26 bateaux sur 26, restent les capitaines*
 26 silhouettes + 5 portraits de capitaine. Le brief est prêt
 (`brief-illustrations.md`), généré depuis `contenu.json` pour ne jamais diverger.
 Les SVG procéduraux actuels tiennent la route mais plafonnent la qualité perçue.
 Parallélisable : ça n'empêche aucun autre chantier d'avancer.
 
-**Vingt-deux visuels sont en ligne**, en photoréaliste, 1,5 Mo au total après
-compression. Restent le voilier, les superyachts de 120, 140 et 180 m, et les
-cinq portraits de capitaine.
+**Les vingt-six bateaux sont en ligne**, en photoréaliste, 1,7 Mo au total après
+compression. Ne restent que les cinq portraits de capitaine.
 
 **Le branchement est fait, et les prompts sont écrits.** Un PNG ou un SVG
 déposé dans `illustrations/`, nommé d'après l'id du palier, remplace la

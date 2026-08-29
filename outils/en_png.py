@@ -16,7 +16,7 @@ manque, on le dit et on passe — le jeu continue de se construire.
 
     python3 outils/en_png.py
 """
-import pathlib, sys
+import json, pathlib, sys
 
 DOSSIER = pathlib.Path(__file__).parent.parent / 'illustrations'
 # Surtout pas de .webp ici : comprimer.py produit du WebP en fin de chaîne,
@@ -26,10 +26,33 @@ A_CONVERTIR = {'.jpg', '.jpeg', '.bmp', '.tif', '.tiff'}
 LARGEUR_MAX = 1600      # au-delà, on n'ajoute que du poids
 
 
+def rapatrier():
+    """Récupère les images déposées à la racine du dépôt.
+
+    Le téléversement par le site de GitHub dépose à l'endroit où l'on se
+    trouve, et il est facile d'oublier d'entrer dans illustrations/. Plutôt
+    que de laisser quatre visuels invisibles sans que personne comprenne
+    pourquoi, on les range.
+    """
+    racine = DOSSIER.parent
+    connus = {p['id'] for p in json.loads((racine / 'contenu.json')
+              .read_text(encoding='utf-8'))['paliers']}
+    connus |= {f'capitaine-{n}' for n in range(5)}
+    for f in sorted(racine.iterdir()):
+        if not f.is_file() or f.stem not in connus:
+            continue
+        if f.suffix.lower() not in A_CONVERTIR | {'.png', '.svg', '.webp'}:
+            continue
+        cible = DOSSIER / f.name
+        f.replace(cible)
+        print(f"  {f.name} rangé depuis la racine vers illustrations/")
+
+
 def main():
     if not DOSSIER.is_dir():
         print("Aucun dossier illustrations/, rien à faire")
         return
+    rapatrier()
     fichiers = [f for f in sorted(DOSSIER.iterdir())
                 if f.suffix.lower() in A_CONVERTIR]
     if not fichiers:
