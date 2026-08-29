@@ -119,10 +119,17 @@ unités de haut — plutôt que de rapetisser le bateau pour faire tenir un mât
 Le chemin procédural, lui, garde son cadre plat de 320 : rien n'a changé pour
 ce que le jeu affiche aujourd'hui.
 
-Les prompts prêts à coller dans Gemini sont dans
-`illustrations/PROMPTS-GEMINI.md`, générés depuis `contenu.json`. Les
-contraintes de livraison sont dans `illustrations/LISEZMOI.md`, reprises à la
-fin de `brief-illustrations.md`.
+`outils/recadrer.py` fait deux choses sur chaque PNG, à chaque publication :
+il retire le fond **par remplissage depuis les bords** — d'où la survie des
+hublots sombres au milieu d'une coque — puis rogne les marges. C'est pour ça
+que les prompts imposent un fond noir uni `#0A0A0B` : uni, il se détoure sans
+peine ; noir, le moindre liseré résiduel reste invisible sur la scène du jeu,
+qui est noire elle aussi. PNG, JPEG, WebP et SVG sont acceptés au build, mais
+seul le PNG passe par ce détourage.
+
+Les prompts sont dans `illustrations/PROMPTS-IMAGES.md`, générés depuis
+`contenu.json`. Les contraintes de livraison sont dans
+`illustrations/LISEZMOI.md`, reprises à la fin de `brief-illustrations.md`.
 
 `.github/workflows/publier.yml` rejoue exactement ce build à chaque push sur
 `main`, recommite les fichiers générés et redéploie Pages. Conséquence utile :
@@ -233,7 +240,10 @@ Deux fonctions distinctes, ne les confonds pas :
 
 1. **La silhouette humaine de 1,75 m sur chaque bateau**, à l'échelle exacte.
    C'est le cœur visuel de la blague : à 180 m, le bonhomme fait 8 pixels. Un
-   illustrateur voudra tricher pour « faire plus joli ». Refuse.
+   illustrateur voudra tricher pour « faire plus joli ». Refuse. Depuis la
+   phase 3, l'invariant n'est plus confié à personne : les visuels livrés ne
+   contiennent aucun personnage, et le jeu pose la silhouette lui-même à partir
+   des dimensions du fichier.
 2. **Un seul fichier livrable**, autonome, ouvrable d'un double-clic.
    `manifest.webmanifest`, `sw.js` et `icones/` sont des compagnons
    **facultatifs** : ils ne servent qu'à la version hébergée. `yachtometre.html`
@@ -252,10 +262,10 @@ Deux fonctions distinctes, ne les confonds pas :
 
 Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
 
-1. **Les 26 illustrations** (phase 3). Le brief est prêt dans
-   `brief-illustrations.md`, généré depuis `contenu.json`. Les silhouettes SVG
-   actuelles sont procédurales et servent de gabarit de proportions, pas de
-   modèle de style. **La prise est posée** : déposer un SVG dans
+1. **Les 26 illustrations** (phase 3), en **photoréaliste**. Le brief est dans
+   `brief-illustrations.md`, les prompts dans `illustrations/PROMPTS-IMAGES.md`,
+   tous deux générés depuis `contenu.json`. Les silhouettes SVG actuelles sont
+   procédurales et servent de gabarit de proportions, pas de modèle de style. **La prise est posée** : déposer un SVG dans
    `illustrations/` suffit, il n'y a pas de code à écrire à la livraison, y
    compris dessin par dessin.
 
@@ -291,6 +301,14 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
   faux. Et `lignes_tout_vendu` n'est tirée que si le stack est à zéro : sinon la
   réplique « ton bateau réel : néant » ment à quelqu'un qui a encore des
   bitcoins.
+- **Le poids est le vrai risque du photoréalisme.** Le fichier fait 76 Ko
+  aujourd'hui. Vingt-six photos incrustées en base64 le porteront à plusieurs
+  mégaoctets. Tant que ça tient sous ~5 Mo, l'invariant du fichier unique est
+  préservé et le service worker le met en cache une fois pour toutes. Au-delà,
+  la sortie prévue est de servir les images comme fichiers séparés dans
+  `index.html` — précachés par le service worker — en gardant l'incrustation
+  pour `yachtometre.html`, le fichier hors ligne. Même template, deux sorties :
+  ne pars pas sur deux rendus différents.
 - **Le service worker sert le réseau d'abord, le cache en repli.** C'est
   délibéré : un cache-d'abord ferait tourner un téléphone sur une version
   périmée pendant des jours. Ne « optimise » pas en inversant. Le cours du BTC
@@ -311,6 +329,7 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
 |---|---|
 | Le bateau bouge tous les jours avec le cours | C'est le seul mécanisme de rétention. Sans lui, le jeu est un calculateur qu'on ouvre une fois. |
 | Palette Bitcoin (noir + `#F7931A`) | Demande explicite de John. C'était auparavant une palette nautique bleu-craie. |
+| Illustrations photoréalistes plutôt qu'aplats vectoriels | Décision de John après essai sur Gemini et ChatGPT : le vectoriel plat faisait « dessin pour enfants ». Il veut qu'on puisse se projeter sur l'image. La palette plate reste celle de l'interface. |
 | Nom : Le Yachtomètre | Tranché. |
 | Un seul fichier HTML plutôt qu'une app native | Choix imposé par le niveau de John et par la vitesse d'itération. Le natif viendra quand le rituel quotidien aura fait ses preuves. |
 | La carte de partage est une fonctionnalité de premier plan | C'est le seul canal d'acquisition du jeu. Elle porte l'adresse du jeu, et le bouton passe par la feuille de partage du système : sur iPhone, un lien de téléchargement vers un `data:` ne fait souvent rien, surtout depuis l'application posée sur l'écran d'accueil. |

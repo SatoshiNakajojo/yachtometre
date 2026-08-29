@@ -2,11 +2,20 @@
 
 ## Règles communes, non négociables
 
-- **Une silhouette humaine de 1,75 m sur chaque visuel**, à l'échelle exacte du bateau. C'est ce qui porte la blague.
-- Style plat, silhouettes pleines, pas de dégradé, pas de réalisme.
-- Palette imposée : noir `#0A0A0B`, coque `#FAF8F5`, gris `#8A8A93`, orange Bitcoin `#F7931A`, mer `#0D1114`.
-- Vue de profil stricte, proue à droite, ligne de flottaison horizontale à hauteur constante.
-- Format SVG, cadrage large (le bateau n'occupe jamais toute la largeur).
+- **Rendu photoréaliste.** Direction arrêtée par John après essai des aplats
+  vectoriels, qui faisaient « dessin pour enfants ». On doit pouvoir se projeter
+  sur l'image.
+- **Aucune silhouette humaine dans le fichier.** C'est le jeu qui pose celle de
+  1,75 m, à l'échelle exacte calculée depuis les dimensions de l'image. C'est ce
+  qui porte la blague, et c'est justement pour ça qu'on ne le confie à personne.
+- Vue de profil stricte, proue à droite, au téléobjectif pour supprimer la
+  perspective. Lumière diffuse, aucune ombre portée, netteté d'un bout à l'autre.
+- Fond noir uni `#0A0A0B` ou transparent. Image coupée net à la ligne de
+  flottaison : rien d'immergé, aucune eau, aucun reflet.
+- Format PNG, 400 Ko par fichier au maximum.
+
+Le reste de la palette du jeu — orange Bitcoin `#F7931A`, gris `#8A8A93`, mer
+`#0D1114` — reste celle de l'interface, pas celle des photos.
 
 ## Équipements déclenchés par la taille
 
@@ -65,17 +74,18 @@ Un fichier par visuel, nommé d'après l'identifiant du palier (`voilier.png`,
 `illustrations/LISEZMOI.md`. Déposés dans ce dossier, les fichiers entrent dans
 le jeu sans une ligne de code.
 
-**Chaque bateau est livré seul, sur fond transparent, coupé net à la ligne de
-flottaison** — rien de ce qui est immergé. La mer, le quai et la silhouette
+**Chaque bateau est livré seul, sur fond noir uni ou transparent, coupé net à
+la ligne de flottaison** — rien de ce qui est immergé. La mer, le quai et la silhouette
 humaine de 1,75 m sont dessinés par le jeu, qui déduit l'échelle des
 dimensions du fichier. **Ne dessine donc aucun personnage sur les bateaux :**
 c'est ce qui garantit que le rapport de taille reste exact, et le rapport de
 taille est toute la blague.
 
-Format : PNG avec transparence, ou SVG avec un `viewBox` et sans `width` ni
+Format : PNG de préférence — seul format passant par le détourage automatique.
+JPEG, WebP et SVG sont acceptés ; pour un SVG, un `viewBox` et pas de `width` ni
 `height`. Pour un SVG, aucune ressource externe, textes vectorisés, ni
 `<style>` ni `<script>`, identifiants internes préfixés par le nom du fichier.
-300 Ko par fichier au maximum.
+400 Ko par fichier au maximum.
 
 Les visuels peuvent arriver un par un : chaque palier non livré garde sa
 silhouette procédurale en attendant.
@@ -85,4 +95,3 @@ silhouette procédurale en attendant.
 Total : 26 silhouettes + 5 portraits.
 Le fichier `template.html` contient une version SVG procédurale de chaque classe :
 elle sert de gabarit de proportions, pas de modèle de style.
-Budget observé pour ce volume en style plat : 400 à 900 €.

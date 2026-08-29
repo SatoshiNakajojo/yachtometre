@@ -1,38 +1,43 @@
 #!/usr/bin/env python3
 """
-Le Yachtomètre — recadrage des illustrations
+Le Yachtomètre — détourage et recadrage des illustrations
 
 Le jeu déduit l'échelle d'un dessin de ses dimensions : la largeur de l'image
-vaut la longueur du bateau. Une marge transparente laissée autour de l'objet
-fausse donc le bonhomme de 1,75 m, qui est le cœur de la blague.
+vaut la longueur du bateau. Un fond opaque ou une marge transparente faussent
+donc le bonhomme de 1,75 m, qui est le cœur de la blague.
 
-Ce script rogne cette marge sur chaque PNG d'illustrations/. Il tourne tout
-seul à chaque publication ; on peut aussi l'appeler à la main :
+Ce script, sur chaque PNG d'illustrations/ :
+  1. retire le fond, par remplissage depuis les bords — ce qui laisse intacts
+     les noirs intérieurs, hublots et ouvertures ;
+  2. rogne ce qui reste de marge transparente.
+
+Il tourne tout seul à chaque publication ; on peut aussi l'appeler à la main :
 
     python3 outils/recadrer.py
 
 Décodeur et encodeur PNG maison, aucune dépendance. Ne traite que ce que
 produisent les générateurs d'images : 8 bits par canal, non entrelacé.
 """
-import pathlib, struct, sys, zlib
+import collections, pathlib, struct, sys, zlib
 
 DOSSIER = pathlib.Path(__file__).parent.parent / 'illustrations'
-SEUIL = 8        # en deçà, le pixel est considéré comme vide
+SEUIL_ALPHA = 8      # en deçà, le pixel est vide
+TOLERANCE = 52       # écart de couleur toléré avec le fond, sur 255
 CANAUX = {0: 1, 2: 3, 4: 2, 6: 4}
 
 
-def lire(octets, nom):
+def decoder(octets, nom):
+    """Rend (largeur, hauteur, lignes RGBA) ou None si le format est exotique."""
     if octets[:8] != b'\x89PNG\r\n\x1a\n':
         sys.exit(f"{nom} n'est pas un PNG")
     i, entete, data = 8, None, bytearray()
     while i + 8 <= len(octets):
         taille = struct.unpack('>I', octets[i:i + 4])[0]
         genre = octets[i + 4:i + 8]
-        corps = octets[i + 8:i + 8 + taille]
         if genre == b'IHDR':
-            entete = struct.unpack('>IIBBBBB', corps)
+            entete = struct.unpack('>IIBBBBB', octets[i + 8:i + 8 + taille])
         elif genre == b'IDAT':
-            data += corps
+            data += octets[i + 8:i + 8 + taille]
         elif genre == b'IEND':
             break
         i += 12 + taille
@@ -40,33 +45,47 @@ def lire(octets, nom):
         sys.exit(f"{nom} : en-tête IHDR introuvable")
     w, h, profondeur, couleur, _, _, entrelace = entete
     if profondeur != 8 or entrelace or couleur not in CANAUX:
-        return None                      # format exotique : on n'y touche pas
+        return None
     n = CANAUX[couleur]
+
     plat = zlib.decompress(bytes(data))
-    lignes, prec = [], bytearray(w * n)
-    pos = 0
+    lignes, prec, pos = [], bytearray(w * n), 0
     for _ in range(h):
         filtre = plat[pos]; pos += 1
         ligne = bytearray(plat[pos:pos + w * n]); pos += w * n
-        for k in range(len(ligne)):
-            a = ligne[k - n] if k >= n else 0
-            b = prec[k]
-            c = prec[k - n] if k >= n else 0
-            if filtre == 1:   ligne[k] = (ligne[k] + a) & 255
-            elif filtre == 2: ligne[k] = (ligne[k] + b) & 255
-            elif filtre == 3: ligne[k] = (ligne[k] + (a + b) // 2) & 255
-            elif filtre == 4:
-                p = a + b - c
-                pa, pb, pc = abs(p - a), abs(p - b), abs(p - c)
-                pred = a if (pa <= pb and pa <= pc) else (b if pb <= pc else c)
-                ligne[k] = (ligne[k] + pred) & 255
+        if filtre:
+            for k in range(len(ligne)):
+                a = ligne[k - n] if k >= n else 0
+                b = prec[k]
+                c = prec[k - n] if k >= n else 0
+                if filtre == 1:   ligne[k] = (ligne[k] + a) & 255
+                elif filtre == 2: ligne[k] = (ligne[k] + b) & 255
+                elif filtre == 3: ligne[k] = (ligne[k] + (a + b) // 2) & 255
+                else:
+                    p = a + b - c
+                    pa, pb, pc = abs(p - a), abs(p - b), abs(p - c)
+                    pred = a if (pa <= pb and pa <= pc) else (b if pb <= pc else c)
+                    ligne[k] = (ligne[k] + pred) & 255
         lignes.append(ligne); prec = ligne
-    return w, h, n, couleur, lignes
+
+    # tout ramener en RGBA pour n'avoir qu'un cas à traiter ensuite
+    rgba = []
+    for ligne in lignes:
+        d = bytearray(w * 4)
+        for x in range(w):
+            p = ligne[x * n:(x + 1) * n]
+            if n == 1:   r = v = bl = p[0]; al = 255
+            elif n == 2: r = v = bl = p[0]; al = p[1]
+            elif n == 3: r, v, bl = p; al = 255
+            else:        r, v, bl, al = p
+            d[x * 4:x * 4 + 4] = bytes((r, v, bl, al))
+        rgba.append(d)
+    return w, h, rgba
 
 
-def ecrire(chemin, w, h, lignes_rgba):
+def encoder(chemin, w, h, lignes):
     brut = bytearray()
-    for ligne in lignes_rgba:
+    for ligne in lignes:
         brut.append(0); brut += ligne
     def bloc(nom, d):
         x = nom + d
@@ -77,22 +96,65 @@ def ecrire(chemin, w, h, lignes_rgba):
                        + bloc(b'IEND', b''))
 
 
-def recadrer(f):
-    lu = lire(f.read_bytes(), f.name)
+def detourer(w, h, lignes):
+    """Rend le fond transparent, en partant des bords.
+
+    On ne supprime que ce qui est relié au bord et proche de la couleur des
+    coins : un hublot noir au milieu de la coque n'est jamais touché.
+    """
+    coins = [lignes[0][0:3], lignes[0][(w - 1) * 4:(w - 1) * 4 + 3],
+             lignes[h - 1][0:3], lignes[h - 1][(w - 1) * 4:(w - 1) * 4 + 3]]
+    r0, v0, b0 = coins[0]
+    for c in coins[1:]:
+        if abs(c[0] - r0) + abs(c[1] - v0) + abs(c[2] - b0) > TOLERANCE:
+            return False, "les quatre coins n'ont pas la même couleur"
+
+    proche = lambda p: (abs(p[0] - r0) + abs(p[1] - v0) + abs(p[2] - b0)) <= TOLERANCE
+    vu = bytearray(w * h)
+    file = collections.deque()
+    for x in range(w):
+        for y in (0, h - 1):
+            if not vu[y * w + x]: vu[y * w + x] = 1; file.append((x, y))
+    for y in range(h):
+        for x in (0, w - 1):
+            if not vu[y * w + x]: vu[y * w + x] = 1; file.append((x, y))
+
+    efface = 0
+    while file:
+        x, y = file.popleft()
+        ligne = lignes[y]
+        if not proche(ligne[x * 4:x * 4 + 3]):
+            continue
+        ligne[x * 4 + 3] = 0
+        efface += 1
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < w and 0 <= ny < h and not vu[ny * w + nx]:
+                vu[ny * w + nx] = 1
+                file.append((nx, ny))
+    return True, f"{efface * 100 // (w * h)} % du fond retiré"
+
+
+def traiter(f):
+    lu = decoder(f.read_bytes(), f.name)
     if lu is None:
         print(f"  {f.name} : format non géré, laissé tel quel")
         return
-    w, h, n, couleur, lignes = lu
-    if couleur not in (4, 6):
-        print(f"  {f.name} : pas de transparence — le fond fera un rectangle "
-              f"sur la mer. À regénérer avec un fond transparent.")
-        return
+    w, h, lignes = lu
 
-    ia = n - 1                       # l'alpha est le dernier canal
+    opaque = all(ligne[x * 4 + 3] > 250 for ligne in lignes for x in (0, w - 1))
+    if opaque:
+        ok, note = detourer(w, h, lignes)
+        print(f"  {f.name} : {note}" if ok
+              else f"  {f.name} : fond non détouré — {note}. "
+                   f"Regénère avec un fond uni #0A0A0B.")
+        if not ok:
+            return
+
     x0, y0, x1, y1 = w, h, -1, -1
     for y, ligne in enumerate(lignes):
         for x in range(w):
-            if ligne[x * n + ia] > SEUIL:
+            if ligne[x * 4 + 3] > SEUIL_ALPHA:
                 if x < x0: x0 = x
                 if x > x1: x1 = x
                 if y < y0: y0 = y
@@ -100,33 +162,24 @@ def recadrer(f):
     if x1 < 0:
         print(f"  {f.name} : entièrement transparent, ignoré")
         return
-    if (x0, y0, x1, y1) == (0, 0, w - 1, h - 1):
-        print(f"  {f.name} : déjà au plus juste ({w}×{h})")
-        return
 
     nw, nh = x1 - x0 + 1, y1 - y0 + 1
-    sortie = []
-    for y in range(y0, y1 + 1):
-        ligne, dest = lignes[y], bytearray()
-        for x in range(x0, x1 + 1):
-            px = ligne[x * n:(x + 1) * n]
-            dest += bytes((px[0], px[0], px[0], px[1])) if n == 2 else px
-        sortie.append(dest)
-    ecrire(f, nw, nh, sortie)
+    if (nw, nh) == (w, h) and not opaque:
+        print(f"  {f.name} : déjà au plus juste ({w}×{h})")
+        return
+    encoder(f, nw, nh, [lignes[y][x0 * 4:(x1 + 1) * 4] for y in range(y0, y1 + 1)])
     print(f"  {f.name} : {w}×{h} → {nw}×{nh}")
 
 
 def main():
     if not DOSSIER.is_dir():
-        print("Aucun dossier illustrations/, rien à faire")
-        return
+        print("Aucun dossier illustrations/, rien à faire"); return
     fichiers = sorted(DOSSIER.glob('*.png'))
     if not fichiers:
-        print("Aucun PNG dans illustrations/, rien à faire")
-        return
-    print(f"Recadrage de {len(fichiers)} image(s) :")
+        print("Aucun PNG dans illustrations/, rien à faire"); return
+    print(f"Détourage de {len(fichiers)} image(s) :")
     for f in fichiers:
-        recadrer(f)
+        traiter(f)
 
 
 if __name__ == '__main__':

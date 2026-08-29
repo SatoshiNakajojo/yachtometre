@@ -67,10 +67,10 @@ fichier et pose lui-même la silhouette de 1,75 m, ce qui rend l'invariant n° 1
 indépendant de qui dessine.
 
 Deux voies possibles :
-- `illustrations/PROMPTS-GEMINI.md` : 31 prompts prêts à coller, gratuits,
-  utilisables ce soir.
-- `brief-illustrations.md` : la commande à envoyer à un illustrateur humain,
-  400 à 900 € pour ce volume en style plat.
+- `illustrations/PROMPTS-IMAGES.md` : 31 prompts prêts à coller, gratuits.
+  Direction photoréaliste depuis que les aplats vectoriels ont été jugés trop
+  enfantins à l'essai.
+- `brief-illustrations.md` : la même commande, à envoyer à un prestataire.
 
 Contraintes de livraison dans `illustrations/LISEZMOI.md`.
 

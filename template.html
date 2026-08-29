@@ -458,13 +458,25 @@ const VB_W=1000, VB_H0=320, WATER0=244, MER0=76, X0=96, HUMAIN=1.75, VB_HMAX=660
    fixées en tête de bateauSVG et lues par tout ce qu'elle appelle. */
 let VB_H=VB_H0, WATER=WATER0;
 
+/* Silhouette pleine plutôt qu'un bonhomme bâton : à côté d'une photo elle
+   tient la comparaison, et à huit pixels de haut — le superyacht de 180 m —
+   une forme pleine reste lisible là où un trait disparaît.
+   Hauteur totale exactement HUMAIN mètres, pieds sur la flottaison. */
 function humainSVG(x,pxm){
-  const h=HUMAIN*pxm, y=WATER, t=h*0.13;
-  return `<g opacity=".85">
-    <circle cx="${x}" cy="${y-h+t}" r="${t}" fill="var(--gris)"/>
-    <path d="M ${x} ${y-h+t*2.1} L ${x} ${y-h*0.44} M ${x-h*0.1} ${y-h*0.68} L ${x+h*0.1} ${y-h*0.62}
-             M ${x} ${y-h*0.44} L ${x-h*0.09} ${y} M ${x} ${y-h*0.44} L ${x+h*0.09} ${y}"
-      stroke="var(--gris)" stroke-width="${Math.max(1,h*0.055)}" fill="none" stroke-linecap="round"/></g>`;
+  const h=HUMAIN*pxm, y=WATER;
+  const t=h*0.082, ep=h*0.055;
+  const R = (cx,cy,w,ht) => `<rect x="${cx}" y="${cy}" width="${w}" height="${ht}" rx="${w/2}"/>`;
+  return `<g fill="var(--gris)" opacity=".9">
+    <circle cx="${x}" cy="${y-h+t}" r="${t}"/>
+    <path d="M ${x-h*0.105} ${y-h*0.795}
+             q ${h*0.105} ${-h*0.055} ${h*0.21} 0
+             l 0 ${h*0.315}
+             q ${-h*0.105} ${h*0.045} ${-h*0.21} 0 z"/>
+    ${R(x-h*0.145, y-h*0.79, ep, h*0.37)}
+    ${R(x+h*0.145-ep, y-h*0.79, ep, h*0.37)}
+    ${R(x-h*0.080, y-h*0.50, ep, h*0.50)}
+    ${R(x+h*0.080-ep, y-h*0.50, ep, h*0.50)}
+  </g>`;
 }
 function coque(x0,x1,p){
   const len=x1-x0, y=WATER;

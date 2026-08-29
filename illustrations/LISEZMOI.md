@@ -7,7 +7,7 @@ tout seuls.
 Le dossier peut rester vide. Dans ce cas le jeu utilise ses silhouettes
 procédurales, qui ne sont qu'un gabarit de proportions.
 
-**Les prompts prêts à coller dans Gemini sont dans `PROMPTS-GEMINI.md`.**
+**Les prompts prêts à coller sont dans `PROMPTS-IMAGES.md`.**
 
 ## Le nom du fichier fait tout
 
@@ -46,11 +46,13 @@ carré et gardent leur propre fond.
 Le livrable du jeu est **un fichier HTML unique**. Les dessins y sont recopiés
 en base64, pas chargés à côté. Il en découle :
 
-- **PNG avec transparence, ou SVG avec un `viewBox`.** Rien d'autre.
-- **Aucune marge** autour de l'objet — mais `outils/recadrer.py` rogne les
-  marges transparentes automatiquement à chaque publication, donc ce n'est pas
-  à toi d'y veiller.
+- **PNG de préférence.** JPEG, WebP et SVG sont acceptés, mais seul le PNG
+  passe par le détourage automatique.
+- **Fond noir uni `#0A0A0B`, ou transparent.** `outils/recadrer.py` retire le
+  fond par remplissage depuis les bords — donc les zones sombres *intérieures*
+  au bateau, hublots et ouvertures, sont préservées — puis rogne les marges.
+  Tout ça à chaque publication : ce n'est pas à toi d'y veiller.
 - **Rien d'extérieur dans un SVG** : pas d'image liée, pas de police liée,
   textes vectorisés, pas de `<style>` ni de `<script>`.
-- **300 Ko par fichier au maximum.** Le build prévient au-delà de 2 Mo au
+- **400 Ko par fichier au maximum.** Le build prévient au-delà de 2 Mo au
   total : à ce stade le jeu devient lourd à ouvrir sur un téléphone.

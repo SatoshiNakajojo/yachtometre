@@ -34,11 +34,61 @@ def dimensions_svg(texte, nom):
     return v[2], v[3]
 
 
+def dimensions_png(o, nom):
+    if o[:8] != b'\x89PNG\r\n\x1a\n':
+        sys.exit(f"illustrations/{nom} porte l'extension .png mais n'en est pas un")
+    return struct.unpack('>II', o[16:24])
+
+
+def dimensions_jpeg(o, nom):
+    i = 2
+    while i + 9 < len(o):
+        if o[i] != 0xFF:
+            i += 1
+            continue
+        marqueur = o[i + 1]
+        # SOF0..SOF15, sauf les marqueurs de redémarrage et de tables
+        if marqueur in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7,
+                        0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
+            h, w = struct.unpack('>HH', o[i + 5:i + 9])
+            return w, h
+        if marqueur in (0xD8, 0x01) or 0xD0 <= marqueur <= 0xD7:
+            i += 2
+        else:
+            i += 2 + struct.unpack('>H', o[i + 2:i + 4])[0]
+    sys.exit(f"illustrations/{nom} : dimensions JPEG introuvables")
+
+
+def dimensions_webp(o, nom):
+    if o[:4] != b'RIFF' or o[8:12] != b'WEBP':
+        sys.exit(f"illustrations/{nom} porte l'extension .webp mais n'en est pas un")
+    genre = o[12:16]
+    if genre == b'VP8X':
+        w = int.from_bytes(o[24:27], 'little') + 1
+        h = int.from_bytes(o[27:30], 'little') + 1
+        return w, h
+    if genre == b'VP8 ':
+        return (struct.unpack('<H', o[26:28])[0] & 0x3FFF,
+                struct.unpack('<H', o[28:30])[0] & 0x3FFF)
+    if genre == b'VP8L':
+        b = o[21:25]
+        return ((b[0] | (b[1] & 0x3F) << 8) + 1,
+                ((b[1] >> 6) | b[2] << 2 | (b[3] & 0x0F) << 10) + 1)
+    sys.exit(f"illustrations/{nom} : variante WebP non reconnue")
+
+
+FORMATS = {'.png': ('image/png', dimensions_png),
+           '.jpg': ('image/jpeg', dimensions_jpeg),
+           '.jpeg': ('image/jpeg', dimensions_jpeg),
+           '.webp': ('image/webp', dimensions_webp)}
+
+
 def illustrations():
     """Incruste les dessins d'illustrations/, nommés d'après l'id du palier.
 
     Le nom du fichier fait tout : `voilier.png` remplace la silhouette du
-    voilier, `capitaine-3.png` donne son portrait au commandant. PNG ou SVG.
+    voilier, `capitaine-3.png` donne son portrait au commandant. PNG, JPEG,
+    WebP ou SVG — mais seul le PNG passe par le détourage automatique.
     Dossier vide ou absent : le jeu retombe sur les silhouettes procédurales.
 
     Chaque dessin est incrusté en base64 dans le HTML, jamais chargé à côté —
@@ -51,15 +101,10 @@ def illustrations():
         return dessins
     for f in sorted(DESSINS.iterdir()):
         ext = f.suffix.lower()
-        if ext not in ('.png', '.svg'):
+        if ext not in FORMATS and ext != '.svg':
             continue
         octets = f.read_bytes()
-        if ext == '.png':
-            if octets[:8] != b'\x89PNG\r\n\x1a\n':
-                sys.exit(f"illustrations/{f.name} porte l'extension .png mais n'en est pas un")
-            w, h = struct.unpack('>II', octets[16:24])
-            mime = 'image/png'
-        else:
+        if ext == '.svg':
             texte = octets.decode('utf-8')
             texte = re.sub(r'<\?xml.*?\?>', '', texte, flags=re.S)
             texte = re.sub(r'<!DOCTYPE.*?>', '', texte, flags=re.S)
@@ -69,6 +114,13 @@ def illustrations():
                 sys.exit(f"illustrations/{f.name} ne contient pas de balise <svg>")
             w, h = dimensions_svg(texte, f.name)
             octets, mime = texte.encode('utf-8'), 'image/svg+xml'
+        else:
+            mime, mesurer = FORMATS[ext]
+            w, h = mesurer(octets, f.name)
+        if len(octets) > 400_000:
+            print(f"Attention : illustrations/{f.name} pèse {len(octets)//1024} Ko. "
+                  f"Au-delà de 400 Ko par image, le jeu devient long à ouvrir.",
+                  file=sys.stderr)
         dessins[f.stem] = {
             'u': f'data:{mime};base64,' + base64.b64encode(octets).decode('ascii'),
             'w': w, 'h': h,
