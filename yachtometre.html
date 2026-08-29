@@ -141,6 +141,8 @@ body{
 .tier-len{font-family:var(--mono);font-size:clamp(32px,8vw,52px);font-weight:800;color:var(--btc);line-height:1;letter-spacing:-.02em}
 .tier-name{font-family:var(--display);font-size:clamp(20px,4.6vw,32px);text-transform:uppercase;line-height:1.05;margin:6px 0 0;letter-spacing:-.02em}
 .punch{margin:14px 0 0;max-width:62ch;font-size:16px}
+.plafond{color:var(--gris);font-size:14px}
+.plafond[hidden]{display:none}
 .capitaine{margin-top:16px;padding-top:14px;border-top:1px solid var(--bordure)}
 .capitaine .role{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--btc)}
 .capitaine .line{font-style:italic;color:var(--gris);margin:5px 0 0}
@@ -219,7 +221,7 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
     </div>
     <div class="ticker">
       <div class="px" id="tickPx">—</div>
-      <div class="var off" id="tickVar">chargement</div>
+      <div class="var off" id="tickVar"></div>
       <button type="button" id="refresh">Actualiser</button>
     </div>
   </header>
@@ -234,7 +236,7 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
     <div class="cell">
       <label for="btc">Ton stack</label>
       <input id="btc" type="number" step="0.001" min="0" value="0.35" inputmode="decimal">
-      <div class="hint">en BTC</div>
+      <div class="hint" id="hintBtc">en BTC</div>
     </div>
     <div class="cell">
       <label for="annee">Tu holdes jusqu'en</label>
@@ -270,6 +272,7 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
     <div class="tier-len" id="tierLen">—</div>
     <h2 class="tier-name" id="tierName">—</h2>
     <p class="punch" id="punch"></p>
+    <p class="punch plafond" id="plafond" hidden></p>
     <div class="capitaine">
       <div class="role" id="capRole">Capitaine</div>
       <div class="cap-portrait" id="capPortrait" hidden></div>
@@ -363,7 +366,7 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
   </div>
 
   <footer>
-    Le rainbow chart est une régression logarithmique sur le passé. C'est une courbe rigolote, pas une prédiction.<br>
+    <span id="avertissement"></span><br>
     Ton stack reste sur ton téléphone. Aucune donnée n'est envoyée nulle part.
   </footer>
 </div>
@@ -1241,6 +1244,17 @@ function eur(n){
 const metres = m => m<=0 ? '0 m' : m<1 ? (m*100).toFixed(0)+' cm'
                  : m.toFixed(m<10?2:1).replace('.',',')+' m';
 
+/* « 10,00 m → 10,0 m » : deux longueurs qui encadrent 10 mètres tombaient sur
+   des précisions différentes et donnaient l'air d'une faute de frappe. Quand
+   c'est le cas on aligne les deux sur la plus grossière. */
+function paireMetres(a,b){
+  if(Math.min(a,b)>=1 && Math.min(a,b)<10 && Math.max(a,b)>=10){
+    const f = v => v.toFixed(1).replace('.',',')+' m';
+    return [f(a), f(b)];
+  }
+  return [metres(a), metres(b)];
+}
+
 /* Mesure fine : descend jusqu'au millimètre.
    Un café ne fait pas « 0 m » de yacht, il fait 0,4 mm. */
 function mesure(m){
@@ -1510,7 +1524,7 @@ function lignesTexte(ctx,txt,maxW){
     if(ctx.measureText(t).width>maxW && l){ out.push(l); l=m; } else l=t; }
   if(l) out.push(l); return out;
 }
-let legendeIdx=0, cartePNG=null;
+let legendeIdx=0, cartePNG=null, releve=0;
 async function dessinerCarte(pal,L,annee,svg){
   const cv=$('carte'); if(!cv) return;
   const c=cv.getContext('2d'), W=1080, M=76;
@@ -1580,8 +1594,15 @@ function relever(spot){
       pct:(v>0?'+':'')+(v*100).toFixed(1).replace('.',',')+' %',
       delta:mesure(Math.abs(d)), longueur:metres(L)});
     const j=Math.max(1,Math.round((new Date(jourISO())-new Date(m.mesure.date))/86400000));
-    $('bulletinSous').textContent=`Depuis ${j} jour${j>1?'s':''} · ${metres(m.mesure.longueur)} → ${metres(L)}`;
-    $('bulletin').style.borderLeftColor = d>=0 ? 'var(--vert)' : 'var(--rouge)';
+    const [avant,apres]=paireMetres(m.mesure.longueur,L);
+    $('bulletinSous').textContent=`Depuis ${j} jour${j>1?'s':''} · ${avant} → ${apres}`;
+    /* La couleur suit le seau, pas l'écart de longueur : la courbe du rainbow
+       avance avec l'horloge, si bien qu'un marché parfaitement plat fait
+       rétrécir le bateau d'un millième de millimètre — et virait au rouge.
+       Les bornes viennent du JSON, un nouveau seau se colore donc tout seul. */
+    const bornes = CONTENU.notifications[cle].seuil || [0,0];
+    $('bulletin').style.borderLeftColor =
+      bornes[1] <= 0 ? 'var(--rouge)' : bornes[0] >= 0 ? 'var(--vert)' : 'var(--gris)';
     $('bulletin').style.display='block';
   }
   memEcrire({...m, mesure:{date:jourISO(), longueur:L, prix:spot}});
@@ -1636,6 +1657,16 @@ function rendre(){
   $('ghost').style.left=posRegle(LAuj)+'%';
   $('ghost').querySelector('b').textContent=metres(LAuj);
   $('legAnnee').textContent='en '+annee;
+
+  // Le stack déborde l'échelle : au-delà du dernier palier, la longueur est
+  // bloquée et le jeu doit le dire au lieu de faire semblant.
+  const brut=parseFloat($('btc').value);
+  $('hintBtc').textContent = brut<0 ? CONTENU.systeme.erreurs.negatif : 'en BTC';
+  $('hintBtc').classList.toggle('live', brut<0);
+  const dernier=PALIERS[PALIERS.length-1];
+  const auPlafond = budgetFut >= dernier.p && LFut >= dernier.L-0.01;
+  $('plafond').textContent = auPlafond ? CONTENU.systeme.erreurs.plafond : '';
+  $('plafond').hidden = !auPlafond;
 
   $('tierLen').textContent=pFut.L>0?metres(LFut):'—';
   $('tierName').textContent=pFut.nom;
@@ -1753,7 +1784,10 @@ const SOURCES=[
 ];
 
 async function chargerCours(){
-  $('tickVar').className='var off'; $('tickVar').textContent='chargement';
+  // Sept lignes de chargement dorment dans contenu.json depuis la phase 2.
+  // Elles tournent à chaque relève, la première comprise.
+  $('tickVar').className='var off';
+  $('tickVar').textContent=pick(CONTENU.systeme.chargement,releve++);
   for(const s of SOURCES){
     try{
       const r=await fetch(s.url,{cache:'no-store'});
@@ -1778,7 +1812,9 @@ async function chargerCours(){
   $('tickPx').textContent=eur(parseFloat($('prix').value)||68000);
   $('tickVar').className='var off';
   $('tickVar').textContent='cours manuel';
-  $('hintPrix').textContent=CONTENU.systeme.erreurs.cours_indisponible;
+  $('hintPrix').textContent = navigator.onLine===false
+    ? CONTENU.systeme.erreurs.hors_ligne
+    : CONTENU.systeme.erreurs.cours_indisponible;
   rendre(); relever(Math.max(1,parseFloat($('prix').value)||68000));
 }
 
@@ -1813,6 +1849,11 @@ $('cpCap').onclick=async e=>{
   catch(_){ e.target.textContent='Copie refusée'; }
 };
 $('rerollCap').onclick=()=>{ legendeIdx++; rendre(); };
+
+/* Invariant : l'avertissement légal reste affiché. Il était écrit en dur dans
+   le pied de page en plus d'exister dans contenu.json — deux exemplaires à
+   tenir d'accord, donc un qui finit par mentir. */
+$('avertissement').textContent=CONTENU.systeme.avertissement;
 
 (function restaurer(){
   const m=memLire();

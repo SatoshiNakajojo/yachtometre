@@ -355,6 +355,14 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
   bateaux qui ne se connaissent pas. C'est normal, John le sait.
 - **La carte de partage dépend des polices chargées.** Elle se redessine sur
   `document.fonts.ready`. Hors ligne, le titrage retombe sur Impact.
+- **La couleur du bandeau du matin suit le seau, pas l'écart de longueur.** La
+  courbe du rainbow avance avec l'horloge : entre deux ouvertures, un marché
+  parfaitement plat fait rétrécir le bateau d'un millième de millimètre, et le
+  bandeau virait au rouge. Les bornes du seau viennent du JSON, un nouveau seau
+  se colore donc tout seul.
+- **`paireMetres()` existe pour une seule raison :** deux longueurs qui
+  encadrent 10 mètres tombaient sur des précisions différentes — « 10,00 m →
+  10,0 m » avait l'air d'une faute de frappe.
 - **Le fantôme mélange deux horizons, et c'est voulu.** Son avance sur le bateau
   réel se lit sur l'année projetée ; son gain « depuis la vente » se lit entre le
   cours de vente et celui d'aujourd'hui. Confondre les deux donnerait un chiffre
@@ -425,7 +433,20 @@ Un bon réflexe avant de livrer : rejoue le calcul de `0,35 BTC en 2032, bande
 médiane`. Le résultat attendu est un voilier de croisière d'environ 10 mètres.
 Si tu obtiens un pédalo ou un superyacht, la calibration a bougé.
 
-4. Pour la version hébergée, deux pièges de plus :
+4. **Vérifie que les textes sont atteignables.** Onze lignes de `contenu.json`
+   n'avaient jamais été affichées : les sept lignes de chargement, le message
+   hors ligne, le stack négatif, le plafond de l'échelle, et l'avertissement
+   légal — celui-là existait en double, écrit en dur dans le pied de page en
+   plus du JSON. Le contenu étant le produit, une ligne écrite et jamais
+   montrée est du travail perdu. Trois absences restent volontaires :
+   `capitaine[].portrait` sert au brief d'illustration, `entretien.naufrage`
+   attend la phase 9b, et `systeme.erreurs.date_passee` est inatteignable
+   puisque le sélecteur d'année commence à l'année courante.
+
+   La méthode : lister les clés de `contenu.json` et chercher chacune dans le
+   `<script>` de `template.html`.
+
+5. Pour la version hébergée, deux pièges de plus :
 
 ```bash
 # le service worker compile
