@@ -43,6 +43,12 @@ Le build et la publication se rejouent tout seuls à chaque modification de
 `contenu.json`, y compris depuis le site de GitHub sur téléphone.
 **Ce que ça ne donne pas : la notification à 8 h.** Voir phase 8b.
 
+### Phase 9a — Mode paper hands ✅
+L'utilisateur déclare combien il a vendu et à quel cours. Le jeu affiche le
+bateau fantôme qu'il aurait eu, ce que la vente lui coûte en mètres de coque, et
+ce que le fantôme a gagné depuis. S'il a vendu plus haut que le cours du jour,
+le jeu le reconnaît — on se moque de la situation, pas de lui.
+
 ---
 
 ## À faire
@@ -58,12 +64,6 @@ l'id du palier, remplace la silhouette de ce palier — dessin par dessin, sans
 code à écrire, et la publication se relance seule. Les portraits de capitaine
 ont eux aussi leur emplacement dans la fiche. Il ne reste que la commande des
 dessins. Contraintes de livraison : `illustrations/LISEZMOI.md`.
-
-### Phase 9a — Mode paper hands — *priorité 2*
-Les textes sont **déjà écrits** dans `contenu.json`, rien n'est branché.
-L'utilisateur déclare une vente, le jeu continue d'afficher le bateau fantôme
-qu'il aurait eu, et le compare au sien. Cruel, mémorable, très partageable.
-Coût faible, valeur comique élevée.
 
 ### Phase 8b — Mobile natif — *priorité 3*
 Le seul argument qui reste pour le natif est **la notification du matin**, que ni

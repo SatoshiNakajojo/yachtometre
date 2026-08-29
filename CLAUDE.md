@@ -58,8 +58,9 @@ désormais ; tiiny.host n'est plus dans la boucle.
 Phases terminées : 0 (socle chiffré), 1 (prototype validé — tous les testeurs ont
 ri), 2 (banque de textes), 4 (bateau vivant, version web), 5 (mètre de yacht),
 6 (entretien), 7 (carte de partage), 8a (hébergement et installation sur l'écran
-d'accueil). La phase 3 (illustrations) a son brief prêt mais aucun dessin
-commandé. La phase 8b (mobile natif, notification poussée) reste ouverte.
+d'accueil), 9a (paper hands). La phase 3 (illustrations) a son brief prêt et sa
+prise posée, mais aucun dessin commandé. La phase 8b (mobile natif, notification
+poussée) reste ouverte.
 
 ---
 
@@ -107,7 +108,7 @@ rebuilder, sinon tu l'effaces.
 
 ## 5. Le contenu — c'est le vrai produit
 
-`contenu.json` contient **240 textes** et constitue la source de vérité unique.
+`contenu.json` contient **244 textes** et constitue la source de vérité unique.
 Aucun texte visible par l'utilisateur ne doit être écrit en dur ailleurs.
 
 Structure :
@@ -119,7 +120,7 @@ Structure :
 | `notifications` | 7 seaux par ampleur du mouvement, de `krach` à `moon` |
 | `opportunite` | 4 seaux selon la longueur perdue |
 | `entretien` | 4 états : confortable, juste, intenable, naufrage |
-| `paper_hands` | mode phase 9, écrit mais pas encore branché |
+| `paper_hands` | mode phase 9a, branché : le bateau fantôme après une vente déclarée |
 | `systeme` | chargement, vides, erreurs, consignes d'installation, avertissement légal |
 | `partage` | légendes de la carte |
 
@@ -236,11 +237,8 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
    propre `viewBox` et le cadre s'y adapte. Réparer le procédural coûterait un
    arbitrage visuel (rétrécir le bateau ou allonger le cadre, avec un effet sur
    la carte de partage) pour un rendu qui a vocation à disparaître.
-2. **Le mode paper hands** (phase 9). Les textes existent déjà dans
-   `contenu.json`, rien n'est branché. L'utilisateur déclare une vente, le jeu le
-   hante avec le bateau fantôme qu'il aurait eu.
-3. **Le vrai push quotidien** (phase 8). Voir la limite ci-dessous.
-4. **Le mode multi-actifs.** Le même moteur marche avec des actions. C'est ce qui
+2. **Le vrai push quotidien** (phase 8b). Voir la limite ci-dessous.
+3. **Le mode multi-actifs.** Le même moteur marche avec des actions. C'est ce qui
    ouvrirait un second public.
 
 ---
@@ -263,6 +261,12 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
   bateaux qui ne se connaissent pas. C'est normal, John le sait.
 - **La carte de partage dépend des polices chargées.** Elle se redessine sur
   `document.fonts.ready`. Hors ligne, le titrage retombe sur Impact.
+- **Le fantôme mélange deux horizons, et c'est voulu.** Son avance sur le bateau
+  réel se lit sur l'année projetée ; son gain « depuis la vente » se lit entre le
+  cours de vente et celui d'aujourd'hui. Confondre les deux donnerait un chiffre
+  faux. Et `lignes_tout_vendu` n'est tirée que si le stack est à zéro : sinon la
+  réplique « ton bateau réel : néant » ment à quelqu'un qui a encore des
+  bitcoins.
 - **Le service worker sert le réseau d'abord, le cache en repli.** C'est
   délibéré : un cache-d'abord ferait tourner un téléphone sur une version
   périmée pendant des jours. Ne « optimise » pas en inversant. Le cours du BTC

@@ -558,12 +558,19 @@
   },
 
   "paper_hands": {
-    "note": "mode phase 9 — l'utilisateur a déclaré une vente",
+    "note": "mode phase 9a — l'utilisateur a déclaré une vente",
+    "vide": "Rien de vendu, rien à regretter. Ce bloc restera vide, et c'est très bien ainsi.",
+    "prix_manquant": "Il manque le cours auquel tu as vendu. Sans lui, le fantôme ne sait pas de quand il date.",
+    "cout": "Cette vente coûte {delta} de bateau en {annee}.",
+    "bien_joue": "Pour l'instant tu as eu raison : le fantôme a rétréci de {delta} depuis ta vente. On en reparle l'an prochain.",
     "lignes": [
       "Tu as vendu. Le bateau que tu aurais eu mesure {longueur}. Il est amarré ici, dans cet écran.",
       "Depuis ta vente, ton fantôme a gagné {delta}. Il navigue bien. Il ne demande pas de tes nouvelles.",
-      "Ton bateau réel : néant. Ton bateau fantôme : {longueur}. Bonne journée.",
       "Le fantôme a embauché un boulanger. Tu n'es pas invité."
+    ],
+    "note_tout_vendu": "réservé au cas où il ne reste rien : sinon la réplique ment",
+    "lignes_tout_vendu": [
+      "Ton bateau réel : néant. Ton bateau fantôme : {longueur}. Bonne journée."
     ]
   },
 

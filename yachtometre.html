@@ -180,6 +180,7 @@ body{
 .chip{background:transparent;border:1px solid var(--bordure);color:var(--gris);font-family:var(--mono);font-size:11px;padding:7px 11px;cursor:pointer;text-transform:uppercase;letter-spacing:.05em}
 .chip:hover,.chip:focus{border-color:var(--btc);color:var(--btc);outline:none}
 .conv-out{margin-top:16px;border-top:1px solid var(--bordure);padding-top:15px}
+.conv-out:first-child{margin-top:0;border-top:0;padding-top:0}
 .conv-out .big{font-family:var(--display);font-size:clamp(19px,4vw,29px);text-transform:uppercase;line-height:1.15;margin:0;letter-spacing:-.02em}
 .conv-out .big em{font-style:normal;color:var(--btc)}
 .conv-out p{margin:10px 0 0;color:var(--gris);max-width:60ch;font-size:14px}
@@ -312,6 +313,28 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
       <div class="conv-out">
         <p class="big" id="convBig">—</p>
         <p id="convNote"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>Paper hands</h2><p>le bateau fantôme</p></div>
+    <div class="console">
+      <div class="cell">
+        <label for="vendu">Tu as vendu</label>
+        <input id="vendu" type="number" step="0.001" min="0" value="0" inputmode="decimal">
+        <div class="hint">en BTC</div>
+      </div>
+      <div class="cell">
+        <label for="prixVente">À quel cours</label>
+        <input id="prixVente" type="number" step="100" min="0" value="0" inputmode="decimal">
+        <div class="hint">en euros</div>
+      </div>
+    </div>
+    <div class="conv">
+      <div class="conv-out">
+        <p class="big" id="phBig">—</p>
+        <p id="phNote"></p>
       </div>
     </div>
   </section>
@@ -1042,12 +1065,19 @@ const CONTENU = {
   }
  },
  "paper_hands": {
-  "note": "mode phase 9 — l'utilisateur a déclaré une vente",
+  "note": "mode phase 9a — l'utilisateur a déclaré une vente",
+  "vide": "Rien de vendu, rien à regretter. Ce bloc restera vide, et c'est très bien ainsi.",
+  "prix_manquant": "Il manque le cours auquel tu as vendu. Sans lui, le fantôme ne sait pas de quand il date.",
+  "cout": "Cette vente coûte {delta} de bateau en {annee}.",
+  "bien_joue": "Pour l'instant tu as eu raison : le fantôme a rétréci de {delta} depuis ta vente. On en reparle l'an prochain.",
   "lignes": [
    "Tu as vendu. Le bateau que tu aurais eu mesure {longueur}. Il est amarré ici, dans cet écran.",
    "Depuis ta vente, ton fantôme a gagné {delta}. Il navigue bien. Il ne demande pas de tes nouvelles.",
-   "Ton bateau réel : néant. Ton bateau fantôme : {longueur}. Bonne journée.",
    "Le fantôme a embauché un boulanger. Tu n'es pas invité."
+  ],
+  "note_tout_vendu": "réservé au cas où il ne reste rien : sinon la réplique ment",
+  "lignes_tout_vendu": [
+   "Ton bateau réel : néant. Ton bateau fantôme : {longueur}. Bonne journée."
   ]
  },
  "systeme": {
@@ -1542,6 +1572,37 @@ function rendre(){
       + (mmParEuro>0?` — Taux du jour : 1 € = ${mmParEuro.toFixed(mmParEuro<1?3:2).replace('.',',')} mm de yacht.`:'');
   }
 
+  /* paper hands — le bateau qu'on n'a plus.
+     Le fantôme, c'est le stack qu'on aurait encore sans la vente. Son gain se
+     mesure entre le cours de vente et celui d'aujourd'hui ; son avance sur le
+     bateau réel se mesure, elle, sur la projection de l'année choisie. */
+  const vendu=Math.max(0,parseFloat($('vendu').value)||0);
+  const coursVente=Math.max(0,parseFloat($('prixVente').value)||0);
+  const PH=CONTENU.paper_hands;
+
+  if(vendu<=0){
+    $('phBig').textContent='—';
+    $('phNote').textContent=PH.vide;
+  } else {
+    const LFantome=longueurPourBudget((btc+vendu)*prixFutur);
+    const pFantome=palierPourBudget((btc+vendu)*prixFutur);
+    const avance=Math.max(LFantome-LFut,0);
+    $('phBig').innerHTML=`Sans cette vente tu aurais <em>${metres(LFantome)}</em> en ${annee}. ${pFantome.nom}.`;
+
+    let suite;
+    if(coursVente<=0){
+      suite=PH.prix_manquant;
+    } else {
+      const bouge=longueurPourBudget((btc+vendu)*spot)-longueurPourBudget((btc+vendu)*coursVente);
+      suite = bouge<0
+        ? remplir(PH.bien_joue,{delta:mesure(-bouge)})
+        : remplir(pick(btc>0 ? PH.lignes : PH.lignes.concat(PH.lignes_tout_vendu),
+                       Math.round(avance*10)),
+                  {longueur:metres(LFantome), delta:mesure(bouge)});
+    }
+    $('phNote').textContent=remplir(PH.cout,{delta:mesure(avance),annee:annee})+' '+suite;
+  }
+
   /* et si demain */
   $('tomorrow').innerHTML=[-0.14,-0.06,-0.02,0.00,0.03,0.07,0.16].map((v,i)=>{
     const L2=longueurPourBudget(btc*prixFutur*(1+v)), d=L2-LFut;
@@ -1557,7 +1618,8 @@ function rendre(){
     {longueur:metres(LFut),annee:annee,nom:pFut.nom});
 
   memEcrire({...memLire(), btc:$('btc').value, annee:$('annee').value, bande:$('bande').value,
-             depense:$('depense').value, depenseNom:$('depenseNom').value});
+             depense:$('depense').value, depenseNom:$('depenseNom').value,
+             vendu:$('vendu').value, prixVente:$('prixVente').value});
 
   $('hintAnnee').textContent=`dans ${annee-AN_MIN} an${annee-AN_MIN>1?'s':''}`;
   $('hintBande').textContent=`× ${(prixFutur/spot).toFixed(1).replace('.',',')} d'ici ${annee}`;
@@ -1606,7 +1668,7 @@ async function chargerCours(){
   rendre(); relever(Math.max(1,parseFloat($('prix').value)||68000));
 }
 
-['btc','annee','bande','prix','depense','depenseNom'].forEach(id=>{
+['btc','annee','bande','prix','depense','depenseNom','vendu','prixVente'].forEach(id=>{
   $(id).addEventListener('input',rendre);
   $(id).addEventListener('change',rendre);
 });
@@ -1627,6 +1689,8 @@ $('rerollCap').onclick=()=>{ legendeIdx++; rendre(); };
   if(m.bande!==undefined)      $('bande').value=m.bande;
   if(m.depense!==undefined)    $('depense').value=m.depense;
   if(m.depenseNom!==undefined) $('depenseNom').value=m.depenseNom;
+  if(m.vendu!==undefined)      $('vendu').value=m.vendu;
+  if(m.prixVente!==undefined)  $('prixVente').value=m.prixVente;
 })();
 
 /* ══════════════════════════════════════════════════════
