@@ -40,9 +40,26 @@ Tu n'as **pas** à te soucier du fond, de la taille ni du cadrage :
 
 - Vraiment de profil ? Si tu vois le pont d'en haut ou l'avant de face, jette.
 - Fond noir bien uni, sans dégradé ni halo ?
+- **Rien sous l'objet ?** Pas de reflet, pas d'image miroir, pas d'ombre au sol.
+  C'est le défaut le plus fréquent, et le plus traître : le reflet double la
+  hauteur mesurée et fausse toute l'échelle.
+- **Aucune lettre nulle part ?** Nom, numéro, marque : le générateur adore
+  écrire sur les coques. Regarde deux fois.
 - Rien sous la flottaison, pas une goutte d'eau ?
-- Personne, aucun texte, aucun nom sur la coque ?
+- Personne dans l'image ?
 - Est-ce que ça ressemble à un bateau de cette longueur-là ?
+
+## Corriger sans tout refaire
+
+Les deux ratés ci-dessus se réparent par retouche, en gardant l'image :
+
+```
+Reprends cette image et supprime le reflet sous l'objet. Fond noir uni, l'objet flotte dans le vide, aucune surface réfléchissante, aucune symétrie.
+```
+
+```
+Reprends cette image et efface toutes les inscriptions sur la coque. Aucun texte, aucun chiffre, aucune marque. La coque doit être entièrement lisse et anonyme.
+```
 
 ---
 
@@ -63,11 +80,15 @@ Lumière naturelle diffuse de ciel légèrement voilé. Éclairage doux et homog
 FOND
 Fond parfaitement uni, noir #0A0A0B, absolument uniforme — aucun dégradé, aucun vignettage, aucune texture, aucun décor. Si ton outil sait produire un fond transparent, c'est encore mieux.
 
+L'objet flotte dans le vide, posé sur rien. Aucun sol, aucune surface brillante, aucune table, et surtout AUCUN REFLET SOUS L'OBJET : ni reflet d'eau, ni reflet de studio, ni image miroir, ni symétrie verticale. Rien ne doit apparaître sous l'objet.
+
 CADRAGE
 L'image s'arrête net à la ligne de flottaison : on ne voit rien de la partie immergée. Aucune eau, aucun reflet dans l'eau, aucune écume, aucun sillage, aucun quai, aucun ciel. Le bateau touche les bords de l'image, sans marge.
 
 À NE JAMAIS FAIRE
-Aucune personne à bord ni à côté. Aucun texte, aucun chiffre, aucun logo, aucune marque, aucun nom sur la coque, aucune signature, aucun filigrane, aucun cadre.
+Aucune personne à bord ni à côté.
+
+Aucune inscription d'aucune sorte : pas de nom sur la coque, pas de numéro d'immatriculation, pas de nom de modèle, pas de marque commerciale existante, pas de logo de fabricant, pas de pavillon, pas de signature, pas de filigrane, pas de cadre. Les bateaux sont des modèles génériques, anonymes, sans aucune lettre ni chiffre nulle part.
 
 Réponds simplement « compris » et attends ma première demande.
 ```
@@ -81,7 +102,7 @@ Fichier à déposer : **`rien.png`**
 ```
 Image suivante : un ponton de bois vide, vieilles planches grises, une bitte d'amarrage en fonte et un pare-battage suspendu au bord. Aucun bateau, aucune personne.
 
-Rappel des règles : photoréaliste, vue strictement de profil au téléobjectif, proue à droite, fond noir uni #0A0A0B, image coupée net à la ligne de flottaison, aucune eau, aucune personne, aucun texte.
+Rappel des règles : photoréaliste, vue strictement de profil au téléobjectif, proue à droite, fond noir uni #0A0A0B, image coupée net à la ligne de flottaison, aucune eau, aucun reflet ni miroir sous l'objet, aucune personne, aucune inscription ni marque sur la coque.
 ```
 
 ### 02 · Bouée canard

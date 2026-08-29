@@ -7,7 +7,7 @@
  * La ligne VERSION est réécrite à chaque `python3 build.py`. Ne la fixe pas
  * à la main : c'est elle qui purge l'ancien cache après une mise à jour.
  */
-const VERSION = '051e2c7d78';
+const VERSION = '5a25e8a5a1';
 const CACHE = 'yachtometre-' + VERSION;
 
 const COQUE = [

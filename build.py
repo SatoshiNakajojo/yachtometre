@@ -123,9 +123,38 @@ def illustrations():
                   file=sys.stderr)
         dessins[f.stem] = {
             'u': f'data:{mime};base64,' + base64.b64encode(octets).decode('ascii'),
-            'w': w, 'h': h,
+            'w': w, 'h': h, 'o': len(octets),
         }
     return dessins
+
+
+def virgule(x, d=2):
+    return f"{x:.{d}f}".replace('.', ',')
+
+
+def rapport(data, dessins):
+    """Affiche la taille réelle qu'implique chaque dessin.
+
+    Le jeu prend la largeur de l'image pour la longueur du bateau, et en
+    déduit tout le reste. Une frite de piscine annoncée à 80 cm de haut, ou
+    un yacht plus haut que long, saute alors aux yeux — c'est en général un
+    reflet ou une ombre restés dans l'image, qui fausseraient l'échelle.
+    """
+    if not dessins:
+        return
+    longueurs = {p['id']: p['longueur'] for p in data['paliers']}
+    print("Illustrations incrustées :")
+    for nom in sorted(dessins):
+        d = dessins[nom]
+        poids = f"{d['o'] // 1024} Ko"
+        L = longueurs.get(nom)
+        if not L:
+            print(f"  {nom:<10} {int(d['w'])}×{int(d['h'])} px, {poids}")
+            continue
+        haut = L * d['h'] / d['w']
+        alerte = "  ← hauteur invraisemblable, cherche un reflet" if haut > 1.6 * L else ""
+        print(f"  {nom:<10} {virgule(L, 1)} m de long × {virgule(haut)} m de haut"
+              f"   ({int(d['w'])}×{int(d['h'])} px, {poids}){alerte}")
 
 
 def main():
@@ -169,6 +198,7 @@ def main():
     n += len(data['systeme']['vide']) + len(data['systeme']['erreurs']) + 1  # adresse
     n += len(data['systeme']['installation']) + len(data['partage'])
 
+    rapport(data, dessins)
     dessine = f"{len(dessins)} dessin{'s' if len(dessins) > 1 else ''}" if dessins \
               else "silhouettes procédurales"
     print(f"yachtometre.html + index.html écrits — {len(data['paliers'])} paliers, "

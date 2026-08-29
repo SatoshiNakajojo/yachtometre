@@ -502,8 +502,10 @@ function bateauSVG(cls,L,ill,VH,bas,k){
     g=`<image href="${dessin.u}" x="${x0}" y="${WATER-h}" width="${len}" height="${h}"/>`;
   } else if(dessin){
     // Palier « rien du tout » : aucun bateau, donc aucune échelle à tenir.
-    const w=(VB_W-X0-60)*0.45, h=w*(dessin.h/dessin.w);
-    g=`<image href="${dessin.u}" x="${X0}" y="${WATER-h}" width="${w}" height="${h}"/>`;
+    // On enfonce le dessin sous la flottaison — un ponton a des pilotis dans
+    // l'eau — et on le décale pour ne pas coller au quai du bonhomme.
+    const w=(VB_W-X0-60)*0.5, h=w*(dessin.h/dessin.w);
+    g=`<image href="${dessin.u}" x="${X0+150}" y="${WATER-h*0.82}" width="${w}" height="${h}"/>`;
   } else if(cls==='rien'){
     g=`<text x="${VB_W/2}" y="${WATER-40}" text-anchor="middle" fill="var(--gris)"
         font-family="var(--mono)" font-size="17" letter-spacing="3">RIEN À L'HORIZON</text>`;
@@ -622,8 +624,10 @@ function bateauSVG(cls,L,ill,VH,bas,k){
   const echelle=`<text x="${VB_W-14}" y="${VB_H-12}" text-anchor="end" fill="var(--gris)"
     font-family="var(--mono)" font-size="11" letter-spacing="1.5">SILHOUETTE = 1,75 M</text>`;
 
+  // Le décor — quai, mer, légende — est fixe et tient toujours dans le cadre.
+  // Seul le groupe « mesure » sert à décider de la taille du cadre.
   return `<svg viewBox="0 0 ${VB_W} ${VB_H}" xmlns="http://www.w3.org/2000/svg" role="img"
-    aria-label="Silhouette du bateau à l'échelle">${quai}${humain}<g class="bob">${g}</g>${eau}${echelle}</svg>`;
+    aria-label="Silhouette du bateau à l'échelle">${quai}<g id="mesure">${humain}<g class="bob">${g}</g></g>${eau}${echelle}</svg>`;
 }
 
 /* Un mât fait facilement une fois et demie la longueur du bateau, et le cadre
@@ -638,7 +642,7 @@ function poserScene(hote,cls,L,ill){
   for(let essai=0; essai<3; essai++){
     svg=bateauSVG(cls,L,ill,VH,bas,k);
     hote.innerHTML=svg;
-    const el=hote.firstElementChild;
+    const el=hote.querySelector('#mesure');
     if(!el || !el.getBBox) return svg;
     let bb; try{ bb=el.getBBox(); }catch(_){ return svg; }
     if(bb.y>=4 && bb.y+bb.height<=VB_H-4) return svg;
