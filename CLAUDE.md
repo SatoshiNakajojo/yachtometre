@@ -94,6 +94,12 @@ la silhouette procédurale de ce palier ; les autres gardent la leur. Incrusté,
 pas chargé à côté : c'est ce qui préserve l'invariant du fichier unique. Le
 dossier peut rester vide sans rien casser.
 
+**L'horizon est peint dans le SVG, pas en CSS.** La mer était un dégradé CSS
+qui basculait à 62 % de la hauteur du bloc, alors que la ligne de flottaison est
+à 76 % — et jusqu'à 88 % depuis que le cadre s'allonge. L'horizon ne tombait
+donc jamais au bon endroit. Il est maintenant dessiné dans le SVG, qui est le
+seul à connaître la vraie hauteur d'eau. Ne remets pas de dégradé sur `.scene`.
+
 **Le cadre est mesuré, pas deviné.** `poserScene()` dessine la scène, lit le
 `getBBox()` du résultat, et recommence — trois fois au plus — jusqu'à ce que
 rien ne dépasse. Elle allonge le cadre en priorité (jusqu'à `VB_HMAX`, 660) et
@@ -119,7 +125,14 @@ unités de haut — plutôt que de rapetisser le bateau pour faire tenir un mât
 Le chemin procédural, lui, garde son cadre plat de 320 : rien n'a changé pour
 ce que le jeu affiche aujourd'hui.
 
-`outils/recadrer.py` fait deux choses sur chaque PNG, à chaque publication :
+Deux outils préparent les fichiers déposés, dans cet ordre, à chaque
+publication. `outils/en_png.py` convertit d'abord en PNG ce qui arrive en JPEG
+ou en WebP — les générateurs d'images en produisent souvent — et plafonne la
+largeur à 1600 pixels. **C'est le seul fichier du projet qui a une dépendance**,
+Pillow, installée par le workflow : elle ne tourne jamais chez John, et son
+absence est signalée sans faire échouer le build.
+
+`outils/recadrer.py` fait ensuite deux choses sur chaque PNG :
 il retire le fond **par remplissage depuis les bords** — d'où la survie des
 hublots sombres au milieu d'une coque — puis rogne les marges. C'est pour ça
 que les prompts imposent un fond noir uni `#0A0A0B` : uni, il se détoure sans

@@ -12,8 +12,8 @@ est abandonnée.
 3. Colle ensuite le bloc du bateau voulu. Un bloc, une image.
 4. Regarde le résultat. S'il ne va pas, redemande : c'est gratuit, et le
    deuxième essai est souvent le bon.
-5. Télécharge **en PNG** — c'est le seul format que le détourage automatique
-   sait traiter.
+5. Télécharge l'image. **PNG ou JPEG, peu importe** : la publication convertit
+   ce qu'il faut.
 6. Renomme avec le nom indiqué au-dessus du bloc, par exemple `voilier.png`.
 7. Dépose dans le dossier `illustrations/` du dépôt GitHub, via
    *Add file → Upload files*. Ça marche depuis un téléphone.
@@ -29,6 +29,8 @@ Tu n'as **pas** à te soucier du fond, de la taille ni du cadrage :
   remplissage depuis les bords — les hublots sombres à l'intérieur du bateau
   sont préservés.
 - Les marges sont rognées automatiquement.
+- Un JPEG est converti en PNG avant tout ça, et une image trop large est
+  ramenée à 1600 pixels.
 - Le jeu déduit l'échelle de l'image et pose lui-même la silhouette humaine
   de 1,75 m à côté du bateau. C'est pour ça que les règles interdisent toute
   personne dans l'image : un générateur ne sait pas tenir une échelle, le

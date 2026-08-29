@@ -46,8 +46,9 @@ carré et gardent leur propre fond.
 Le livrable du jeu est **un fichier HTML unique**. Les dessins y sont recopiés
 en base64, pas chargés à côté. Il en découle :
 
-- **PNG de préférence.** JPEG, WebP et SVG sont acceptés, mais seul le PNG
-  passe par le détourage automatique.
+- **PNG, JPEG, WebP ou SVG.** Les formats photo autres que le PNG sont
+  convertis automatiquement à la publication (`outils/en_png.py`), donc dépose
+  ce que ton générateur te donne.
 - **Fond noir uni `#0A0A0B`, ou transparent.** `outils/recadrer.py` retire le
   fond par remplissage depuis les bords — donc les zones sombres *intérieures*
   au bateau, hublots et ouvertures, sont préservées — puis rogne les marges.

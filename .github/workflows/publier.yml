@@ -30,7 +30,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Recadrer les illustrations déposées
+      # Les générateurs d'images rendent souvent du JPEG. Le détourage ne sait
+      # lire que le PNG, et sans détourage l'échelle du bateau est fausse.
+      - name: Convertir les illustrations en PNG
+        run: |
+          pip install --quiet --disable-pip-version-check Pillow || true
+          python3 outils/en_png.py
+
+      - name: Détourer et recadrer les illustrations
         run: python3 outils/recadrer.py
 
       - name: Régénérer le jeu depuis contenu.json

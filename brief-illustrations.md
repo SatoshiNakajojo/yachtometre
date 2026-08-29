@@ -12,7 +12,7 @@
   perspective. Lumière diffuse, aucune ombre portée, netteté d'un bout à l'autre.
 - Fond noir uni `#0A0A0B` ou transparent. Image coupée net à la ligne de
   flottaison : rien d'immergé, aucune eau, aucun reflet.
-- Format PNG, 400 Ko par fichier au maximum.
+- Format PNG ou JPEG, 400 Ko par fichier au maximum.
 
 Le reste de la palette du jeu — orange Bitcoin `#F7931A`, gris `#8A8A93`, mer
 `#0D1114` — reste celle de l'interface, pas celle des photos.
@@ -81,9 +81,8 @@ dimensions du fichier. **Ne dessine donc aucun personnage sur les bateaux :**
 c'est ce qui garantit que le rapport de taille reste exact, et le rapport de
 taille est toute la blague.
 
-Format : PNG de préférence — seul format passant par le détourage automatique.
-JPEG, WebP et SVG sont acceptés ; pour un SVG, un `viewBox` et pas de `width` ni
-`height`. Pour un SVG, aucune ressource externe, textes vectorisés, ni
+Format : PNG, JPEG ou WebP — les deux derniers sont convertis automatiquement.
+Un SVG est accepté aussi, avec un `viewBox` et sans `width` ni `height`. Pour un SVG, aucune ressource externe, textes vectorisés, ni
 `<style>` ni `<script>`, identifiants internes préfixés par le nom du fichier.
 400 Ko par fichier au maximum.
 

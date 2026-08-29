@@ -105,7 +105,7 @@ body{
 /* ── scène ───────────────────────────────────────────── */
 .scene{
   margin-top:18px;border:1px solid var(--bordure);border-bottom:0;
-  background:linear-gradient(180deg,var(--noir) 0%,var(--noir) 62%,var(--mer) 62%,#080B0D 100%);
+  background:var(--noir);
   overflow:hidden;
 }
 .scene svg{display:block;width:100%;height:auto}
@@ -1409,6 +1409,10 @@ function bateauSVG(cls,L,ill,VH,bas,k){
     }
   }
 
+  const mer=`<defs><linearGradient id="mer" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--mer)"/><stop offset="1" stop-color="#080B0D"/>
+    </linearGradient></defs>
+    <rect x="0" y="${WATER}" width="${VB_W}" height="${VB_H-WATER}" fill="url(#mer)"/>`;
   const eau=`<line x1="0" y1="${WATER}" x2="${VB_W}" y2="${WATER}" stroke="var(--bordure)" stroke-width="1.5"/>
     <path d="M 0 ${WATER+16} q 30 -7 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0"
       stroke="var(--bordure)" stroke-width="1" fill="none"/>
@@ -1425,7 +1429,7 @@ function bateauSVG(cls,L,ill,VH,bas,k){
   // Le décor — quai, mer, légende — est fixe et tient toujours dans le cadre.
   // Seul le groupe « mesure » sert à décider de la taille du cadre.
   return `<svg viewBox="0 0 ${VB_W} ${VB_H}" xmlns="http://www.w3.org/2000/svg" role="img"
-    aria-label="Silhouette du bateau à l'échelle">${quai}<g id="mesure">${humain}<g class="bob">${g}</g></g>${eau}${echelle}</svg>`;
+    aria-label="Silhouette du bateau à l'échelle">${mer}${quai}<g id="mesure">${humain}<g class="bob">${g}</g></g>${eau}${echelle}</svg>`;
 }
 
 /* Un mât fait facilement une fois et demie la longueur du bateau, et le cadre
