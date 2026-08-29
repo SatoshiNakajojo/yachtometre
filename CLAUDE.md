@@ -94,11 +94,25 @@ la silhouette procédurale de ce palier ; les autres gardent la leur. Incrusté,
 pas chargé à côté : c'est ce qui préserve l'invariant du fichier unique. Le
 dossier peut rester vide sans rien casser.
 
+**Les photos sont chargées après le moteur, dans un second script en bas de
+page.** Elles pèsent vingt fois le reste du fichier ; en tête, elles faisaient
+attendre le jeu derrière un mégaoctet et demi d'images — 8 secondes en 4G lente
+avant le premier bateau, sur le seul canal d'acquisition du produit. Le moteur
+démarre donc avec ses silhouettes procédurales et les photos prennent leur
+place en arrivant : **0,6 seconde au lieu de 8**. Ne remets pas `ILLUS` en tête
+du script principal, et garde-le en `let` — c'est le second script qui
+l'affecte, puis rappelle `rendre()`.
+
 **L'horizon est peint dans le SVG, pas en CSS.** La mer était un dégradé CSS
 qui basculait à 62 % de la hauteur du bloc, alors que la ligne de flottaison est
 à 76 % — et jusqu'à 88 % depuis que le cadre s'allonge. L'horizon ne tombait
 donc jamais au bon endroit. Il est maintenant dessiné dans le SVG, qui est le
 seul à connaître la vraie hauteur d'eau. Ne remets pas de dégradé sur `.scene`.
+
+**La mer est peinte après le bateau, le quai après la mer.** La carène est
+ainsi tranchée net à la flottaison au lieu de s'afficher en entier avec les
+vagues par-dessus, ce qui sautait aux yeux dès la première photo. Le quai
+repasse devant : c'est une structure, pas de l'eau.
 
 **Le cadre est mesuré, pas deviné.** `poserScene()` dessine la scène, lit le
 `getBBox()` du résultat, et recommence — trois fois au plus — jusqu'à ce que
@@ -305,7 +319,10 @@ Deux fonctions distinctes, ne les confonds pas :
 
 Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
 
-1. **Les 26 illustrations** (phase 3), en **photoréaliste**. Le brief est dans
+1. **Les 26 illustrations** (phase 3), en **photoréaliste**. Vingt-deux sont
+   livrées ; manquent le voilier — que les générateurs coupent, un mât ne
+   rentrant pas dans une image large, d'où la consigne de format carré — et les
+   trois plus grands superyachts, plus les cinq portraits de capitaine. Le brief est dans
    `brief-illustrations.md`, les prompts dans `illustrations/PROMPTS-IMAGES.md`,
    tous deux générés depuis `contenu.json`. Les silhouettes SVG actuelles sont
    procédurales et servent de gabarit de proportions, pas de modèle de style. **La prise est posée** : déposer un SVG dans

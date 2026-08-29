@@ -190,7 +190,8 @@ def main():
     dessins = illustrations()
 
     out = tpl.replace(MARQUEUR, json.dumps(data, ensure_ascii=False, indent=1))
-    out = out.replace(MARQ_ILL, json.dumps(dessins, ensure_ascii=False))
+    out = out.replace(MARQ_ILL, 'ILLUS=' + json.dumps(dessins, ensure_ascii=False)
+                      + ';if(typeof rendre==="function")rendre();')
     if len(out) > PLAFOND:
         print(f"Attention : {len(out)//1024} Ko. Des dessins trop lourds rendent "
               f"le fichier pénible à ouvrir sur un mobile.", file=sys.stderr)

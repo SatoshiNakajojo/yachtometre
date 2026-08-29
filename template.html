@@ -373,8 +373,13 @@ const CONTENU = /*__CONTENU__*/;
 
 /* Illustrations déposées dans illustrations/ et incrustées au build, sous la
    forme {u: donnée base64, w, h}. Vide tant qu'aucun dessin n'est livré : on
-   retombe alors sur les silhouettes procédurales, qui ne sont qu'un gabarit. */
-const ILLUS = /*__ILLUSTRATIONS__*/;
+   retombe alors sur les silhouettes procédurales, qui ne sont qu'un gabarit.
+
+   Elles ne sont pas ici mais dans un second script, tout en bas de la page :
+   elles pèsent vingt fois le reste du fichier, et les mettre en tête ferait
+   attendre le moteur derrière un mégaoctet et demi d'images. Le jeu démarre
+   donc avec ses silhouettes, et les photos prennent leur place en arrivant. */
+let ILLUS = {};
 
 /* ══════════════════════════════════════════════════════
    MOTEUR
@@ -621,6 +626,9 @@ function bateauSVG(cls,L,ill,VH,bas,k){
     }
   }
 
+  // La mer est peinte APRÈS le bateau : elle tranche la carène à la flottaison,
+  // au lieu de laisser voir la partie immergée avec les vagues par-dessus. Le
+  // quai, lui, passe encore après : c'est une structure, pas de l'eau.
   const mer=`<defs><linearGradient id="mer" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="var(--mer)"/><stop offset="1" stop-color="#080B0D"/>
     </linearGradient></defs>
@@ -641,7 +649,7 @@ function bateauSVG(cls,L,ill,VH,bas,k){
   // Le décor — quai, mer, légende — est fixe et tient toujours dans le cadre.
   // Seul le groupe « mesure » sert à décider de la taille du cadre.
   return `<svg viewBox="0 0 ${VB_W} ${VB_H}" xmlns="http://www.w3.org/2000/svg" role="img"
-    aria-label="Silhouette du bateau à l'échelle">${mer}${quai}<g id="mesure">${humain}<g class="bob">${g}</g></g>${eau}${echelle}</svg>`;
+    aria-label="Silhouette du bateau à l'échelle"><g id="mesure">${humain}<g class="bob">${g}</g></g>${mer}${quai}${eau}${echelle}</svg>`;
 }
 
 /* Un mât fait facilement une fois et demie la longueur du bateau, et le cadre
@@ -1046,5 +1054,8 @@ if(document.fonts && document.fonts.ready) document.fonts.ready.then(rendre);
 rendre();
 chargerCours();
 </script>
+
+<!-- Les photos, à part et en dernier : voir le commentaire sur ILLUS. -->
+<script>/*__ILLUSTRATIONS__*/</script>
 </body>
 </html>
