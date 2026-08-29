@@ -452,6 +452,9 @@ function mesure(m){
    BATEAUX — silhouette humaine constante à 1,75 m
    ══════════════════════════════════════════════════════ */
 const VB_W=1000, VB_H0=320, WATER0=244, MER0=76, X0=96, HUMAIN=1.75, VB_HMAX=660;
+/* Le palier « rien du tout » n'a pas de longueur : on donne au ponton une
+   taille plausible pour qu'il passe par le même chemin que les bateaux. */
+const PONTON_M=6;
 /* Le cadre est plat par défaut. Un dessin livré peut demander plus d'air —
    un mât fait facilement une fois et demie la longueur du bateau — alors on
    allonge le cadre plutôt que de rapetisser le bateau. Ces deux valeurs sont
@@ -497,15 +500,12 @@ function bateauSVG(cls,L,ill,VH,bas,k){
   const B='var(--blanc)', O='var(--btc)', N='var(--noir)', G='var(--gris)';
   let g='';
 
-  if(dessin && L>0){
-    const h=len*(dessin.h/dessin.w);
-    g=`<image href="${dessin.u}" x="${x0}" y="${WATER-h}" width="${len}" height="${h}"/>`;
-  } else if(dessin){
-    // Palier « rien du tout » : aucun bateau, donc aucune échelle à tenir.
-    // On enfonce le dessin sous la flottaison — un ponton a des pilotis dans
-    // l'eau — et on le décale pour ne pas coller au quai du bonhomme.
-    const w=(VB_W-X0-60)*0.5, h=w*(dessin.h/dessin.w);
-    g=`<image href="${dessin.u}" x="${X0+150}" y="${WATER-h*0.82}" width="${w}" height="${h}"/>`;
+  if(dessin){
+    // Le dessin livré montre l'objet entier, carène comprise. On l'enfonce
+    // donc de la part déclarée dans reperes.json, sinon le bateau est posé
+    // sur l'eau comme un jouet de bain.
+    const h=len*(dessin.h/dessin.w), sous=h*(dessin.im||0);
+    g=`<image href="${dessin.u}" x="${x0}" y="${WATER-h+sous}" width="${len}" height="${h}"/>`;
   } else if(cls==='rien'){
     g=`<text x="${VB_W/2}" y="${WATER-40}" text-anchor="middle" fill="var(--gris)"
         font-family="var(--mono)" font-size="17" letter-spacing="3">RIEN À L'HORIZON</text>`;
@@ -812,7 +812,8 @@ function rendre(){
   const LAuj=longueurPourBudget(budgetAuj), LFut=longueurPourBudget(budgetFut);
   const pFut=palierPourBudget(budgetFut), iP=PALIERS.indexOf(pFut);
 
-  const svgCourant=poserScene($('scene'),pFut.cls,pFut.L||LFut,ILLUS[pFut.id]);
+  const LDessin=(pFut.L||LFut) || (ILLUS[pFut.id] ? PONTON_M : 0);
+  const svgCourant=poserScene($('scene'),pFut.cls,LDessin,ILLUS[pFut.id]);
   $('marker').style.left=posRegle(LFut)+'%';
   $('marker').querySelector('b').textContent=metres(LFut);
   $('ghost').style.left=posRegle(LAuj)+'%';

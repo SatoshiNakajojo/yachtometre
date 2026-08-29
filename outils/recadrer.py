@@ -22,7 +22,8 @@ import collections, pathlib, struct, sys, zlib
 
 DOSSIER = pathlib.Path(__file__).parent.parent / 'illustrations'
 SEUIL_ALPHA = 8      # en deçà, le pixel est vide
-TOLERANCE = 52       # écart de couleur toléré avec le fond, sur 255
+PLAFOND_FOND = 96    # au-dessus, le pixel appartient à l'objet, pas au fond
+PAS_MAX = 30         # écart toléré entre deux pixels voisins du fond
 CANAUX = {0: 1, 2: 3, 4: 2, 6: 4}
 
 
@@ -99,39 +100,48 @@ def encoder(chemin, w, h, lignes):
 def detourer(w, h, lignes):
     """Rend le fond transparent, en partant des bords.
 
-    On ne supprime que ce qui est relié au bord et proche de la couleur des
-    coins : un hublot noir au milieu de la coque n'est jamais touché.
+    On avance de proche en proche tant que la couleur ne change presque pas.
+    Un vignettage ou un dégradé de studio se laisse donc traverser, alors
+    qu'un bord d'objet — une marche brutale du noir vers une coque claire —
+    arrête la progression. Et comme on ne part que des bords, un hublot noir
+    au milieu de la coque n'est jamais touché.
     """
-    coins = [lignes[0][0:3], lignes[0][(w - 1) * 4:(w - 1) * 4 + 3],
-             lignes[h - 1][0:3], lignes[h - 1][(w - 1) * 4:(w - 1) * 4 + 3]]
-    r0, v0, b0 = coins[0]
-    for c in coins[1:]:
-        if abs(c[0] - r0) + abs(c[1] - v0) + abs(c[2] - b0) > TOLERANCE:
-            return False, "les quatre coins n'ont pas la même couleur"
+    def px(x, y):
+        return lignes[y][x * 4:x * 4 + 3]
 
-    proche = lambda p: (abs(p[0] - r0) + abs(p[1] - v0) + abs(p[2] - b0)) <= TOLERANCE
+    sombre = lambda p: max(p) <= PLAFOND_FOND
     vu = bytearray(w * h)
     file = collections.deque()
+
+    def semer(x, y):
+        if not vu[y * w + x] and sombre(px(x, y)):
+            vu[y * w + x] = 1
+            file.append((x, y))
+
     for x in range(w):
-        for y in (0, h - 1):
-            if not vu[y * w + x]: vu[y * w + x] = 1; file.append((x, y))
+        semer(x, 0); semer(x, h - 1)
     for y in range(h):
-        for x in (0, w - 1):
-            if not vu[y * w + x]: vu[y * w + x] = 1; file.append((x, y))
+        semer(0, y); semer(w - 1, y)
+    if not file:
+        return False, "aucun bord sombre, le fond n'a pas l'air uni"
 
     efface = 0
     while file:
         x, y = file.popleft()
-        ligne = lignes[y]
-        if not proche(ligne[x * 4:x * 4 + 3]):
-            continue
-        ligne[x * 4 + 3] = 0
+        p = px(x, y)
+        lignes[y][x * 4 + 3] = 0
         efface += 1
         for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
             nx, ny = x + dx, y + dy
-            if 0 <= nx < w and 0 <= ny < h and not vu[ny * w + nx]:
-                vu[ny * w + nx] = 1
-                file.append((nx, ny))
+            if not (0 <= nx < w and 0 <= ny < h) or vu[ny * w + nx]:
+                continue
+            q = px(nx, ny)
+            if not sombre(q):
+                continue
+            if abs(q[0] - p[0]) + abs(q[1] - p[1]) + abs(q[2] - p[2]) > PAS_MAX:
+                continue
+            vu[ny * w + nx] = 1
+            file.append((nx, ny))
     return True, f"{efface * 100 // (w * h)} % du fond retiré"
 
 
@@ -147,7 +157,7 @@ def traiter(f):
         ok, note = detourer(w, h, lignes)
         print(f"  {f.name} : {note}" if ok
               else f"  {f.name} : fond non détouré — {note}. "
-                   f"Regénère avec un fond uni #0A0A0B.")
+                   f"Regénère avec un fond noir uni #0A0A0B.")
         if not ok:
             return
 

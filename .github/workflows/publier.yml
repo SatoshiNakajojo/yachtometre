@@ -40,6 +40,9 @@ jobs:
       - name: Détourer et recadrer les illustrations
         run: python3 outils/recadrer.py
 
+      - name: Comprimer les illustrations
+        run: python3 outils/comprimer.py
+
       - name: Régénérer le jeu depuis contenu.json
         run: python3 build.py
 

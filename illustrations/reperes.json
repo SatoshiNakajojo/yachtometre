@@ -1,0 +1,14 @@
+{
+  "_note": "Part de la hauteur de l'image qui passe sous la ligne de flottaison. Les générateurs livrent l'objet entier, coque comprise ; sans ça les bateaux sont posés sur l'eau comme des jouets de bain. Valeurs réglées à l'œil, sur photo. Une entrée absente prend _defaut.",
+  "_defaut": 0.18,
+  "rien": 0.26,
+  "canard": 0.27,
+  "frite": 0.42,
+  "matelas": 0.22,
+  "kayak": 0.24,
+  "paddle": 0.30,
+  "pedalo": 0.20,
+  "barque": 0.24,
+  "jetski": 0.15,
+  "rib": 0.14
+}

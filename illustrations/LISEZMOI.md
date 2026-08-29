@@ -46,14 +46,15 @@ carré et gardent leur propre fond.
 Le livrable du jeu est **un fichier HTML unique**. Les dessins y sont recopiés
 en base64, pas chargés à côté. Il en découle :
 
-- **PNG, JPEG, WebP ou SVG.** Les formats photo autres que le PNG sont
-  convertis automatiquement à la publication (`outils/en_png.py`), donc dépose
-  ce que ton générateur te donne.
+- **Dépose du PNG ou du JPEG.** La publication convertit, détoure, recadre et
+  comprime toute seule. Elle ne retouche pas les `.webp` : ce sont ses propres
+  sorties, les reprendre les abîmerait.
 - **Fond noir uni `#0A0A0B`, ou transparent.** `outils/recadrer.py` retire le
   fond par remplissage depuis les bords — donc les zones sombres *intérieures*
   au bateau, hublots et ouvertures, sont préservées — puis rogne les marges.
   Tout ça à chaque publication : ce n'est pas à toi d'y veiller.
 - **Rien d'extérieur dans un SVG** : pas d'image liée, pas de police liée,
   textes vectorisés, pas de `<style>` ni de `<script>`.
-- **400 Ko par fichier au maximum.** Le build prévient au-delà de 2 Mo au
+- **Pas de limite de poids à surveiller.** La compression en WebP divise par
+  dix : 4,9 Mo de photos deviennent 500 Ko. Le build prévient au-delà de 2 Mo au
   total : à ce stade le jeu devient lourd à ouvrir sur un téléphone.

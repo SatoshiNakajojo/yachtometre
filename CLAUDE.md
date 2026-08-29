@@ -111,6 +111,13 @@ remplace pas cette mesure par une table de hauteurs par classe : elle serait
 fausse dès le premier dessin livré, dont on ne connaît pas les proportions à
 l'avance.
 
+**Les dessins montrent l'objet entier, pas coupé à la flottaison.** C'est ce que
+livrent les générateurs, et c'est plus lisible. `illustrations/reperes.json`
+déclare donc, par palier, quelle part de la hauteur de l'image passe sous
+l'eau — sans quoi les bateaux sont posés sur la surface comme des jouets de
+bain. Valeurs réglées à l'œil sur les photos ; une entrée absente prend
+`_defaut`. Ça ne touche pas à l'échelle, qui ne dépend que de la largeur.
+
 **La convention, et la raison derrière.** Un dessin de bateau ne contient que
 le bateau, sur fond transparent, coupé net à la flottaison. Le jeu en déduit
 l'échelle — la largeur de l'image vaut la longueur du bateau — puis dessine
@@ -125,19 +132,42 @@ unités de haut — plutôt que de rapetisser le bateau pour faire tenir un mât
 Le chemin procédural, lui, garde son cadre plat de 320 : rien n'a changé pour
 ce que le jeu affiche aujourd'hui.
 
-Deux outils préparent les fichiers déposés, dans cet ordre, à chaque
-publication. `outils/en_png.py` convertit d'abord en PNG ce qui arrive en JPEG
-ou en WebP — les générateurs d'images en produisent souvent — et plafonne la
-largeur à 1600 pixels. **C'est le seul fichier du projet qui a une dépendance**,
-Pillow, installée par le workflow : elle ne tourne jamais chez John, et son
-absence est signalée sans faire échouer le build.
+Trois outils préparent les fichiers déposés, dans cet ordre, à chaque
+publication :
 
-`outils/recadrer.py` fait ensuite deux choses sur chaque PNG :
+```
+en_png.py  →  recadrer.py  →  comprimer.py  →  build.py
+ JPEG→PNG      détoure         PNG→WebP        incruste
+               et recadre
+```
+
+`en_png.py` convertit en PNG ce qui arrive en JPEG et plafonne la largeur à
+1600 pixels. **Il ne touche jamais aux `.webp`** : `comprimer.py` en produit en
+fin de chaîne, et les reconvertir à la publication suivante ferait perdre de la
+qualité à chaque passage. La chaîne est inerte au second passage, c'est
+vérifiable en la relançant deux fois.
+
+`comprimer.py` réencode en WebP qualité 86. Mesuré sur les vraies photos :
+**3 618 Ko de PNG deviennent 313 Ko, soit 92 % de moins**, et l'écart moyen
+avec la qualité 90 est de 0,4 niveau sur 255 — invisible. C'est ce qui rend
+le photoréalisme compatible avec le fichier unique.
+
+`en_png.py` et `comprimer.py` sont **les seuls fichiers du projet à avoir une
+dépendance**, Pillow, installée par le workflow : elle ne tourne jamais chez
+John, et son absence est signalée sans faire échouer le build.
+
+`outils/recadrer.py` fait deux choses sur chaque PNG :
 il retire le fond **par remplissage depuis les bords** — d'où la survie des
 hublots sombres au milieu d'une coque — puis rogne les marges. C'est pour ça
 que les prompts imposent un fond noir uni `#0A0A0B` : uni, il se détoure sans
 peine ; noir, le moindre liseré résiduel reste invisible sur la scène du jeu,
-qui est noire elle aussi. PNG, JPEG, WebP et SVG sont acceptés au build, mais
+qui est noire elle aussi.
+
+La propagation se fait **de proche en proche, avec une tolérance locale** :
+elle traverse un vignettage ou un dégradé doux, et s'arrête sur la marche
+brutale qu'est un bord d'objet. Une première version exigeait que les quatre
+coins aient la même couleur ; deux images sur cinq étaient refusées pour un
+coin légèrement plus clair. N'y reviens pas. PNG, JPEG, WebP et SVG sont acceptés au build, mais
 seul le PNG passe par ce détourage.
 
 Les prompts sont dans `illustrations/PROMPTS-IMAGES.md`, générés depuis
@@ -314,14 +344,16 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
   faux. Et `lignes_tout_vendu` n'est tirée que si le stack est à zéro : sinon la
   réplique « ton bateau réel : néant » ment à quelqu'un qui a encore des
   bitcoins.
-- **Le poids est le vrai risque du photoréalisme.** Le fichier fait 76 Ko
-  aujourd'hui. Vingt-six photos incrustées en base64 le porteront à plusieurs
-  mégaoctets. Tant que ça tient sous ~5 Mo, l'invariant du fichier unique est
-  préservé et le service worker le met en cache une fois pour toutes. Au-delà,
-  la sortie prévue est de servir les images comme fichiers séparés dans
-  `index.html` — précachés par le service worker — en gardant l'incrustation
-  pour `yachtometre.html`, le fichier hors ligne. Même template, deux sorties :
-  ne pars pas sur deux rendus différents.
+- **Le poids du photoréalisme est réglé par la compression, pas par
+  l'architecture.** Cinq photos pesaient 4,9 Mo en PNG ; en WebP 86 le fichier
+  complet retombe à 494 Ko, soit environ 2,7 Mo une fois les trente et un
+  visuels livrés. Le fichier unique tient. Si ça devait dépasser ~4 Mo, la
+  sortie prévue est de servir les images comme fichiers séparés dans
+  `index.html` — le service worker les met en cache au fil de la navigation —
+  en gardant l'incrustation pour `yachtometre.html`. Même template, deux
+  sorties : ne pars pas sur deux rendus différents. Attention alors : la carte
+  de partage sérialise la scène en `data:` URI, où une adresse relative ne se
+  résout plus — il faudrait réincruster l'image au moment de dessiner.
 - **Le service worker sert le réseau d'abord, le cache en repli.** C'est
   délibéré : un cache-d'abord ferait tourner un téléphone sur une version
   périmée pendant des jours. Ne « optimise » pas en inversant. Le cours du BTC

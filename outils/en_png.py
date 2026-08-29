@@ -19,7 +19,10 @@ manque, on le dit et on passe — le jeu continue de se construire.
 import pathlib, sys
 
 DOSSIER = pathlib.Path(__file__).parent.parent / 'illustrations'
-A_CONVERTIR = {'.jpg', '.jpeg', '.webp', '.bmp', '.tif', '.tiff'}
+# Surtout pas de .webp ici : comprimer.py produit du WebP en fin de chaîne,
+# le reconvertir en PNG à la publication suivante ferait perdre un peu de
+# qualité à chaque fois. Dépose du PNG ou du JPEG.
+A_CONVERTIR = {'.jpg', '.jpeg', '.bmp', '.tif', '.tiff'}
 LARGEUR_MAX = 1600      # au-delà, on n'ajoute que du poids
 
 
