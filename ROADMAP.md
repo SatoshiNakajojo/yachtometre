@@ -53,6 +53,12 @@ Le build et la publication se rejouent tout seuls à chaque modification de
 Les SVG procéduraux actuels tiennent la route mais plafonnent la qualité perçue.
 Parallélisable : ça n'empêche aucun autre chantier d'avancer.
 
+**Le branchement est fait.** Un SVG déposé dans `illustrations/`, nommé d'après
+l'id du palier, remplace la silhouette de ce palier — dessin par dessin, sans
+code à écrire, et la publication se relance seule. Les portraits de capitaine
+ont eux aussi leur emplacement dans la fiche. Il ne reste que la commande des
+dessins. Contraintes de livraison : `illustrations/LISEZMOI.md`.
+
 ### Phase 9a — Mode paper hands — *priorité 2*
 Les textes sont **déjà écrits** dans `contenu.json`, rien n'est branché.
 L'utilisateur déclare une vente, le jeu continue d'afficher le bateau fantôme

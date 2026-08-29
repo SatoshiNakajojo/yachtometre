@@ -144,6 +144,11 @@ body{
 .capitaine{margin-top:16px;padding-top:14px;border-top:1px solid var(--bordure)}
 .capitaine .role{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--btc)}
 .capitaine .line{font-style:italic;color:var(--gris);margin:5px 0 0}
+.capitaine::after{content:'';display:block;clear:both}
+.cap-portrait{float:left;width:64px;height:64px;margin:3px 13px 4px 0;overflow:hidden;
+  border:1px solid var(--bordure);background:var(--carte)}
+.cap-portrait svg,.cap-portrait img{display:block;width:100%;height:100%}
+.cap-portrait[hidden]{display:none}
 
 /* ── fiche ───────────────────────────────────────────── */
 .sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--bordure);border:1px solid var(--bordure);border-top:0}
@@ -266,6 +271,7 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
     <p class="punch" id="punch"></p>
     <div class="capitaine">
       <div class="role" id="capRole">Capitaine</div>
+      <div class="cap-portrait" id="capPortrait" hidden></div>
       <p class="line" id="capLine"></p>
     </div>
   </div>
@@ -1110,6 +1116,11 @@ const CONTENU = {
  ]
 };
 
+/* Illustrations déposées dans illustrations/ et incrustées au build.
+   Vide tant qu'aucun dessin n'est livré : on retombe alors sur les
+   silhouettes procédurales, qui ne sont qu'un gabarit de proportions. */
+const ILLUS = {};
+
 /* ══════════════════════════════════════════════════════
    MOTEUR
    ══════════════════════════════════════════════════════ */
@@ -1142,7 +1153,7 @@ const recalibrer = p => { CAL = p / prixRainbow(new Date(),0); };
 const prixProjete = (d,off) => prixRainbow(d,off)*CAL;
 
 const PALIERS = CONTENU.paliers.map(p=>({
-  p:p.prix, L:p.longueur, cls:p.classe, cap:p.cap, nom:p.nom, punch:p.punch, dit:p.dit
+  id:p.id, p:p.prix, L:p.longueur, cls:p.classe, cap:p.cap, nom:p.nom, punch:p.punch, dit:p.dit
 }));
 const CAP = CONTENU.capitaine;
 
@@ -1341,6 +1352,14 @@ function svgAutonome(svg){
   for(const [k,v] of Object.entries(COULEURS)) s = s.split('var('+k+')').join(v);
   return s.split('var(--mono)').join('monospace');
 }
+/* Un dessin livré n'a aucune raison d'avoir les proportions du gabarit.
+   On lit son viewBox pour l'insérer sans l'écraser. */
+function aspectSVG(svg){
+  const m=svg.match(/viewBox\s*=\s*"([^"]+)"/);
+  if(!m) return VB_W/VB_H;
+  const v=m[1].trim().split(/[\s,]+/).map(Number);
+  return (v.length===4 && v[2]>0 && v[3]>0) ? v[2]/v[3] : VB_W/VB_H;
+}
 const cacheImg=new Map();
 function imageBateau(svg){
   const src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgAutonome(svg));
@@ -1369,7 +1388,12 @@ async function dessinerCarte(pal,L,annee,svg){
   c.textAlign='right'; c.fillText(String(annee),W-M,116); c.textAlign='left';
 
   const im=await imageBateau(svg);
-  if(im) c.drawImage(im,40,250,1000,320);
+  if(im){
+    const bx=40, by=238, bw=1000, bh=352, a=aspectSVG(svg);
+    let w=bw, h=bw/a;
+    if(h>bh){ h=bh; w=bh*a; }
+    c.drawImage(im, bx+(bw-w)/2, by+(bh-h)/2, w, h);
+  }
 
   c.strokeStyle=COULEURS['--bordure']; c.lineWidth=2;
   c.beginPath(); c.moveTo(M,640); c.lineTo(W-M,640); c.stroke();
@@ -1461,7 +1485,7 @@ function rendre(){
   const LAuj=longueurPourBudget(budgetAuj), LFut=longueurPourBudget(budgetFut);
   const pFut=palierPourBudget(budgetFut), iP=PALIERS.indexOf(pFut);
 
-  const svgCourant=bateauSVG(pFut.cls,pFut.L||LFut);
+  const svgCourant=ILLUS[pFut.id] || bateauSVG(pFut.cls,pFut.L||LFut);
   $('scene').innerHTML=svgCourant;
   $('marker').style.left=posRegle(LFut)+'%';
   $('marker').querySelector('b').textContent=metres(LFut);
@@ -1474,6 +1498,9 @@ function rendre(){
   $('punch').textContent=pick(pFut.punch,iP);
   $('capRole').textContent=CAP[pFut.cap].role;
   $('capLine').textContent='« '+pick(pFut.dit.concat(CAP[pFut.cap].repliques),iP+1)+' »';
+  const portrait=ILLUS['capitaine-'+pFut.cap];
+  $('capPortrait').innerHTML=portrait||'';
+  $('capPortrait').hidden=!portrait;
 
   const prixBateau=pFut.p;
   $('sBudget').textContent=eur(budgetFut);

@@ -66,9 +66,9 @@ commandé. La phase 8b (mobile natif, notification poussée) reste ouverte.
 ## 4. Architecture et règle d'or
 
 ```
-contenu.json  ──┐                    ┌──►  yachtometre.html  (le livrable hors ligne)
-                ├──►  build.py  ──►  ├──►  index.html        (ce que sert Pages)
-template.html ──┘                    └──►  sw.js             (estampillé, pas réécrit)
+contenu.json   ──┐                    ┌──►  yachtometre.html  (le livrable hors ligne)
+illustrations/ ──┼──►  build.py  ──►  ├──►  index.html        (ce que sert Pages)
+template.html  ──┘                    └──►  sw.js             (estampillé, pas réécrit)
 ```
 
 **`yachtometre.html` et `index.html` sont des fichiers générés, identiques à
@@ -85,6 +85,14 @@ Le script remplace le marqueur `/*__CONTENU__*/` de `template.html` par le JSON,
 l'empreinte du build. Cette dernière étape n'est pas cosmétique : sans elle, un
 téléphone qui a déjà posé l'application garderait l'ancienne version dans son
 cache. Aucune dépendance, aucun `node_modules`, rien à installer.
+
+`illustrations/` est la prise où brancher les dessins de la phase 3. Un fichier
+nommé d'après l'id du palier (`voilier.svg`, `s180.svg`, `capitaine-3.svg`) est
+**incrusté** dans le HTML au build et remplace la silhouette procédurale de ce
+palier ; les autres gardent la leur. Incrusté, pas chargé à côté : c'est ce qui
+préserve l'invariant du fichier unique. Le dossier peut rester vide sans rien
+casser. Les contraintes à imposer à l'illustrateur sont dans
+`illustrations/LISEZMOI.md`, reprises à la fin de `brief-illustrations.md`.
 
 `.github/workflows/publier.yml` rejoue exactement ce build à chaque push sur
 `main`, recommite les fichiers générés et redéploie Pages. Conséquence utile :
@@ -216,7 +224,18 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
 1. **Les 26 illustrations** (phase 3). Le brief est prêt dans
    `brief-illustrations.md`, généré depuis `contenu.json`. Les silhouettes SVG
    actuelles sont procédurales et servent de gabarit de proportions, pas de
-   modèle de style.
+   modèle de style. **La prise est posée** : déposer un SVG dans
+   `illustrations/` suffit, il n'y a pas de code à écrire à la livraison, y
+   compris dessin par dessin.
+
+   Note de cadrage à connaître avant de commander : les silhouettes
+   procédurales **débordent du cadre dès le voilier** — 244 unités d'air
+   au-dessus de la flottaison, alors qu'un mât en réclame trois fois plus, donc
+   le haut est coupé. Ce n'est pas un bug introduit récemment, c'est le gabarit
+   qui est trop plat. Les dessins livrés n'en héritent pas : ils déclarent leur
+   propre `viewBox` et le cadre s'y adapte. Réparer le procédural coûterait un
+   arbitrage visuel (rétrécir le bateau ou allonger le cadre, avec un effet sur
+   la carte de partage) pour un rendu qui a vocation à disparaître.
 2. **Le mode paper hands** (phase 9). Les textes existent déjà dans
    `contenu.json`, rien n'est branché. L'utilisateur déclare une vente, le jeu le
    hante avec le bateau fantôme qu'il aurait eu.

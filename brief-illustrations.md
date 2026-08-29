@@ -58,6 +58,25 @@
 | 3 | Le commandant | Monégasque en blazer, galons dorés, ne te regarde pas dans les yeux. |
 | 4 | Son assistant | Un jeune homme en polo brodé, tablette à la main. Le commandant reste invisible. |
 
+## Livraison — ce qui rend le fichier utilisable tel quel
+
+Un SVG par visuel, nommé d'après l'identifiant du palier (`voilier.svg`,
+`s180.svg`, `capitaine-3.svg`…). La liste exacte des noms est dans
+`illustrations/LISEZMOI.md`. Déposés dans ce dossier, les fichiers entrent dans
+le jeu sans une ligne de code.
+
+Le jeu est un fichier HTML unique, les dessins y sont recopiés. Donc :
+
+- un `viewBox`, pas de `width` ni `height` — les proportions sont libres ;
+- aucune ressource externe : pas d'image liée, pas de police liée, textes
+  vectorisés ;
+- pas de `<style>` ni de `<script>`, couleurs en attributs de présentation ;
+- identifiants internes préfixés par le nom du fichier ;
+- 60 Ko par fichier au maximum.
+
+Les visuels peuvent arriver un par un : chaque palier non livré garde sa
+silhouette procédurale en attendant.
+
 ---
 
 Total : 26 silhouettes + 5 portraits.
