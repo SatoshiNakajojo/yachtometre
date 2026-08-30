@@ -149,6 +149,18 @@ générateur d'image ne sait pas tenir une échelle ; un humain dessiné dans le
 fichier la casserait. `outils/recadrer.py`, appelé à chaque publication, rogne
 les marges transparentes qui fausseraient ce calcul.
 
+**Les portraits de capitaine sont l'exception.** Ils gardent leur décor — une
+pièce sombre, un transat, une photo de yacht encadrée sur une table — et
+`recadrer.py` les reconnaît à leur nom pour ne pas y toucher : les détourer
+effacerait la pièce, les rogner casserait le cadrage. Ils passent en revanche
+par la compression comme le reste.
+
+Le transat est à la série des capitaines ce que le ponton est à celle des
+bateaux : le fil rouge. Vide au niveau 0 avec la photo du bateau posée dessus,
+occupé du niveau 1 au 3, vide de nouveau au niveau 4 — l'assistant se tient
+debout à côté, le commandant reste invisible. C'est une trouvaille de John,
+pas du brief. Ne la casse pas.
+
 Quand un dessin est présent, le cadre de la scène s'allonge — jusqu'à 660
 unités de haut — plutôt que de rapetisser le bateau pour faire tenir un mât.
 Le chemin procédural, lui, garde son cadre plat de 320 : rien n'a changé pour
