@@ -6,7 +6,8 @@ Le jeu déduit l'échelle d'un dessin de ses dimensions : la largeur de l'image
 vaut la longueur du bateau. Un fond opaque ou une marge transparente faussent
 donc le bonhomme de 1,75 m, qui est le cœur de la blague.
 
-Ce script, sur chaque PNG d'illustrations/ :
+Ce script, sur chaque PNG de bateau d'illustrations/ — les portraits de
+capitaine sont laissés intacts, leur fond fait partie de l'image :
   1. retire le fond, par remplissage depuis les bords — ce qui laisse intacts
      les noirs intérieurs, hublots et ouvertures ;
   2. rogne ce qui reste de marge transparente.
@@ -146,6 +147,12 @@ def detourer(w, h, lignes):
 
 
 def traiter(f):
+    # Les portraits de capitaine gardent leur fond : c'est une pièce sombre,
+    # un transat et une photo encadrée, pas un objet à détourer. Les rogner
+    # casserait le cadrage, les détourer effacerait le décor.
+    if f.stem.startswith('capitaine-'):
+        print(f"  {f.name} : portrait, laissé intact")
+        return
     lu = decoder(f.read_bytes(), f.name)
     if lu is None:
         print(f"  {f.name} : format non géré, laissé tel quel")
