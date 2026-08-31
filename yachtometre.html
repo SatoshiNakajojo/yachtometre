@@ -1183,6 +1183,75 @@ const CONTENU = {
   "adresse": "satoshinakajojo.github.io/yachtometre",
   "avertissement": "Le rainbow chart est une régression logarithmique sur le passé. C'est une courbe rigolote, pas une prédiction."
  },
+ "options": {
+  "note": "PROTOTYPE — bancs d'options de luxe absurdes pour les cartes de collection. Chaque entrée : texte, prix en euros. À relire le lendemain avant de figer.",
+  "lignes": [
+   [
+    "Porte-gobelet gyroscopique en or massif. Il tient un verre.",
+    45020
+   ],
+   [
+    "Coque repeinte à la feuille d'or. Elle sera rayée avant l'été.",
+    88000
+   ],
+   [
+    "Voile taillée dans un carré de soie. Ne pas sortir par vent fort.",
+    66610
+   ],
+   [
+    "Sellerie en cuir pleine fleur, cousue main. Par quelqu'un d'autre.",
+    24000
+   ],
+   [
+    "Éclairage sous-marin à variateur. Personne ne le verra jamais.",
+    17400
+   ],
+   [
+    "Cave à champagne réfrigérée. Six bouteilles. Autonomie : un après-midi.",
+    31200
+   ],
+   [
+    "Ancre plaquée or. Elle touche la vase comme les autres.",
+    12800
+   ],
+   [
+    "Table de cockpit en marbre de Carrare. Quarante kilos. Sur un bateau.",
+    28900
+   ],
+   [
+    "Nom gravé au laser sur la coque. Impossible à revendre.",
+    4200
+   ],
+   [
+    "Système audio douze enceintes. Le voisin de ponton connaît tes goûts.",
+    19500
+   ],
+   [
+    "Passerelle télescopique motorisée. Deux mètres quarante de fierté.",
+    74000
+   ],
+   [
+    "Coffre-fort scellé dans la coque. Tu as perdu le code.",
+    9800
+   ],
+   [
+    "Antifouling à l'argent colloïdal. Les algues s'en moquent.",
+    6400
+   ],
+   [
+    "Douche de pont à eau chaude. Deux minutes d'eau chaude.",
+    5100
+   ],
+   [
+    "Pavillon brodé main. Il se décolore en trois semaines.",
+    2300
+   ],
+   [
+    "Guindeau électrique. Tu remonteras l'ancre à la main un jour.",
+    11700
+   ]
+  ]
+ },
  "partage": [
   "{longueur} de yacht. Le reste, c'est de la conviction.",
   "Mon bateau en {annee} : {longueur}. Mesuré au Yachtomètre.",
@@ -1586,51 +1655,119 @@ function lignesTexte(ctx,txt,maxW){
     if(ctx.measureText(t).width>maxW && l){ out.push(l); l=m; } else l=t; }
   if(l) out.push(l); return out;
 }
-let legendeIdx=0, cartePNG=null, releve=0;
+let legendeIdx=0, cartePNG=null, releve=0, optionIdx=0;
+
+/* PROTOTYPE — carte de collection.
+   Même moteur, même photo, même silhouette de 1,75 m : la carte est calculée,
+   pas dessinée à la main. Vingt-six bateaux par seize options font quatre cent
+   seize cartes sans une image de plus. */
+const RARETES = [
+  [0,  6,  'COMMUN',      '--gris'],
+  [7,  12, 'PEU COMMUN',  '--blanc'],
+  [13, 17, 'RARE',        '--btc-clair'],
+  [18, 21, 'TRÈS RARE',   '--btc'],
+  [22, 25, 'LÉGENDAIRE',  '--btc'],
+];
+const rarete = i => (RARETES.find(r => i>=r[0] && i<=r[1]) || RARETES[0]);
+
+function cadre(c,x,y,w,h,trait,fond){
+  if(fond){ c.fillStyle=fond; c.fillRect(x,y,w,h); }
+  c.strokeStyle=trait; c.lineWidth=2; c.strokeRect(x+1,y+1,w-2,h-2);
+}
+
 async function dessinerCarte(pal,L,annee,svg){
   const cv=$('carte'); if(!cv) return;
-  const c=cv.getContext('2d'), W=1080, M=76;
-  c.fillStyle=COULEURS['--noir']; c.fillRect(0,0,W,W);
+  const W=1080, H=1620, M=54;
+  cv.width=W; cv.height=H;
+  const c=cv.getContext('2d');
+  const N=COULEURS, iP=PALIERS.indexOf(pal);
+  const [,,nomRarete,teinteCle]=rarete(iP);
+  const teinte=N[teinteCle];
 
-  c.beginPath(); c.arc(M+22,106,22,0,Math.PI*2); c.fillStyle=COULEURS['--btc']; c.fill();
-  c.fillStyle=COULEURS['--noir']; c.font='700 26px "JetBrains Mono", monospace';
-  c.textAlign='center'; c.fillText('₿',M+22,116); c.textAlign='left';
-  c.fillStyle=COULEURS['--blanc']; c.font='34px "Archivo Black", Impact, sans-serif';
-  c.fillText('LE YACHTOMÈTRE',M+58,117);
-  c.fillStyle=COULEURS['--gris']; c.font='600 26px "JetBrains Mono", monospace';
-  c.textAlign='right'; c.fillText(String(annee),W-M,116); c.textAlign='left';
+  c.fillStyle=N['--noir']; c.fillRect(0,0,W,H);
+  cadre(c,24,24,W-48,H-48,teinte);
+  cadre(c,M,M,W-2*M,H-2*M,N['--bordure'],N['--carte']);
 
+  /* ── en-tête : numéro, nom, sceau ── */
+  const hy=M+22;
+  cadre(c,M+22,hy,150,86,N['--bordure'],N['--pont']);
+  c.fillStyle=teinte; c.font='600 40px "JetBrains Mono", monospace';
+  c.textAlign='center'; c.fillText('N°'+String(iP+1).padStart(3,'0'),M+97,hy+58);
+
+  c.beginPath(); c.arc(W-M-66,hy+43,43,0,Math.PI*2); c.fillStyle=N['--btc']; c.fill();
+  c.fillStyle=N['--noir']; c.font='700 46px "JetBrains Mono", monospace';
+  c.fillText('₿',W-M-66,hy+60);
+
+  c.fillStyle=N['--blanc']; c.textAlign='left';
+  let t=52; c.font=t+'px "Archivo Black", Impact, sans-serif';
+  const large=W-2*M-330;   // on réserve la place du sceau
+  while(c.measureText(pal.nom.toUpperCase()).width>large && t>22){
+    t-=2; c.font=t+'px "Archivo Black", Impact, sans-serif';
+  }
+  c.fillText(pal.nom.toUpperCase(),M+190,hy+56);
+
+  /* ── bandeau de rareté ── */
+  const by=hy+104;
+  cadre(c,M+22,by,W-2*M-44,62,N['--bordure'],N['--pont']);
+  c.fillStyle=teinte; c.font='600 26px "JetBrains Mono", monospace';
+  c.fillText(nomRarete,M+44,by+41);
+  c.textAlign='right';
+  c.fillStyle=N['--gris'];
+  c.fillText('PALIER '+(iP+1)+' / '+PALIERS.length,W-M-44,by+41);
+  c.textAlign='left';
+
+  /* ── fenêtre : la scène, silhouette de 1,75 m comprise ── */
+  const fx=M+22, fy=by+80, fw=W-2*M-44, fh=470;
+  cadre(c,fx,fy,fw,fh,N['--bordure'],N['--noir']);
   const im=await imageBateau(svg);
   if(im){
-    const bx=40, by=152, bw=1000, bh=468, a=aspectSVG(svg);
-    let w=bw, h=bw/a;
-    if(h>bh){ h=bh; w=bh*a; }
-    c.drawImage(im, bx+(bw-w)/2, by+(bh-h)/2, w, h);
+    const a=aspectSVG(svg);
+    let w=fw-16, h=w/a;
+    if(h>fh-16){ h=fh-16; w=h*a; }
+    c.save(); c.beginPath(); c.rect(fx+2,fy+2,fw-4,fh-4); c.clip();
+    c.drawImage(im, fx+(fw-w)/2, fy+(fh-h)/2, w, h);
+    c.restore();
   }
 
-  c.strokeStyle=COULEURS['--bordure']; c.lineWidth=2;
-  c.beginPath(); c.moveTo(M,640); c.lineTo(W-M,640); c.stroke();
+  /* ── taille projetée ── */
+  const ty=fy+fh+22;
+  cadre(c,fx,ty,fw,74,N['--bordure'],N['--pont']);
+  c.fillStyle=N['--gris']; c.font='600 26px "JetBrains Mono", monospace';
+  c.fillText('TAILLE',fx+22,ty+48);
+  c.fillStyle=N['--btc']; c.font='800 44px "JetBrains Mono", monospace';
+  c.textAlign='right'; c.fillText(pal.L>0?metres(L):'—',fx+fw-22,ty+52); c.textAlign='left';
 
-  c.fillStyle=COULEURS['--btc']; c.font='800 100px "JetBrains Mono", monospace';
-  c.fillText(pal.L>0?metres(L):'—',M,748);
+  /* ── l'option, et son prix face à celui du bateau ── */
+  const banc=CONTENU.options.lignes;
+  const [texte,prixOption]=banc[(iP+optionIdx)%banc.length];
+  const oy=ty+96;
+  cadre(c,fx,oy,fw,300,N['--bordure'],N['--pont']);
+  c.fillStyle=N['--gris']; c.font='600 24px "JetBrains Mono", monospace';
+  c.fillText('OPTION',fx+22,oy+48);
+  c.fillStyle=N['--blanc']; c.font='34px Inter, system-ui, sans-serif';
+  lignesTexte(c,texte,fw-44).slice(0,3).forEach((l,i)=>c.fillText(l,fx+22,oy+104+i*46));
 
-  c.fillStyle=COULEURS['--blanc'];
-  let t=58; c.font=t+'px "Archivo Black", Impact, sans-serif';
-  while(c.measureText(pal.nom.toUpperCase()).width>W-2*M && t>28){ t-=2; c.font=t+'px "Archivo Black", Impact, sans-serif'; }
-  c.fillText(pal.nom.toUpperCase(),M,824);
+  c.strokeStyle=N['--bordure']; c.lineWidth=2;
+  c.beginPath(); c.moveTo(fx+22,oy+190); c.lineTo(fx+fw-22,oy+190); c.stroke();
 
-  c.fillStyle=COULEURS['--gris']; c.font='30px Inter, system-ui, sans-serif';
-  lignesTexte(c,pick(pal.punch,PALIERS.indexOf(pal)),W-2*M).slice(0,4)
-    .forEach((l,i)=>c.fillText(l,M,890+i*42));
+  c.fillStyle=N['--gris']; c.font='600 22px "JetBrains Mono", monospace';
+  c.fillText('LE BATEAU',fx+22,oy+236);
+  c.fillText("L'OPTION",fx+22,oy+276);
+  c.textAlign='right';
+  c.fillStyle=N['--blanc']; c.font='600 26px "JetBrains Mono", monospace';
+  c.fillText(pal.p?eur(pal.p):'—',fx+fw-22,oy+236);
+  c.fillStyle=prixOption>pal.p?N['--btc']:N['--blanc'];
+  c.fillText(eur(prixOption),fx+fw-22,oy+276);
+  c.textAlign='left';
 
-  c.fillStyle=COULEURS['--bordure']; c.font='22px "JetBrains Mono", monospace';
-  c.fillText('SILHOUETTE HUMAINE = 1,75 M',M,W-58);
-  // Sans l'adresse, la carte fait sourire et ne mène nulle part.
-  c.fillStyle=COULEURS['--btc']; c.textAlign='right';
-  c.fillText(CONTENU.systeme.adresse,W-M,W-58); c.textAlign='left';
+  /* ── pied ── */
+  const py=H-M-64;
+  c.font='22px "JetBrains Mono", monospace';
+  c.fillStyle=N['--gris']; c.fillText('LE YACHTOMÈTRE',M+22,py+20);
+  c.textAlign='right'; c.fillStyle=N['--btc'];
+  c.fillText(CONTENU.systeme.adresse,W-M-22,py+20);
+  c.textAlign='left';
 
-  // Le PNG est préparé d'avance : Safari refuse navigator.share() si on le
-  // fait attendre après le clic, et le partage est tout l'intérêt de la carte.
   cv.toBlob(b=>{ cartePNG=b; },'image/png');
 }
 
