@@ -57,7 +57,7 @@ désormais ; tiiny.host n'est plus dans la boucle.
 
 Phases terminées : 0 (socle chiffré), 1 (prototype validé — tous les testeurs ont
 ri), 2 (banque de textes), 4 (bateau vivant, version web), 5 (mètre de yacht),
-6 (entretien), 7 (carte de partage), 8a (hébergement et installation sur l'écran
+6 (entretien), 7 (carte de collection), 8a (hébergement et installation sur l'écran
 d'accueil), 9a (paper hands). La phase 3 (illustrations) a son brief prêt et sa
 prise posée, mais aucun dessin commandé. La phase 8b (mobile natif, notification
 poussée) reste ouverte.
@@ -240,6 +240,7 @@ Structure :
 | `paper_hands` | mode phase 9a, branché : le bateau fantôme après une vente déclarée |
 | `systeme` | chargement, vides, erreurs, consignes d'installation, avertissement légal |
 | `partage` | légendes de la carte |
+| `cartes` | raretés (bornes de palier, teinte, foil) et séries d'options |
 
 Les seaux se sélectionnent par la fonction `seau()`, qui lit les bornes
 `seuil` / `seuil_m` déclarées dans le JSON. Pour ajouter un seau, il suffit de
@@ -386,8 +387,21 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
   affichera un écart énorme et faux.
 - **`localStorage` est par navigateur.** Ouvrir dans Safari puis Chrome donne deux
   bateaux qui ne se connaissent pas. C'est normal, John le sait.
-- **La carte de partage dépend des polices chargées.** Elle se redessine sur
+- **La carte de collection dépend des polices chargées.** Elle se redessine sur
   `document.fonts.ready`. Hors ligne, le titrage retombe sur Impact.
+- **Le canvas de la carte se remet à la bonne taille en vérifiant les deux
+  côtés.** Il a longtemps été carré ; un garde qui ne testait que la largeur
+  laissait le canvas à 1080 × 1080 et coupait le tiers bas de la carte sans
+  rien signaler.
+- **`drawImage` avec un rectangle source ne marche pas sur une image SVG.** Le
+  navigateur lit ce rectangle dans les unités du `viewBox`, pas en pixels : on
+  obtient un coin de scène en très gros plan. Pour recadrer, on agrandit le
+  dessin entier et on laisse la fenêtre (`clip`) couper ce qui dépasse.
+- **La scène du jeu ne se recadre pas toute seule sur une carte.** Elle est
+  large de 1000 unités pour qu'un superyacht de 180 m y tienne ; pour un
+  matelas gonflable, 80 % de cette largeur est de la mer vide. `borneDroite`
+  dit jusqu'où va le décor, et la carte recadre là — sans jamais dépasser
+  1,6×, sinon la silhouette de 1,75 m mange le cadre.
 - **La couleur du bandeau du matin suit le seau, pas l'écart de longueur.** La
   courbe du rainbow avance avec l'horloge : entre deux ouvertures, un marché
   parfaitement plat fait rétrécir le bateau d'un millième de millimètre, et le

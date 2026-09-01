@@ -398,7 +398,7 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
     <section class="block">
       <div class="block-head"><h2>Carte de partage</h2><p>1080 × 1080</p></div>
       <div class="share">
-        <canvas id="carte" width="1080" height="1080" aria-label="Aperçu de la carte de partage"></canvas>
+        <canvas id="carte" width="1080" height="1620" aria-label="Aperçu de la carte de partage"></canvas>
         <div class="share-actions">
           <button class="chip" type="button" id="dlCard">Partager la carte</button>
           <button class="chip" type="button" id="cpCap">Copier la légende</button>
@@ -528,6 +528,10 @@ const PONTON_M=6;
    allonge le cadre plutôt que de rapetisser le bateau. Ces deux valeurs sont
    fixées en tête de bateauSVG et lues par tout ce qu'elle appelle. */
 let VB_H=VB_H0, WATER=WATER0;
+/* Deux repères relus par la carte de collection : où passe la flottaison dans
+   le cadre, et jusqu'où va vraiment le décor. À droite de cette borne il n'y
+   a que de la mer vide — sur une carte, c'est de la place perdue. */
+let ligneEau=WATER0/VB_H0, borneDroite=VB_W;
 
 /* Silhouette pleine plutôt qu'un bonhomme bâton : à côté d'une photo elle
    tient la comparaison, et à huit pixels de haut — le superyacht de 180 m —
@@ -723,6 +727,9 @@ function bateauSVG(cls,L,ill,VH,bas,k){
 
   // Le décor — quai, mer, légende — est fixe et tient toujours dans le cadre.
   // Seul le groupe « mesure » sert à décider de la taille du cadre.
+  ligneEau   = WATER/VB_H;
+  borneDroite= Math.min(VB_W, Math.max(x1, ponton ? VB_W*0.56 : X0) + 46);
+
   return `<svg viewBox="0 0 ${VB_W} ${VB_H}" xmlns="http://www.w3.org/2000/svg" role="img"
     aria-label="Silhouette du bateau à l'échelle"><g id="mesure">${quai}${humain}<g class="bob">${g}</g></g>${mer}${eau}${echelle}</svg>`;
 }
@@ -767,14 +774,6 @@ function svgAutonome(svg){
   for(const [k,v] of Object.entries(COULEURS)) s = s.split('var('+k+')').join(v);
   return s.split('var(--mono)').join('monospace');
 }
-/* Un dessin livré n'a aucune raison d'avoir les proportions du gabarit.
-   On lit son viewBox pour l'insérer sans l'écraser. */
-function aspectSVG(svg){
-  const m=svg.match(/viewBox\s*=\s*"([^"]+)"/);
-  if(!m) return VB_W/VB_H0;
-  const v=m[1].trim().split(/[\s,]+/).map(Number);
-  return (v.length===4 && v[2]>0 && v[3]>0) ? v[2]/v[3] : VB_W/VB_H0;
-}
 const cacheImg=new Map();
 function imageBateau(svg){
   const src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgAutonome(svg));
@@ -788,51 +787,247 @@ function lignesTexte(ctx,txt,maxW){
     if(ctx.measureText(t).width>maxW && l){ out.push(l); l=m; } else l=t; }
   if(l) out.push(l); return out;
 }
-let legendeIdx=0, cartePNG=null, releve=0;
-async function dessinerCarte(pal,L,annee,svg){
-  const cv=$('carte'); if(!cv) return;
-  const c=cv.getContext('2d'), W=1080, M=76;
-  c.fillStyle=COULEURS['--noir']; c.fillRect(0,0,W,W);
+let legendeIdx=0, cartePNG=null, releve=0, optionIdx=0;
 
-  c.beginPath(); c.arc(M+22,106,22,0,Math.PI*2); c.fillStyle=COULEURS['--btc']; c.fill();
-  c.fillStyle=COULEURS['--noir']; c.font='700 26px "JetBrains Mono", monospace';
-  c.textAlign='center'; c.fillText('₿',M+22,116); c.textAlign='left';
-  c.fillStyle=COULEURS['--blanc']; c.font='34px "Archivo Black", Impact, sans-serif';
-  c.fillText('LE YACHTOMÈTRE',M+58,117);
-  c.fillStyle=COULEURS['--gris']; c.font='600 26px "JetBrains Mono", monospace';
-  c.textAlign='right'; c.fillText(String(annee),W-M,116); c.textAlign='left';
+/* ══════════════════════════════════════════════════════
+   CARTE DE COLLECTION
+   Rien n'est dessiné à la main : la carte est calculée à partir du palier, de
+   la photo et d'une option tirée dans une série. Ajouter une série au JSON
+   multiplie le nombre de cartes sans une ligne de code ni une image de plus.
+   ══════════════════════════════════════════════════════ */
+
+const SERIES = () => CONTENU.cartes.series;
+const rarete = i => CONTENU.cartes.raretes.find(r => i <= r.jusqua)
+                 || CONTENU.cartes.raretes[CONTENU.cartes.raretes.length-1];
+
+/* Un numéro de série court et stable : la même carte redonne le même. */
+function matricule(idPalier, serie, iOption){
+  let h = 0;
+  for(const ch of idPalier + serie + iOption) h = (h*31 + ch.charCodeAt(0)) >>> 0;
+  return h.toString(36).toUpperCase().padStart(4,'0').slice(-4);
+}
+
+function coinsArrondis(c,x,y,w,h,r){
+  if(c.roundRect){ c.beginPath(); c.roundRect(x,y,w,h,r); return; }
+  c.beginPath();
+  c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
+  c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath();
+}
+
+/* Grain de papier : sans lui, les aplats font écran d'ordinateur. */
+let grain=null;
+function motifGrain(c){
+  if(grain) return grain;
+  const t=document.createElement('canvas'); t.width=t.height=140;
+  const g=t.getContext('2d'), d=g.createImageData(140,140);
+  for(let i=0;i<d.data.length;i+=4){
+    const v=200+Math.random()*55;
+    d.data[i]=d.data[i+1]=d.data[i+2]=v; d.data[i+3]=255;
+  }
+  g.putImageData(d,0,0);
+  grain=c.createPattern(t,'repeat');
+  return grain;
+}
+
+/* Métal : un dégradé qui passe par un éclat, pas une couleur plate. L'éclat
+   se ternit sur les raretés basses — sans quoi le cadre gris d'un COMMUN
+   brille plus que le bronze d'un RARE, et la hiérarchie s'inverse. */
+function metal(c,x1,y1,x2,y2,teinte,eclat){
+  const e=eclat||'#FFFFFF';
+  const g=c.createLinearGradient(x1,y1,x2,y2);
+  g.addColorStop(0,   teinte);
+  g.addColorStop(0.32,e);
+  g.addColorStop(0.42,teinte);
+  g.addColorStop(0.70,teinte);
+  g.addColorStop(0.80,e);
+  g.addColorStop(1,   teinte);
+  return g;
+}
+
+function equerre(c,x,y,dx,dy,l,e){
+  c.beginPath();
+  c.moveTo(x+dx*l, y); c.lineTo(x, y); c.lineTo(x, y+dy*l);
+  c.lineWidth=e; c.stroke();
+}
+
+async function dessinerCarte(pal,L,annee,cadre){
+  const svg=cadre.svg;
+  const cv=$('carte'); if(!cv) return;
+  const W=1080, H=1620, M=40;
+  if(cv.width!==W || cv.height!==H){ cv.width=W; cv.height=H; }
+  const c=cv.getContext('2d');
+  const N=COULEURS, iP=PALIERS.indexOf(pal);
+  const R=rarete(iP), teinte=R.teinte;
+
+  const series=SERIES();
+  const serie=series[Math.floor(optionIdx/1e4)%series.length] || series[0];
+  const iOpt=optionIdx%serie.lignes.length;
+  const [texteOption,prixOption]=serie.lignes[(iP+iOpt)%serie.lignes.length];
+
+  /* ── fond : dégradé radial, puis grain ── */
+  const fond=c.createRadialGradient(W/2,H*0.38,80,W/2,H*0.55,H*0.78);
+  fond.addColorStop(0,'#17171C'); fond.addColorStop(1,'#07070A');
+  c.fillStyle=fond; c.fillRect(0,0,W,H);
+  c.save(); c.globalAlpha=.05; c.globalCompositeOperation='overlay';
+  c.fillStyle=motifGrain(c); c.fillRect(0,0,W,H); c.restore();
+
+  /* ── cadre métallique ── */
+  c.save();
+  coinsArrondis(c,M,M,W-2*M,H-2*M,26);
+  c.strokeStyle=metal(c,M,M,W-M,H-M,teinte,R.foil?'#FFFFFF':'#8B8B94');
+  c.lineWidth=7; c.stroke();
+  coinsArrondis(c,M+13,M+13,W-2*M-26,H-2*M-26,18);
+  c.strokeStyle='rgba(255,255,255,.07)'; c.lineWidth=2; c.stroke();
+  c.restore();
+
+  const I=M+30, LG=W-2*I;
+
+  /* ── en-tête ── */
+  c.save();
+  c.strokeStyle=teinte; c.globalAlpha=.85;
+  equerre(c,I,I+6,1,1,34,3); equerre(c,W-I,I+6,-1,1,34,3);
+  c.restore();
+
+  const hy=I+30;
+  c.fillStyle=teinte; c.font='600 34px "JetBrains Mono", monospace';
+  c.textAlign='left'; c.fillText('N°'+String(iP+1).padStart(3,'0'),I+16,hy+34);
+
+  c.save();
+  c.beginPath(); c.arc(W-I-48,hy+22,44,0,Math.PI*2);
+  c.fillStyle=metal(c,W-I-92,hy-22,W-I-4,hy+66,N['--btc']); c.fill();
+  c.strokeStyle='rgba(0,0,0,.35)'; c.lineWidth=3; c.stroke();
+  c.fillStyle='#1A1206'; c.font='700 46px "JetBrains Mono", monospace';
+  c.textAlign='center'; c.fillText('₿',W-I-48,hy+39);
+  c.restore();
+
+  c.fillStyle=N['--blanc']; c.textAlign='left';
+  let t=58; c.font=t+'px "Archivo Black", Impact, sans-serif';
+  const dispo=LG-260;
+  while(c.measureText(pal.nom.toUpperCase()).width>dispo && t>22){
+    t-=2; c.font=t+'px "Archivo Black", Impact, sans-serif';
+  }
+  c.save(); c.shadowColor='rgba(0,0,0,.6)'; c.shadowBlur=12; c.shadowOffsetY=3;
+  c.fillText(pal.nom.toUpperCase(),I+16,hy+96);
+  c.restore();
+
+  /* ── bandeau rareté ── */
+  const by=hy+124;
+  coinsArrondis(c,I,by,LG,54,8);
+  c.fillStyle='rgba(255,255,255,.045)'; c.fill();
+  c.strokeStyle='rgba(255,255,255,.10)'; c.lineWidth=1.5; c.stroke();
+  c.fillStyle=teinte; c.font='600 25px "JetBrains Mono", monospace';
+  c.fillText(R.nom,I+20,by+36);
+  c.fillStyle=N['--gris']; c.textAlign='right';
+  c.fillText('SÉRIE '+serie.numero+' · '+String(iP+1).padStart(3,'0')+'/'+
+             String(PALIERS.length).padStart(3,'0'),I+LG-20,by+36);
+  c.textAlign='left';
+
+  /* ── la carte se monte par le bas : le pied, le prix et la taille ont une
+     hauteur fixe, et tout ce qui reste revient à l'illustration. ── */
+  const py=H-M-46, oh=286, oy=py-34-oh, ly=oy-96;
+  const zH=by+72, zB=ly-26;
+
+  /* ── fenêtre d'illustration ──
+     La scène du jeu est large de 1000 unités parce qu'un superyacht de 180 m
+     doit y tenir. Pour un matelas gonflable, 80 % de cette largeur est de la
+     mer vide : sur une carte c'est un trou. On recadre donc à la portion
+     occupée, élargie juste ce qu'il faut pour retrouver le format de la
+     fenêtre. Recadrer ne triche pas sur l'échelle — tout est réduit pareil,
+     la silhouette de 1,75 m comprise. */
+  const fy=zH, fh=zB-zH;
+  // Plancher : sans lui, un matelas gonflable fait monter le zoom à 2,5× et
+  // la silhouette mange la carte. On ne recadre jamais au-delà de 1,6×.
+  const coupe=Math.min(VB_W,
+    Math.max(cadre.droite, VB_W*0.62, cadre.VBH*(LG/fh)));
+
+  c.save();
+  coinsArrondis(c,I,fy,LG,fh,12);
+  c.clip();
+
+  /* On agrandit le dessin entier et on laisse la fenêtre couper ce qui
+     dépasse. Passer par un rectangle source serait plus direct, mais pour une
+     image SVG le navigateur lit ce rectangle en unités du viewBox, pas en
+     pixels : on se retrouve avec un coin de scène en gros plan. */
+  const ech=LG/coupe, dw=VB_W*ech, dh=cadre.VBH*ech;
+  // Flottaison posée aux deux tiers bas de la fenêtre : au-dessus le ciel,
+  // en dessous la mer, et le sujet à hauteur de regard.
+  const eauY=Math.round(fy+fh*0.72);
+  const dy=eauY-dh*cadre.eau, dx=I;
+
+  /* Le dessin n'apporte qu'une bande de mer en bas et du vide au-dessus. On
+     prolonge les deux jusqu'aux bords, sinon la fenêtre est un trou noir. */
+  const ciel=c.createLinearGradient(0,fy,0,eauY);
+  ciel.addColorStop(0,'#08131E'); ciel.addColorStop(1,'#0C2A3E');
+  c.fillStyle=ciel; c.fillRect(I,fy,LG,eauY-fy);
+  const onde=c.createLinearGradient(0,eauY,0,Math.max(eauY+2,dy+dh));
+  onde.addColorStop(0,N['--mer']); onde.addColorStop(1,N['--mer-fond']);
+  c.fillStyle=onde; c.fillRect(I,eauY,LG,fy+fh-eauY);
+  c.fillStyle=N['--mer-fond']; c.fillRect(I,dy+dh,LG,Math.max(0,fy+fh-dy-dh));
 
   const im=await imageBateau(svg);
-  if(im){
-    const bx=40, by=152, bw=1000, bh=468, a=aspectSVG(svg);
-    let w=bw, h=bw/a;
-    if(h>bh){ h=bh; w=bh*a; }
-    c.drawImage(im, bx+(bw-w)/2, by+(bh-h)/2, w, h);
+  if(im) c.drawImage(im, dx, dy, dw, dh);
+  // vignette : le sujet ressort, les bords s'éteignent
+  const vg=c.createRadialGradient(I+LG/2,fy+fh/2,fh*0.25,I+LG/2,fy+fh/2,fh*0.95);
+  vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.55)');
+  c.fillStyle=vg; c.fillRect(I,fy,LG,fh);
+  // foil : réservé aux raretés hautes, c'est ce qui les fait désirer
+  if(R.foil){
+    const f=c.createLinearGradient(I,fy+fh,I+LG,fy);
+    [[0,0],[0.30,0],[0.40,.16],[0.46,0],[0.62,0],[0.70,.09],[0.76,0],[1,0]]
+      .forEach(([q,al])=>f.addColorStop(q,'rgba(255,255,255,'+al+')'));
+    c.save(); c.globalCompositeOperation='screen';
+    c.fillStyle=f; c.fillRect(I,fy,LG,fh); c.restore();
   }
+  c.restore();
+  coinsArrondis(c,I,fy,LG,fh,12);
+  c.strokeStyle='rgba(255,255,255,.13)'; c.lineWidth=2; c.stroke();
 
-  c.strokeStyle=COULEURS['--bordure']; c.lineWidth=2;
-  c.beginPath(); c.moveTo(M,640); c.lineTo(W-M,640); c.stroke();
+  /* ── la longueur, chiffre héros ── */
+  c.fillStyle=N['--gris']; c.font='600 24px "JetBrains Mono", monospace';
+  c.fillText('TAILLE',I+16,ly+34);
+  c.save();
+  c.shadowColor='rgba(247,147,26,.45)'; c.shadowBlur=26;
+  c.fillStyle=N['--btc']; c.font='800 92px "JetBrains Mono", monospace';
+  c.textAlign='right'; c.fillText(pal.L>0?metres(L):'—',I+LG-16,ly+62);
+  c.restore(); c.textAlign='left';
 
-  c.fillStyle=COULEURS['--btc']; c.font='800 100px "JetBrains Mono", monospace';
-  c.fillText(pal.L>0?metres(L):'—',M,748);
+  /* ── option ── */
+  coinsArrondis(c,I,oy,LG,oh,12);
+  c.fillStyle='rgba(255,255,255,.035)'; c.fill();
+  c.strokeStyle='rgba(255,255,255,.10)'; c.lineWidth=1.5; c.stroke();
 
-  c.fillStyle=COULEURS['--blanc'];
-  let t=58; c.font=t+'px "Archivo Black", Impact, sans-serif';
-  while(c.measureText(pal.nom.toUpperCase()).width>W-2*M && t>28){ t-=2; c.font=t+'px "Archivo Black", Impact, sans-serif'; }
-  c.fillText(pal.nom.toUpperCase(),M,824);
+  c.fillStyle=teinte; c.font='600 23px "JetBrains Mono", monospace';
+  c.fillText('OPTION · '+serie.nom.toUpperCase(),I+20,oy+40);
+  c.fillStyle=N['--blanc']; c.font='34px Inter, system-ui, sans-serif';
+  lignesTexte(c,texteOption,LG-40).slice(0,3)
+    .forEach((l,i)=>c.fillText(l,I+20,oy+92+i*44));
 
-  c.fillStyle=COULEURS['--gris']; c.font='30px Inter, system-ui, sans-serif';
-  lignesTexte(c,pick(pal.punch,PALIERS.indexOf(pal)),W-2*M).slice(0,4)
-    .forEach((l,i)=>c.fillText(l,M,890+i*42));
+  c.strokeStyle='rgba(255,255,255,.10)'; c.lineWidth=1.5;
+  c.beginPath(); c.moveTo(I+20,oy+196); c.lineTo(I+LG-20,oy+196); c.stroke();
 
-  c.fillStyle=COULEURS['--bordure']; c.font='22px "JetBrains Mono", monospace';
-  c.fillText('SILHOUETTE HUMAINE = 1,75 M',M,W-58);
-  // Sans l'adresse, la carte fait sourire et ne mène nulle part.
-  c.fillStyle=COULEURS['--btc']; c.textAlign='right';
-  c.fillText(CONTENU.systeme.adresse,W-M,W-58); c.textAlign='left';
+  c.font='600 22px "JetBrains Mono", monospace';
+  c.fillStyle=N['--gris']; c.fillText('LE BATEAU',I+20,oy+236);
+  c.fillText("L'OPTION",I+20,oy+270);
+  c.textAlign='right'; c.font='600 26px "JetBrains Mono", monospace';
+  c.fillStyle=N['--blanc']; c.fillText(pal.p?eur(pal.p):'—',I+LG-20,oy+236);
+  c.fillStyle=prixOption>pal.p?N['--btc']:N['--blanc'];
+  c.fillText(eur(prixOption),I+LG-20,oy+270);
+  c.textAlign='left';
 
-  // Le PNG est préparé d'avance : Safari refuse navigator.share() si on le
-  // fait attendre après le clic, et le partage est tout l'intérêt de la carte.
+  /* ── pied ── */
+  c.save(); c.strokeStyle=teinte; c.globalAlpha=.85;
+  equerre(c,I,py-30,1,-1,34,3); equerre(c,W-I,py-30,-1,-1,34,3);
+  c.restore();
+  c.font='21px "JetBrains Mono", monospace';
+  c.fillStyle=N['--gris'];
+  const marque='LE YACHTOMÈTRE  ·  ';
+  c.fillText(marque,I+16,py+4);
+  c.fillStyle=teinte;
+  c.fillText('#'+matricule(pal.id,serie.numero,iOpt),I+16+c.measureText(marque).width,py+4);
+  c.textAlign='right'; c.fillStyle=N['--btc'];
+  c.fillText(CONTENU.systeme.adresse,I+LG-16,py+4);
+  c.textAlign='left';
+
   cv.toBlob(b=>{ cartePNG=b; },'image/png');
 }
 
@@ -916,6 +1111,9 @@ function rendre(){
   const LDessin=(pFut.L||LFut)
     || (ILLUS[pFut.id] ? ((ILLUS._ponton||{}).longueur_m || PONTON_M) : 0);
   const svgCourant=poserScene($('scene'),pFut.cls,LDessin,ILLUS[pFut.id]);
+  // Figé ici : la carte est dessinée plus bas et ces repères sont des globales
+  // que la prochaine scène écraserait.
+  const cadreCourant={svg:svgCourant, eau:ligneEau, droite:borneDroite, VBH:VB_H};
   $('marker').style.left=posRegle(LFut)+'%';
   $('marker').querySelector('b').textContent=metres(LFut);
   $('ghost').style.left=posRegle(LAuj)+'%';
@@ -1022,7 +1220,7 @@ function rendre(){
       <div class="msg">${txt}</div></div>`;
   }).join('');
 
-  dessinerCarte(pFut,LFut,annee,svgCourant);
+  dessinerCarte(pFut,LFut,annee,cadreCourant);
   $('capText').textContent=remplir(CONTENU.partage[legendeIdx%CONTENU.partage.length],
     {longueur:metres(LFut),annee:annee,nom:pFut.nom});
 
