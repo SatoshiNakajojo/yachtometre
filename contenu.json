@@ -612,25 +612,50 @@
     "avertissement": "Le rainbow chart est une régression logarithmique sur le passé. C'est une courbe rigolote, pas une prédiction."
   },
 
-  "options": {
-    "note": "PROTOTYPE — bancs d'options de luxe absurdes pour les cartes de collection. Chaque entrée : texte, prix en euros. À relire le lendemain avant de figer.",
-    "lignes": [
-      ["Porte-gobelet gyroscopique en or massif. Il tient un verre.", 45020],
-      ["Coque repeinte à la feuille d'or. Elle sera rayée avant l'été.", 88000],
-      ["Voile taillée dans un carré de soie. Ne pas sortir par vent fort.", 66610],
-      ["Sellerie en cuir pleine fleur, cousue main. Par quelqu'un d'autre.", 24000],
-      ["Éclairage sous-marin à variateur. Personne ne le verra jamais.", 17400],
-      ["Cave à champagne réfrigérée. Six bouteilles. Autonomie : un après-midi.", 31200],
-      ["Ancre plaquée or. Elle touche la vase comme les autres.", 12800],
-      ["Table de cockpit en marbre de Carrare. Quarante kilos. Sur un bateau.", 28900],
-      ["Nom gravé au laser sur la coque. Impossible à revendre.", 4200],
-      ["Système audio douze enceintes. Le voisin de ponton connaît tes goûts.", 19500],
-      ["Passerelle télescopique motorisée. Deux mètres quarante de fierté.", 74000],
-      ["Coffre-fort scellé dans la coque. Tu as perdu le code.", 9800],
-      ["Antifouling à l'argent colloïdal. Les algues s'en moquent.", 6400],
-      ["Douche de pont à eau chaude. Deux minutes d'eau chaude.", 5100],
-      ["Pavillon brodé main. Il se décolore en trois semaines.", 2300],
-      ["Guindeau électrique. Tu remonteras l'ancre à la main un jour.", 11700]
+  "cartes": {
+    "note": "Cartes de collection. Une série = une entrée dans series, avec ses options. En ajouter une ne demande aucun code. Chaque option : texte, prix en euros.",
+    "raretes": [
+      { "jusqua": 6,  "nom": "COMMUN",      "teinte": "#6E6E76", "foil": false },
+      { "jusqua": 12, "nom": "PEU COMMUN",  "teinte": "#A9AEB6", "foil": false },
+      { "jusqua": 17, "nom": "RARE",        "teinte": "#C8873D", "foil": true  },
+      { "jusqua": 21, "nom": "TRÈS RARE",   "teinte": "#E0B04A", "foil": true  },
+      { "jusqua": 99, "nom": "LÉGENDAIRE",  "teinte": "#F7931A", "foil": true  }
+    ],
+    "series": [
+      {
+        "numero": "I",
+        "nom": "Le grand confort",
+        "lignes": [
+          ["Porte-gobelet gyroscopique en or massif. Il tient un verre.", 45020],
+          ["Coque repeinte à la feuille d'or. Elle sera rayée avant l'été.", 88000],
+          ["Voile taillée dans un carré de soie. Ne pas sortir par vent fort.", 66610],
+          ["Sellerie en cuir pleine fleur, cousue main. Par quelqu'un d'autre.", 24000],
+          ["Éclairage sous-marin à variateur. Personne ne le verra jamais.", 17400],
+          ["Cave à champagne réfrigérée. Six bouteilles, un après-midi.", 31200],
+          ["Ancre plaquée or. Elle touche la vase comme les autres.", 12800],
+          ["Table de cockpit en marbre de Carrare. Quarante kilos. Sur un bateau.", 28900],
+          ["Nom gravé au laser sur la coque. Impossible à revendre.", 4200],
+          ["Système audio douze enceintes. Le voisin de ponton connaît tes goûts.", 19500],
+          ["Passerelle télescopique motorisée. Deux mètres quarante de fierté.", 74000],
+          ["Coffre-fort scellé dans la coque. Tu as perdu le code.", 9800],
+          ["Antifouling à l'argent colloïdal. Les algues s'en moquent.", 6400],
+          ["Douche de pont à eau chaude. Deux minutes d'eau chaude.", 5100],
+          ["Pavillon brodé main. Il se décolore en trois semaines.", 2300],
+          ["Guindeau électrique. Tu remonteras l'ancre à la main un jour.", 11700]
+        ]
+      },
+      {
+        "numero": "II",
+        "nom": "Le service",
+        "lignes": [
+          ["Un équipier à demeure. Il vouvoie tout le monde, toi compris.", 42000],
+          ["Un chef à bord. Il a un avis sur ta glacière.", 58000],
+          ["Une hôtesse formée à Monaco. Elle plie les serviettes en cygne.", 39000],
+          ["Un mécanicien de permanence. Il dort près du moteur, et il l'entend.", 47000],
+          ["Un boulanger embarqué. Il ne fait que du pain.", 36000],
+          ["Un photographe de bord. Personne ne lui a demandé.", 22000]
+        ]
+      }
     ]
   },
 

@@ -31,10 +31,16 @@ future. Raccourcis pré-remplis.
 Les deux bateaux côte à côte : celui qu'on peut acheter, celui qu'on peut
 garder. 10 % du prix par an contre un retrait de 4 %.
 
-### Phase 7 — La carte de partage ✅
-Carte 1080 × 1080 en canvas, téléchargeable en PNG, légendes rotatives.
+### Phase 7 — La carte de collection ✅
+Carte 1080 × 1620 en canvas, téléchargeable en PNG, légendes rotatives.
 Traitée comme une fonctionnalité de premier plan : c'est le seul canal
 d'acquisition du jeu.
+
+Rien n'est pré-dessiné : la carte est calculée à partir du palier atteint, de
+sa photo et d'une option tirée dans une série. D'où le numéro, la rareté, le
+foil, le matricule et le duel de prix bateau/option. Une série est une entrée
+dans `contenu.json` — l'ajouter multiplie le catalogue sans une ligne de code
+ni une image de plus. 2 séries × 22 options × 26 paliers = 572 cartes.
 
 ### Phase 8a — Hébergement et écran d'accueil ✅
 Publié sur <https://satoshinakajojo.github.io/yachtometre/>, installable en
