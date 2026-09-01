@@ -393,15 +393,20 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
   côtés.** Il a longtemps été carré ; un garde qui ne testait que la largeur
   laissait le canvas à 1080 × 1080 et coupait le tiers bas de la carte sans
   rien signaler.
-- **`drawImage` avec un rectangle source ne marche pas sur une image SVG.** Le
-  navigateur lit ce rectangle dans les unités du `viewBox`, pas en pixels : on
-  obtient un coin de scène en très gros plan. Pour recadrer, on agrandit le
-  dessin entier et on laisse la fenêtre (`clip`) couper ce qui dépasse.
-- **La scène du jeu ne se recadre pas toute seule sur une carte.** Elle est
-  large de 1000 unités pour qu'un superyacht de 180 m y tienne ; pour un
-  matelas gonflable, 80 % de cette largeur est de la mer vide. `borneDroite`
-  dit jusqu'où va le décor, et la carte recadre là — sans jamais dépasser
-  1,6×, sinon la silhouette de 1,75 m mange le cadre.
+- **La carte ne réutilise pas la scène du jeu.** Elle a d'abord été un rendu
+  de cette scène, et c'était deux fois faux : la mer occupait le tiers bas de
+  la vignette sans rien raconter, et le cadre large de 1000 unités — taillé
+  pour qu'un superyacht de 180 m y tienne — laissait 80 % de vide autour d'un
+  matelas gonflable. La carte compose donc directement depuis `ILLUS` :
+  bateau entier, carène comprise, sur un fond construit.
+- **La silhouette de 1,75 m reste sur la carte, pieds sur la même ligne que
+  la quille.** C'est la seule chose que la vignette ne doit jamais perdre :
+  sans elle, une photo de yacht ne dit plus rien de la taille. Sa géométrie
+  en canvas (`humainCarte`) reprend exactement celle du SVG du jeu.
+- **Le palier « rien du tout » n'expose rien sur sa carte.** Le ponton est
+  photographié pour être coupé à la flottaison ; sorti de l'eau, pilotis
+  compris, c'est une caisse en bois. La carte ne montre que la silhouette,
+  seule — ce que le palier raconte, précisément.
 - **La couleur du bandeau du matin suit le seau, pas l'écart de longueur.** La
   courbe du rainbow avance avec l'horloge : entre deux ouvertures, un marché
   parfaitement plat fait rétrécir le bateau d'un millième de millimètre, et le

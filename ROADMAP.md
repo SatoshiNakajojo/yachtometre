@@ -36,6 +36,11 @@ Carte 1080 × 1620 en canvas, téléchargeable en PNG, légendes rotatives.
 Traitée comme une fonctionnalité de premier plan : c'est le seul canal
 d'acquisition du jeu.
 
+La vignette présente le bateau entier, détaché sur un fond construit — halo
+à la teinte de la rareté, rayons en éventail, flaque de lumière au sol — et
+non posé sur l'eau comme dans le jeu. La silhouette de 1,75 m reste à côté,
+pieds sur la même ligne que la quille : c'est elle qui porte l'échelle.
+
 Rien n'est pré-dessiné : la carte est calculée à partir du palier atteint, de
 sa photo et d'une option tirée dans une série. D'où le numéro, la rareté, le
 foil, le matricule et le duel de prix bateau/option. Une série est une entrée
