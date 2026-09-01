@@ -528,10 +528,6 @@ const PONTON_M=6;
    allonge le cadre plutôt que de rapetisser le bateau. Ces deux valeurs sont
    fixées en tête de bateauSVG et lues par tout ce qu'elle appelle. */
 let VB_H=VB_H0, WATER=WATER0;
-/* Deux repères relus par la carte de collection : où passe la flottaison dans
-   le cadre, et jusqu'où va vraiment le décor. À droite de cette borne il n'y
-   a que de la mer vide — sur une carte, c'est de la place perdue. */
-let ligneEau=WATER0/VB_H0, borneDroite=VB_W;
 
 /* Silhouette pleine plutôt qu'un bonhomme bâton : à côté d'une photo elle
    tient la comparaison, et à huit pixels de haut — le superyacht de 180 m —
@@ -727,9 +723,6 @@ function bateauSVG(cls,L,ill,VH,bas,k){
 
   // Le décor — quai, mer, légende — est fixe et tient toujours dans le cadre.
   // Seul le groupe « mesure » sert à décider de la taille du cadre.
-  ligneEau   = WATER/VB_H;
-  borneDroite= Math.min(VB_W, Math.max(x1, ponton ? VB_W*0.56 : X0) + 46);
-
   return `<svg viewBox="0 0 ${VB_W} ${VB_H}" xmlns="http://www.w3.org/2000/svg" role="img"
     aria-label="Silhouette du bateau à l'échelle"><g id="mesure">${quai}${humain}<g class="bob">${g}</g></g>${mer}${eau}${echelle}</svg>`;
 }
@@ -763,24 +756,11 @@ function poserScene(hote,cls,L,ill){
 }
 
 /* ══════════════════════════════════════════════════════
-   CARTE DE PARTAGE
+   COULEURS DE LA CARTE
    ══════════════════════════════════════════════════════ */
 const COULEURS={'--noir':'#0A0A0B','--carte':'#141416','--pont':'#1A1A1D','--bordure':'#26262B',
   '--gris':'#8A8A93','--blanc':'#FAF8F5','--btc':'#F7931A','--mer':'#123B52',
   '--mer-fond':'#061620'};
-function svgAutonome(svg){
-  let s = svg.replace(/class="bob"/g,'');
-  s = s.replace(/<text[\s\S]*?<\/text>/g, m => m.includes('SILHOUETTE') ? '' : m);
-  for(const [k,v] of Object.entries(COULEURS)) s = s.split('var('+k+')').join(v);
-  return s.split('var(--mono)').join('monospace');
-}
-const cacheImg=new Map();
-function imageBateau(svg){
-  const src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgAutonome(svg));
-  if(cacheImg.has(src)) return Promise.resolve(cacheImg.get(src));
-  return new Promise(r=>{ const i=new Image();
-    i.onload=()=>{cacheImg.set(src,i); r(i);}; i.onerror=()=>r(null); i.src=src; });
-}
 function lignesTexte(ctx,txt,maxW){
   const mots=txt.split(' '), out=[]; let l='';
   for(const m of mots){ const t=l?l+' '+m:m;
@@ -844,14 +824,76 @@ function metal(c,x1,y1,x2,y2,teinte,eclat){
   return g;
 }
 
+/* Le fond de la vignette. Le jeu montre le bateau posé sur l'eau, à sa
+   flottaison — juste, mais terne sur une carte. Ici le bateau est présenté
+   entier, carène comprise, détaché sur un fond construit : halo à la teinte
+   de la rareté, rayons en éventail, socle lumineux. C'est le fond qui porte
+   la carte, pas la photo. */
+function fondCarte(c,x,y,w,h,teinte,foil){
+  const cx=x+w*0.52, cy=y+h*0.50;
+
+  // Base froide et neutre. La teinte de rareté n'arrive qu'ensuite et de
+  // loin : à pleine dose, le bronze d'un RARE vire au sépia et la coque
+  // blanche du bateau part avec.
+  const base=c.createRadialGradient(cx,cy,20,cx,cy,Math.hypot(w,h)*0.62);
+  base.addColorStop(0,'#1B212B'); base.addColorStop(0.55,'#0E1218');
+  base.addColorStop(1,'#07080B');
+  c.fillStyle=base; c.fillRect(x,y,w,h);
+
+  // Rayons : un secteur sur deux, tournés d'un demi-pas pour qu'aucun ne
+  // parte à l'horizontale et ne se confonde avec une ligne d'horizon.
+  const R=Math.hypot(w,h), N=30;
+  c.save(); c.translate(cx,cy); c.rotate(Math.PI/N);
+  for(let i=0;i<N;i+=2){
+    c.beginPath(); c.moveTo(0,0);
+    c.arc(0,0,R,i*2*Math.PI/N,(i+1)*2*Math.PI/N); c.closePath();
+    c.fillStyle=foil?'rgba(255,255,255,.05)':'rgba(255,255,255,.028)';
+    c.fill();
+  }
+  c.restore();
+
+  const halo=c.createRadialGradient(cx,cy,10,cx,cy,Math.max(w,h)*0.55);
+  halo.addColorStop(0,teinte+'26'); halo.addColorStop(0.5,teinte+'0E');
+  halo.addColorStop(1,'#00000000');
+  c.fillStyle=halo; c.fillRect(x,y,w,h);
+}
+
+/* La silhouette de 1,75 m, en canvas cette fois : même géométrie que celle du
+   jeu, aux mêmes proportions, pour que l'échelle reste comparable d'un écran
+   à l'autre. */
+function humainCarte(c,x,sol,h){
+  const t=h*0.082, ep=h*0.055;
+  const R=(cx,cy,w,ht)=>{ coinsArrondis(c,cx,cy,w,ht,w/2); c.fill(); };
+  c.save(); c.fillStyle='rgba(226,229,236,.92)';
+  c.beginPath(); c.arc(x,sol-h+t,t,0,Math.PI*2); c.fill();
+  c.beginPath();
+  c.moveTo(x-h*0.105, sol-h*0.795);
+  c.quadraticCurveTo(x, sol-h*0.85,  x+h*0.105, sol-h*0.795);
+  c.lineTo(x+h*0.105, sol-h*0.48);
+  c.quadraticCurveTo(x, sol-h*0.435, x-h*0.105, sol-h*0.48);
+  c.closePath(); c.fill();
+  R(x-h*0.145,      sol-h*0.79, ep, h*0.37);
+  R(x+h*0.145-ep,   sol-h*0.79, ep, h*0.37);
+  R(x-h*0.080,      sol-h*0.50, ep, h*0.50);
+  R(x+h*0.080-ep,   sol-h*0.50, ep, h*0.50);
+  c.restore();
+}
+
+const cacheIll=new Map();
+function imageIllustration(u){
+  if(!u) return Promise.resolve(null);
+  if(cacheIll.has(u)) return Promise.resolve(cacheIll.get(u));
+  return new Promise(r=>{ const i=new Image();
+    i.onload=()=>{cacheIll.set(u,i); r(i);}; i.onerror=()=>r(null); i.src=u; });
+}
+
 function equerre(c,x,y,dx,dy,l,e){
   c.beginPath();
   c.moveTo(x+dx*l, y); c.lineTo(x, y); c.lineTo(x, y+dy*l);
   c.lineWidth=e; c.stroke();
 }
 
-async function dessinerCarte(pal,L,annee,cadre){
-  const svg=cadre.svg;
+async function dessinerCarte(pal,L,annee){
   const cv=$('carte'); if(!cv) return;
   const W=1080, H=1620, M=40;
   if(cv.width!==W || cv.height!==H){ cv.width=W; cv.height=H; }
@@ -928,44 +970,45 @@ async function dessinerCarte(pal,L,annee,cadre){
   const zH=by+72, zB=ly-26;
 
   /* ── fenêtre d'illustration ──
-     La scène du jeu est large de 1000 unités parce qu'un superyacht de 180 m
-     doit y tenir. Pour un matelas gonflable, 80 % de cette largeur est de la
-     mer vide : sur une carte c'est un trou. On recadre donc à la portion
-     occupée, élargie juste ce qu'il faut pour retrouver le format de la
-     fenêtre. Recadrer ne triche pas sur l'échelle — tout est réduit pareil,
-     la silhouette de 1,75 m comprise. */
+     Le bateau est présenté entier sur un fond construit, et non posé sur
+     l'eau : la flottaison rognait la carène et la mer occupait le tiers bas
+     de la vignette sans rien raconter. La silhouette de 1,75 m reste, pieds
+     sur la même ligne que la quille — c'est elle qui donne l'échelle, et
+     c'est la seule chose que la carte ne doit pas perdre. */
   const fy=zH, fh=zB-zH;
-  // Plancher : sans lui, un matelas gonflable fait monter le zoom à 2,5× et
-  // la silhouette mange la carte. On ne recadre jamais au-delà de 1,6×.
-  const coupe=Math.min(VB_W,
-    Math.max(cadre.droite, VB_W*0.62, cadre.VBH*(LG/fh)));
-
   c.save();
   coinsArrondis(c,I,fy,LG,fh,12);
   c.clip();
+  fondCarte(c,I,fy,LG,fh,teinte,R.foil);
 
-  /* On agrandit le dessin entier et on laisse la fenêtre couper ce qui
-     dépasse. Passer par un rectangle source serait plus direct, mais pour une
-     image SVG le navigateur lit ce rectangle en unités du viewBox, pas en
-     pixels : on se retrouve avec un coin de scène en gros plan. */
-  const ech=LG/coupe, dw=VB_W*ech, dh=cadre.VBH*ech;
-  // Flottaison posée aux deux tiers bas de la fenêtre : au-dessus le ciel,
-  // en dessous la mer, et le sujet à hauteur de regard.
-  const eauY=Math.round(fy+fh*0.72);
-  const dy=eauY-dh*cadre.eau, dx=I;
+  /* Le ponton du palier « rien du tout » est photographié pour être coupé à
+     la flottaison : hors de l'eau, pilotis compris, c'est une caisse en bois.
+     Cette carte-là n'expose donc rien — juste la silhouette, seule dans le
+     cadre. C'est exactement ce que le palier raconte. */
+  const ill=pal.L>0 ? ILLUS[pal.id] : null;
+  const Lobj=pal.L||0, Hobj=(ill&&ill.w>0) ? Lobj*(ill.h/ill.w) : 0;
+  const HUMW=HUMAIN*0.36, ECART=Math.max(0.5,Lobj*0.05);
+  const largeM = ill ? HUMW+ECART+Lobj : HUMW;
+  const hautM  = ill ? Math.max(HUMAIN,Hobj) : HUMAIN*1.3;
+  const PX=54, PY=44;
+  const ech=Math.min((LG-2*PX)/largeM, (fh-2*PY)/hautM);
+  const sol=fy+fh-PY-((fh-2*PY)-hautM*ech)/2;
+  const gx =I+PX+((LG-2*PX)-largeM*ech)/2;
 
-  /* Le dessin n'apporte qu'une bande de mer en bas et du vide au-dessus. On
-     prolonge les deux jusqu'aux bords, sinon la fenêtre est un trou noir. */
-  const ciel=c.createLinearGradient(0,fy,0,eauY);
-  ciel.addColorStop(0,'#08131E'); ciel.addColorStop(1,'#0C2A3E');
-  c.fillStyle=ciel; c.fillRect(I,fy,LG,eauY-fy);
-  const onde=c.createLinearGradient(0,eauY,0,Math.max(eauY+2,dy+dh));
-  onde.addColorStop(0,N['--mer']); onde.addColorStop(1,N['--mer-fond']);
-  c.fillStyle=onde; c.fillRect(I,eauY,LG,fy+fh-eauY);
-  c.fillStyle=N['--mer-fond']; c.fillRect(I,dy+dh,LG,Math.max(0,fy+fh-dy-dh));
+  const im=await imageIllustration(ill && ill.u);
+  if(im){
+    const ox=gx+(HUMW+ECART)*ech, ow=Lobj*ech, oh=Hobj*ech;
+    // Une ombre portée serait invisible sur un fond déjà noir : c'est une
+    // flaque de lumière qui pose l'objet, comme un projecteur de vitrine.
+    const flaque=c.createRadialGradient(ox+ow/2,sol,4,ox+ow/2,sol,ow*0.62);
+    flaque.addColorStop(0,teinte+'4D'); flaque.addColorStop(0.35,teinte+'1F');
+    flaque.addColorStop(1,'#00000000');
+    c.save(); c.translate(ox+ow/2,sol); c.scale(1,0.20); c.translate(-(ox+ow/2),-sol);
+    c.fillStyle=flaque; c.fillRect(ox-ow,sol-ow,ow*3,ow*2); c.restore();
+    c.drawImage(im, ox, sol-oh, ow, oh);
+  }
+  humainCarte(c, gx+HUMW*ech/2, sol, HUMAIN*ech);
 
-  const im=await imageBateau(svg);
-  if(im) c.drawImage(im, dx, dy, dw, dh);
   // vignette : le sujet ressort, les bords s'éteignent
   const vg=c.createRadialGradient(I+LG/2,fy+fh/2,fh*0.25,I+LG/2,fy+fh/2,fh*0.95);
   vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.55)');
@@ -986,9 +1029,16 @@ async function dessinerCarte(pal,L,annee,cadre){
   c.fillStyle=N['--gris']; c.font='600 24px "JetBrains Mono", monospace';
   c.fillText('TAILLE',I+16,ly+34);
   c.save();
-  c.shadowColor='rgba(247,147,26,.45)'; c.shadowBlur=26;
-  c.fillStyle=N['--btc']; c.font='800 92px "JetBrains Mono", monospace';
-  c.textAlign='right'; c.fillText(pal.L>0?metres(L):'—',I+LG-16,ly+62);
+  c.textAlign='right';
+  if(pal.L>0){
+    c.shadowColor='rgba(247,147,26,.45)'; c.shadowBlur=26;
+    c.fillStyle=N['--btc']; c.font='800 92px "JetBrains Mono", monospace';
+    c.fillText(metres(L),I+LG-16,ly+62);
+  } else {
+    // Un tiret de 92 px passait pour un défaut d'affichage.
+    c.fillStyle=N['--gris']; c.font='600 44px "JetBrains Mono", monospace';
+    c.fillText('PAS DE BATEAU',I+LG-16,ly+52);
+  }
   c.restore(); c.textAlign='left';
 
   /* ── option ── */
@@ -1110,10 +1160,7 @@ function rendre(){
 
   const LDessin=(pFut.L||LFut)
     || (ILLUS[pFut.id] ? ((ILLUS._ponton||{}).longueur_m || PONTON_M) : 0);
-  const svgCourant=poserScene($('scene'),pFut.cls,LDessin,ILLUS[pFut.id]);
-  // Figé ici : la carte est dessinée plus bas et ces repères sont des globales
-  // que la prochaine scène écraserait.
-  const cadreCourant={svg:svgCourant, eau:ligneEau, droite:borneDroite, VBH:VB_H};
+  poserScene($('scene'),pFut.cls,LDessin,ILLUS[pFut.id]);
   $('marker').style.left=posRegle(LFut)+'%';
   $('marker').querySelector('b').textContent=metres(LFut);
   $('ghost').style.left=posRegle(LAuj)+'%';
@@ -1220,7 +1267,7 @@ function rendre(){
       <div class="msg">${txt}</div></div>`;
   }).join('');
 
-  dessinerCarte(pFut,LFut,annee,cadreCourant);
+  dessinerCarte(pFut,LFut,annee);
   $('capText').textContent=remplir(CONTENU.partage[legendeIdx%CONTENU.partage.length],
     {longueur:metres(LFut),annee:annee,nom:pFut.nom});
 
