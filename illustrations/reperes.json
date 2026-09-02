@@ -1,5 +1,5 @@
 {
-  "_note": "Part de la hauteur de l'image qui passe sous la ligne de flottaison. Les générateurs livrent l'objet entier, coque comprise ; sans ça les bateaux sont posés sur l'eau comme des jouets de bain. Valeurs réglées à l'œil, sur photo. Une entrée absente prend _defaut.",
+  "_note": "Part de la hauteur de l'image qui passe sous la ligne de flottaison. Les générateurs livrent l'objet entier, coque comprise ; sans ça les bateaux sont posés sur l'eau comme des jouets de bain. Valeurs réglées à l'œil, sur photo. Une entrée absente prend _defaut. Une entrée peut aussi porter « poches » : des points, en fractions de largeur et de hauteur, où du fond est enfermé par l'objet et que le détourage depuis les bords ne peut pas atteindre.",
   "_defaut": 0.18,
   "_ponton": {
     "note": "Palier « rien du tout ». Le ponton est un décor, pas un bateau : pas d'échelle à tenir, mais la silhouette se tient dessus.",
@@ -15,12 +15,44 @@
   "matelas": 0.22,
   "kayak": 0.24,
   "paddle": 0.3,
-  "pedalo": 0.2,
+  "pedalo": {
+    "immersion": 0.2,
+    "poches": [
+      [
+        0.576,
+        0.112
+      ],
+      [
+        0.265,
+        0.373
+      ],
+      [
+        0.462,
+        0.366
+      ],
+      [
+        0.144,
+        0.373
+      ],
+      [
+        0.366,
+        0.317
+      ]
+    ]
+  },
   "barque": 0.24,
   "jetski": 0.15,
   "rib": 0.14,
   "open7": 0.2,
-  "voilier": 0.06,
+  "voilier": {
+    "immersion": 0.06,
+    "poches": [
+      [
+        0.431,
+        0.218
+      ]
+    ]
+  },
   "vedette": 0.18,
   "y15": 0.16,
   "y20": 0.16,
