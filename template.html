@@ -1045,10 +1045,12 @@ async function dessinerCarte(pal,L,annee){
      sur la même ligne que la quille — c'est elle qui donne l'échelle, et
      c'est la seule chose que la carte ne doit pas perdre. */
   const fy=zH, fh=zB-zH;
-  // La fenêtre est en retrait, et le sujet a le droit d'en sortir : c'est ce
-  // débordement qui fait la différence entre une vignette et une carte.
-  const wx=I+34, ww=LG-68;
-  const bx=I-8,  bw=LG+16;
+  /* Tout tient dans le cadre. J'avais laissé le bateau déborder, comme sur
+     une carte Pokémon — sauf qu'ici le cadre tranche aussi la silhouette,
+     et une silhouette coupée en deux ne se lit pas comme un effet de style,
+     elle se lit comme un défaut d'affichage. */
+  const wx=I, ww=LG;
+  const bx=I, bw=LG;
 
   c.save();
   coinsArrondis(c,wx,fy,ww,fh,12);
@@ -1059,21 +1061,6 @@ async function dessinerCarte(pal,L,annee){
   vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(0.6,'rgba(0,0,0,.18)');
   vg.addColorStop(1,'rgba(0,0,0,.72)');
   c.fillStyle=vg; c.fillRect(wx,fy,ww,fh);
-  c.restore();
-
-  /* Cadre doré, biseauté : deux traits, un clair en haut à gauche et un
-     sombre en bas à droite, c'est ce qui donne le relief. */
-  coinsArrondis(c,wx,fy,ww,fh,12);
-  c.strokeStyle=metal(c,wx,fy,wx+ww,fy+fh,melange(teinte,'#FFFFFF',0.15),
-                      R.foil?'#FFF6DF':'#B9BFC9');
-  c.lineWidth=6; c.stroke();
-  coinsArrondis(c,wx+5,fy+5,ww-10,fh-10,8);
-  c.strokeStyle='rgba(0,0,0,.45)'; c.lineWidth=2; c.stroke();
-
-  // Le sujet est dessiné hors de la fenêtre, par-dessus son cadre.
-  c.save();
-  coinsArrondis(c,bx,fy-22,bw,fh+34,16);
-  c.clip();
 
   /* Le ponton du palier « rien du tout » est photographié pour être coupé à
      la flottaison : hors de l'eau, pilotis compris, c'est une caisse en bois.
@@ -1084,10 +1071,10 @@ async function dessinerCarte(pal,L,annee){
   const HUMW=HUMAIN*0.36, ECART=Math.max(0.5,Lobj*0.05);
   const largeM = ill ? HUMW+ECART+Lobj : HUMW;
   const hautM  = ill ? Math.max(HUMAIN,Hobj) : HUMAIN*1.3;
-  const PY=30;
-  const ech=Math.min(bw/largeM, (fh-2*PY)/hautM);
+  const PX=30, PY=34;
+  const ech=Math.min((bw-2*PX)/largeM, (fh-2*PY)/hautM);
   const sol=fy+fh-PY-((fh-2*PY)-hautM*ech)/2;
-  const gx =bx+(bw-largeM*ech)/2;
+  const gx =bx+PX+((bw-2*PX)-largeM*ech)/2;
 
   const im=await imageIllustration(ill && ill.u);
   if(im){
@@ -1119,6 +1106,16 @@ async function dessinerCarte(pal,L,annee){
     eclat(c, bx+dé()*bw, fy+8+dé()*(fh-16), r, 0.20+dé()*0.40);
   }
   c.restore();
+
+  /* Cadre doré, biseauté, tracé en dernier : deux traits, un clair et un
+     sombre, c'est ce qui donne le relief — et posé par-dessus le sujet il
+     ferme la vignette au lieu d'être entamé par elle. */
+  coinsArrondis(c,wx,fy,ww,fh,12);
+  c.strokeStyle=metal(c,wx,fy,wx+ww,fy+fh,melange(teinte,'#FFFFFF',0.15),
+                      R.foil?'#FFF6DF':'#B9BFC9');
+  c.lineWidth=6; c.stroke();
+  coinsArrondis(c,wx+5,fy+5,ww-10,fh-10,8);
+  c.strokeStyle='rgba(0,0,0,.45)'; c.lineWidth=2; c.stroke();
 
   /* ── la longueur, chiffre héros ── */
   c.fillStyle=N['--gris']; c.font='600 24px "JetBrains Mono", monospace';

@@ -7,7 +7,7 @@
  * La ligne VERSION est réécrite à chaque `python3 build.py`. Ne la fixe pas
  * à la main : c'est elle qui purge l'ancien cache après une mise à jour.
  */
-const VERSION = 'fc6bacd946';
+const VERSION = '005561bf09';
 const CACHE = 'yachtometre-' + VERSION;
 
 const COQUE = [
@@ -53,9 +53,15 @@ self.addEventListener('fetch', e => {
 
   // Le site lui-même : réseau d'abord pour ne jamais bloquer sur une
   // vieille version, cache en repli quand il n'y a pas de réseau.
+  //
+  // `cache: 'no-store'` court-circuite le cache HTTP du navigateur. Sans lui,
+  // « réseau d'abord » ne suffit pas : GitHub Pages sert le HTML avec
+  // max-age=600, donc le fetch pouvait être servi par le cache du navigateur
+  // et rendre une version publiée invisible pendant dix minutes — le temps
+  // qu'il faut pour croire que la publication a échoué.
   if (url.origin === self.location.origin) {
     e.respondWith(
-      fetch(req).then(r => {
+      fetch(req, { cache: 'no-store' }).catch(() => fetch(req)).then(r => {
         if (r && r.ok) {
           const copie = r.clone();
           caches.open(CACHE).then(c => c.put(req, copie)).catch(() => {});
