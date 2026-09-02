@@ -56,11 +56,10 @@ l'écran d'accueil de l'iPhone. C'est le chemin d'accès normal de John
 désormais ; tiiny.host n'est plus dans la boucle.
 
 Phases terminées : 0 (socle chiffré), 1 (prototype validé — tous les testeurs ont
-ri), 2 (banque de textes), 4 (bateau vivant, version web), 5 (mètre de yacht),
-6 (entretien), 7 (carte de collection), 8a (hébergement et installation sur l'écran
-d'accueil), 9a (paper hands). La phase 3 (illustrations) a son brief prêt et sa
-prise posée, mais aucun dessin commandé. La phase 8b (mobile natif, notification
-poussée) reste ouverte.
+ri), 2 (banque de textes), 3 (illustrations : 26 bateaux et 5 capitaines livrés),
+4 (bateau vivant, version web), 5 (mètre de yacht), 6 (entretien),
+7 (carte de collection), 8a (hébergement et installation sur l'écran d'accueil),
+9a (paper hands). La phase 8b (mobile natif, notification poussée) reste ouverte.
 
 ---
 
@@ -342,10 +341,12 @@ Deux fonctions distinctes, ne les confonds pas :
 ### Les onglets
 
 Les cinq blocs sous le noyau — entretien, mètre de yacht, fantôme, simulation,
-partage — sont en onglets, et la barre est **épinglée en bas de l'écran**.
+partage — sont en onglets, et la barre est **épinglée en haut de l'écran**.
 Empilés, ils faisaient cinq écrans de haut sur un téléphone, et la carte de
-partage, seul canal d'acquisition, se retrouvait tout en bas. L'onglet ouvert
-est mémorisé avec le reste. Les libellés sont courts pour tenir sur un iPhone SE
+partage, seul canal d'acquisition, se retrouvait tout en bas. La barre a
+d'abord été mise en bas ; les taps n'y arrivaient pas, la barre d'adresse
+flottante de Safari passant par-dessus. L'onglet ouvert est mémorisé avec le
+reste. Les libellés sont courts pour tenir sur un iPhone SE
 sans défilement horizontal : vérifié sur SE, 13 et 13 Pro Max.
 
 ---
@@ -413,10 +414,12 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
   c'est le comportement d'une vraie carte holo qu'on incline. À plus de 0,10
   d'opacité elle délave tout et la carte vire au beige : deux passes faibles
   valent mieux qu'une forte.
-- **Le sujet déborde de sa fenêtre, par-dessus le cadre.** La vignette est en
-  retrait de 34 px et le bateau a le droit de sortir de 42 px de chaque côté.
-  C'est le seul détail qui sépare vraiment une vignette d'une carte à
-  collectionner.
+- **Le sujet tient entièrement dans le cadre.** J'avais essayé le débordement
+  des cartes Pokémon — sujet qui sort de la vignette par-dessus le cadre.
+  Ça ne marche pas ici : le cadre tranche aussi la silhouette de 1,75 m, et
+  une silhouette coupée en deux ne se lit pas comme un effet de style mais
+  comme un défaut d'affichage. John l'a signalé comme un bug. Le cadre est
+  tracé en dernier, par-dessus le sujet, pour fermer la vignette proprement.
 - **Les éclats sont semés sur le matricule.** Une carte doit scintiller aux
   mêmes endroits à chaque rendu, sinon ce n'est plus la même carte.
 - **Du fond peut rester enfermé dans un objet.** Le détourage part des bords :
@@ -465,6 +468,10 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
   délibéré : un cache-d'abord ferait tourner un téléphone sur une version
   périmée pendant des jours. Ne « optimise » pas en inversant. Le cours du BTC
   n'est jamais mis en cache, un prix périmé étant pire qu'un prix absent.
+  Et le `fetch` porte `cache: 'no-store'` : « réseau d'abord » ne suffisait
+  pas, GitHub Pages servant le HTML avec `max-age=600` — le cache HTTP du
+  navigateur pouvait donc masquer une publication pendant dix minutes, ce qui
+  suffit largement à croire qu'elle a échoué.
 - **Le service worker ne s'enregistre qu'en HTTPS.** Ouvert en `file://`, le jeu
   fonctionne à l'identique, simplement sans mise en cache. Idem pour le bandeau
   d'installation, masqué en local et une fois l'application posée.
@@ -497,9 +504,13 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
 Après un build, ces trois vérifications attrapent 90 % des régressions :
 
 ```bash
-# 1. Le JavaScript compile
+# 1. Le JavaScript compile — les deux blocs, séparément.
+#    Le motif doit être non gourmand : depuis que les photos sont chargées
+#    dans un second <script> en bas de page, un [\s\S]* gourmand avale les
+#    deux blocs d'un coup, balise fermante comprise, et échoue toujours.
 node -e "const h=require('fs').readFileSync('yachtometre.html','utf8');
-new Function(h.match(/<script>([\s\S]*)<\/script>/)[1]); console.log('OK');"
+[...h.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach((m,i)=>{
+  new Function(m[1]); console.log('bloc '+(i+1)+' OK'); });"
 
 # 2. Le JSON est valide
 node -e "JSON.parse(require('fs').readFileSync('contenu.json')); console.log('OK');"
