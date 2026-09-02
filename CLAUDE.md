@@ -403,6 +403,36 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
   la quille.** C'est la seule chose que la vignette ne doit jamais perdre :
   sans elle, une photo de yacht ne dit plus rien de la taille. Sa géométrie
   en canvas (`humainCarte`) reprend exactement celle du SVG du jeu.
+- **La rareté colore la carte entière, pas seulement le cadre.** Fond,
+  bandeau, panneau d'option, rayons : tout est dérivé de `teinte` par
+  `melange()`. C'est ce qui rend une carte reconnaissable de loin. Les deux
+  raretés basses ont été passées du gris au bleu acier et au turquoise : en
+  gris, un COMMUN n'avait l'air de rien.
+- **L'holographie est une passe « overlay », pas une couleur.** Un arc-en-ciel
+  en overlay sur un fond sombre ne colore pas, il fait dévier la teinte —
+  c'est le comportement d'une vraie carte holo qu'on incline. À plus de 0,10
+  d'opacité elle délave tout et la carte vire au beige : deux passes faibles
+  valent mieux qu'une forte.
+- **Le sujet déborde de sa fenêtre, par-dessus le cadre.** La vignette est en
+  retrait de 34 px et le bateau a le droit de sortir de 42 px de chaque côté.
+  C'est le seul détail qui sépare vraiment une vignette d'une carte à
+  collectionner.
+- **Les éclats sont semés sur le matricule.** Une carte doit scintiller aux
+  mêmes endroits à chaque rendu, sinon ce n'est plus la même carte.
+- **Du fond peut rester enfermé dans un objet.** Le détourage part des bords :
+  il ne peut pas entrer dans une zone close — le fond coincé entre la
+  grand-voile, le foc, le mât et la bôme d'un voilier, ou sous le taud d'un
+  pédalo. Invisible tant que la scène du jeu était noire, criant dès que la
+  carte a eu un fond clair. Ces points sont **déclarés** dans `reperes.json`
+  sous `poches`, jamais devinés : la règle automatique qui marchait
+  (« zone sombre, close, de couleur plate ») mangeait aussi les baies vitrées
+  des yachts, qui répondent à la même description. Sur vingt-six bateaux, deux
+  images étaient concernées.
+- **`outils/reparer_poches.py` ne sert qu'une fois.** Les PNG livrés n'existent
+  plus — seuls les `.webp` compressés sont au dépôt — donc `recadrer.py` ne
+  peut plus les reprendre. Ce script applique la même fonction aux `.webp`
+  déjà publiés. Il demande Pillow et ne tourne pas à la publication. Une image
+  livrée après coup passe par `recadrer.py` et n'en a pas besoin.
 - **Le palier « rien du tout » n'expose rien sur sa carte.** Le ponton est
   photographié pour être coupé à la flottaison ; sorti de l'eau, pilotis
   compris, c'est une caisse en bois. La carte ne montre que la silhouette,

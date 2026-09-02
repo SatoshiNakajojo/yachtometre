@@ -10,7 +10,10 @@ Ce script, sur chaque PNG de bateau d'illustrations/ — les portraits de
 capitaine sont laissés intacts, leur fond fait partie de l'image :
   1. retire le fond, par remplissage depuis les bords — ce qui laisse intacts
      les noirs intérieurs, hublots et ouvertures ;
-  2. rogne ce qui reste de marge transparente.
+  2. vide les poches de fond enfermées, que le remplissage depuis les bords ne
+     peut pas atteindre : sur un voilier, le fond piégé entre la grand-voile,
+     le foc, le mât et la bôme ressortait en triangle noir ;
+  3. rogne ce qui reste de marge transparente.
 
 Il tourne tout seul à chaque publication ; on peut aussi l'appeler à la main :
 
@@ -19,7 +22,7 @@ Il tourne tout seul à chaque publication ; on peut aussi l'appeler à la main :
 Décodeur et encodeur PNG maison, aucune dépendance. Ne traite que ce que
 produisent les générateurs d'images : 8 bits par canal, non entrelacé.
 """
-import collections, pathlib, struct, sys, zlib
+import collections, json, pathlib, struct, sys, zlib
 
 DOSSIER = pathlib.Path(__file__).parent.parent / 'illustrations'
 SEUIL_ALPHA = 8      # en deçà, le pixel est vide
@@ -146,6 +149,61 @@ def detourer(w, h, lignes):
     return True, f"{efface * 100 // (w * h)} % du fond retiré"
 
 
+def vider_poche(w, h, lignes, cx, cy):
+    """Vide une poche de fond depuis un point semé à la main.
+
+    Même règle que detourer() — on avance tant que la couleur ne change
+    presque pas — mais en partant d'un point donné plutôt que des bords.
+
+    Le semis est déclaré, pas deviné. J'ai essayé de reconnaître ces poches
+    toutes seules : « zone sombre, close, de couleur plate » mange les baies
+    vitrées d'un yacht, qui répondent à la même description. Sur vingt-six
+    bateaux, deux images seulement sont concernées ; les désigner à la main
+    est exact, et ne peut rien casser ailleurs.
+    """
+    x0, y0 = int(cx * w), int(cy * h)
+    if not (0 <= x0 < w and 0 <= y0 < h):
+        return 0
+
+    def px(x, y):
+        return lignes[y][x * 4:x * 4 + 3]
+
+    if max(px(x0, y0)) > PLAFOND_FOND or lignes[y0][x0 * 4 + 3] <= SEUIL_ALPHA:
+        return 0
+
+    vu = bytearray(w * h)
+    vu[y0 * w + x0] = 1
+    file = collections.deque([(x0, y0)])
+    efface = 0
+    while file:
+        x, y = file.popleft()
+        p = px(x, y)
+        lignes[y][x * 4 + 3] = 0
+        efface += 1
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, ny = x + dx, y + dy
+            if not (0 <= nx < w and 0 <= ny < h) or vu[ny * w + nx]:
+                continue
+            q = px(nx, ny)
+            if max(q) > PLAFOND_FOND:
+                continue
+            if abs(q[0] - p[0]) + abs(q[1] - p[1]) + abs(q[2] - p[2]) > PAS_MAX:
+                continue
+            vu[ny * w + nx] = 1
+            file.append((nx, ny))
+    return efface
+
+
+def semis(nom):
+    """Les points de fond enfermé déclarés pour cette image, en fractions."""
+    try:
+        reperes = json.loads((DOSSIER / 'reperes.json').read_text('utf-8'))
+    except Exception:
+        return []
+    entree = reperes.get(nom)
+    return entree.get('poches', []) if isinstance(entree, dict) else []
+
+
 def traiter(f):
     # Les portraits de capitaine gardent leur fond : c'est une pièce sombre,
     # un transat et une photo encadrée, pas un objet à détourer. Les rogner
@@ -167,6 +225,11 @@ def traiter(f):
                    f"Regénère avec un fond noir uni #0A0A0B.")
         if not ok:
             return
+        for cx, cy in semis(f.stem):
+            n = vider_poche(w, h, lignes, cx, cy)
+            print(f"  {f.name} : poche ({cx}, {cy}) — "
+                  + (f"{n} px de fond enfermé vidés" if n else
+                     "rien de sombre à cet endroit, semis à revoir"))
 
     x0, y0, x1, y1 = w, h, -1, -1
     for y, ligne in enumerate(lignes):

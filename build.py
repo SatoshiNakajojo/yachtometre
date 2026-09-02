@@ -94,6 +94,9 @@ def illustrations():
     `reperes.json` dit, pour chaque dessin, quelle part de sa hauteur passe
     sous la flottaison : les générateurs livrent l'objet entier, coque
     comprise, et sans ça les bateaux flottent sur l'eau comme des jouets.
+    Une entrée peut être ce seul nombre, ou un objet qui le porte à côté
+    d'autres réglages lus ailleurs — les poches de fond enfermé, que seul
+    outils/recadrer.py regarde.
     Dossier vide ou absent : le jeu retombe sur les silhouettes procédurales.
 
     Chaque dessin est incrusté en base64 dans le HTML, jamais chargé à côté —
@@ -111,6 +114,13 @@ def illustrations():
         except json.JSONDecodeError as e:
             sys.exit(f"illustrations/reperes.json invalide, ligne {e.lineno} : {e.msg}")
     defaut = reperes.get('_defaut', 0.18)
+
+    def immersion(nom):
+        """Une entrée vaut soit l'immersion seule, soit un objet qui la porte
+        à côté d'autres réglages — les points de fond enfermé, par exemple."""
+        v = reperes.get(nom, defaut)
+        return v.get('immersion', defaut) if isinstance(v, dict) else v
+
     for f in sorted(DESSINS.iterdir()):
         ext = f.suffix.lower()
         if ext not in FORMATS and ext != '.svg':
@@ -136,7 +146,7 @@ def illustrations():
         dessins[f.stem] = {
             'u': f'data:{mime};base64,' + base64.b64encode(octets).decode('ascii'),
             'w': w, 'h': h, 'o': len(octets),
-            'im': reperes.get(f.stem, defaut),
+            'im': immersion(f.stem),
         }
     # Le ponton n'est pas un dessin de palier mais un décor : ses repères
     # voyagent avec les dessins pour que le jeu sache où poser la silhouette.

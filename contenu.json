@@ -615,8 +615,8 @@
   "cartes": {
     "note": "Cartes de collection. Une série = une entrée dans series, avec ses options. En ajouter une ne demande aucun code. Chaque option : texte, prix en euros.",
     "raretes": [
-      { "jusqua": 6,  "nom": "COMMUN",      "teinte": "#6E6E76", "foil": false },
-      { "jusqua": 12, "nom": "PEU COMMUN",  "teinte": "#A9AEB6", "foil": false },
+      { "jusqua": 6,  "nom": "COMMUN",      "teinte": "#6E8CA8", "foil": false },
+      { "jusqua": 12, "nom": "PEU COMMUN",  "teinte": "#4FB3A6", "foil": false },
       { "jusqua": 17, "nom": "RARE",        "teinte": "#C8873D", "foil": true  },
       { "jusqua": 21, "nom": "TRÈS RARE",   "teinte": "#E0B04A", "foil": true  },
       { "jusqua": 99, "nom": "LÉGENDAIRE",  "teinte": "#F7931A", "foil": true  }
