@@ -205,12 +205,20 @@ def main():
     if len(out) > PLAFOND:
         print(f"Attention : {len(out)//1024} Ko. Des dessins trop lourds rendent "
               f"le fichier pénible à ouvrir sur un mobile.", file=sys.stderr)
+    # L'empreinte est calculée avant d'être posée dans la page, sinon elle se
+    # mordrait la queue. Elle sert deux fois : elle nomme le cache du service
+    # worker, et elle s'affiche en pied de page.
+    #
+    # Cet affichage n'est pas cosmétique. « Le site ne se met pas à jour » est
+    # revenu trois fois, sans qu'on puisse dire depuis le dépôt quelle version
+    # un téléphone regardait vraiment. Le numéro visible tranche en un coup
+    # d'œil : s'il correspond au dernier build, le problème est ailleurs.
+    version = hashlib.sha1(out.encode('utf-8')).hexdigest()[:10]
+    out = out.replace('__BUILD__', version)
+
     SORTIE.write_text(out, encoding='utf-8')
     INDEX.write_text(out, encoding='utf-8')
 
-    # Le nom du cache change avec le contenu : sans ça, un téléphone qui a
-    # déjà posé l'application garderait l'ancienne version indéfiniment.
-    version = hashlib.sha1(out.encode('utf-8')).hexdigest()[:10]
     sw = SW.read_text(encoding='utf-8')
     sw, n = re.subn(r"^const VERSION = '.*';$", f"const VERSION = '{version}';",
                     sw, count=1, flags=re.M)

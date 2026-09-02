@@ -240,6 +240,7 @@ body{
 .install p{margin:0;flex:1 1 240px;font-size:14px;color:var(--gris)}
 .install[hidden]{display:none}
 
+.build{opacity:.55;letter-spacing:1px}
 footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font-family:var(--mono);font-size:11px;color:var(--gris);line-height:1.7}
 </style>
 </head>
@@ -396,7 +397,7 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
 
   <div class="panneau" id="p-partage" role="tabpanel" hidden>
     <section class="block">
-      <div class="block-head"><h2>Carte de partage</h2><p>1080 × 1080</p></div>
+      <div class="block-head"><h2>Ta carte de collection</h2><p>1080 × 1620</p></div>
       <div class="share">
         <canvas id="carte" width="1080" height="1620" aria-label="Aperçu de la carte de partage"></canvas>
         <div class="share-actions">
@@ -416,7 +417,8 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
 
   <footer>
     <span id="avertissement"></span><br>
-    Ton stack reste sur ton téléphone. Aucune donnée n'est envoyée nulle part.
+    Ton stack reste sur ton téléphone. Aucune donnée n'est envoyée nulle part.<br>
+    <span class="build">version 7c02813cfe</span>
   </footer>
 </div>
 
