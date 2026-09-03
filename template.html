@@ -1692,9 +1692,37 @@ $('avertissement').textContent=CONTENU.systeme.avertissement;
 })();
 
 /* Le service worker garde le jeu disponible hors ligne une fois hébergé.
-   Sans lui — fichier ouvert d'un double-clic — tout fonctionne pareil. */
+   Sans lui — fichier ouvert d'un double-clic — tout fonctionne pareil.
+
+   Il ne suffit pas de l'enregistrer une fois. Une application posée sur
+   l'écran d'accueil, ou un onglet Safari resté ouvert, peut vivre des jours
+   sur la page déjà rendue sans jamais redemander sw.js : on publie, et rien
+   n'arrive à l'écran. On redemande donc à chaque retour au premier plan, et
+   quand un nouveau service worker prend la main, on recharge — la page
+   affichée est périmée par définition à cet instant. */
 if('serviceWorker' in navigator && isSecureContext && location.protocol.startsWith('http')){
-  addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+  /* `controle` ne peut pas être un instantané pris au chargement du script :
+     à la toute première visite il n'y a pas encore de contrôleur, et un
+     garde figé bloquerait alors les rechargements pour toute la vie de cette
+     page — y compris ceux qui suivent une vraie publication. On le met donc
+     à jour à la première prise de contrôle, et on ne recharge qu'aux
+     suivantes : celles-là remplacent bien une version périmée. */
+  let controle = !!navigator.serviceWorker.controller, rechargé = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if(!controle){ controle = true; return; }
+    if(rechargé) return;
+    rechargé = true;
+    location.reload();
+  });
+  addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      const verifier = () => { reg.update().catch(()=>{}); };
+      verifier();
+      document.addEventListener('visibilitychange', () => { if(!document.hidden) verifier(); });
+      addEventListener('focus', verifier);
+      addEventListener('pageshow', verifier);   // retour depuis le cache d'historique
+    }).catch(()=>{});
+  });
 }
 
 if(document.fonts && document.fonts.ready) document.fonts.ready.then(rendre);
