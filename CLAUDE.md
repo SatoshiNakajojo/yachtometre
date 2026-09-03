@@ -506,6 +506,24 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
   pas, GitHub Pages servant le HTML avec `max-age=600` — le cache HTTP du
   navigateur pouvait donc masquer une publication pendant dix minutes, ce qui
   suffit largement à croire qu'elle a échoué.
+- **L'enregistrer une fois ne suffit pas : l'app va rechercher les mises à
+  jour.** Une application posée sur l'écran d'accueil, ou un onglet Safari
+  resté ouvert, peut vivre des jours sur la page déjà rendue sans jamais
+  redemander `sw.js` — on publie, la publication est verte, le dépôt est
+  juste, et rien n'arrive à l'écran. C'est le symptôme qui a coûté quatre
+  échanges. La page appelle donc `registration.update()` au chargement, à
+  chaque retour au premier plan (`visibilitychange` sur `document`, `focus`,
+  `pageshow`), et recharge quand un nouveau worker prend la main.
+- **Le garde anti-clignotement ne peut pas être un instantané.** À la toute
+  première visite il n'y a pas encore de contrôleur ; un
+  `const avaitUnControleur = !!navigator.serviceWorker.controller` lu au
+  chargement du script vaut alors `false` et bloque les rechargements pour
+  toute la vie de cette page, y compris ceux qui suivent une vraie
+  publication. La variable est donc mise à jour à la première prise de
+  contrôle, et seuls les changements suivants rechargent. Vérifié de bout en
+  bout : page déjà contrôlée, v2 publiée pendant qu'elle est ouverte, retour
+  au premier plan, la page se recharge seule sur la v2 — et hors ligne elle
+  s'ouvre toujours.
 - **Le service worker ne s'enregistre qu'en HTTPS.** Ouvert en `file://`, le jeu
   fonctionne à l'identique, simplement sans mise en cache. Idem pour le bandeau
   d'installation, masqué en local et une fois l'application posée.
