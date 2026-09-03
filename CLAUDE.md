@@ -342,7 +342,18 @@ Deux fonctions distinctes, ne les confonds pas :
 ### Les onglets
 
 Les cinq blocs sous le noyau — entretien, mètre de yacht, fantôme, simulation,
-partage — sont en onglets, et la barre est **épinglée en haut de l'écran**.
+cartes — sont en onglets, et la barre est **épinglée en haut de l'écran**.
+
+**Mais épinglée en haut ne veut pas dire visible au premier écran.** Un
+`position:sticky` ne colle qu'une fois qu'on l'a atteint : la barre est
+placée sous le capitaine, soit à 1,4 écran sur un iPhone 13. John a donc
+consulté le jeu plusieurs jours de suite en concluant que rien n'avait
+changé — tout ce qu'il voyait était effectivement inchangé, et les cartes
+étaient à un glissement de doigt qu'il n'avait aucune raison de faire.
+Deux réponses, et ne les défais pas : l'onglet Cartes est celui qu'on ouvre
+au premier passage, et un bloc `vers-carte` annonce la carte du jour dans le
+flux principal, juste sous le capitaine. Le seul canal d'acquisition du jeu
+ne doit pas se mériter.
 Empilés, ils faisaient cinq écrans de haut sur un téléphone, et la carte de
 partage, seul canal d'acquisition, se retrouvait tout en bas. La barre a
 d'abord été mise en bas ; les taps n'y arrivaient pas, la barre d'adresse
