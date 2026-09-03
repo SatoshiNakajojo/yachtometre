@@ -97,40 +97,29 @@ dossier peut rester vide sans rien casser.
 page.** Elles pèsent vingt fois le reste du fichier ; en tête, elles faisaient
 attendre le jeu derrière un mégaoctet et demi d'images — 8 secondes en 4G lente
 avant le premier bateau, sur le seul canal d'acquisition du produit. Le moteur
-démarre donc avec ses silhouettes procédurales et les photos prennent leur
-place en arrivant : **0,6 seconde au lieu de 8**. Ne remets pas `ILLUS` en tête
+masque la carte une seconde, avec une ligne de chargement, et elle s'affiche
+dès que les photos arrivent : **0,6 seconde au lieu de 8**. Ne remets pas `ILLUS` en tête
 du script principal, et garde-le en `let` — c'est le second script qui
 l'affecte, puis rappelle `rendre()`.
 
-**L'horizon est peint dans le SVG, pas en CSS.** La mer était un dégradé CSS
-qui basculait à 62 % de la hauteur du bloc, alors que la ligne de flottaison est
-à 76 % — et jusqu'à 88 % depuis que le cadre s'allonge. L'horizon ne tombait
-donc jamais au bon endroit. Il est maintenant dessiné dans le SVG, qui est le
-seul à connaître la vraie hauteur d'eau. Ne remets pas de dégradé sur `.scene`.
+**La carte est l'écran d'accueil.** Elle vient juste sous les quatre champs,
+en grand, et le mètre de yacht passe dessous. C'est une décision de John, et
+elle a coûté la scène : le bloc SVG qui montrait le bateau posé sur l'eau
+avec son ponton et sa silhouette a été supprimé, parce qu'il affichait
+exactement le même bateau que la carte, deux blocs plus haut.
 
-**La mer est peinte après le bateau, le quai après la mer.** La carène est
-ainsi tranchée net à la flottaison au lieu de s'afficher en entier avec les
-vagues par-dessus, ce qui sautait aux yeux dès la première photo. Le quai
-repasse devant : c'est une structure, pas de l'eau.
+Sont partis avec lui : `bateauSVG`, `poserScene`, `humainSVG`, `coque`, les
+silhouettes procédurales des vingt-six classes, la mer, le quai, et les
+constantes `VB_*` / `WATER` / `MER0`. Deux cent quarante lignes. Si tu veux
+retrouver un rendu « bateau sur l'eau », il est dans l'historique — mais
+rappelle-toi pourquoi il est parti.
 
-**Le cadre est mesuré, pas deviné.** `poserScene()` dessine la scène, lit le
-`getBBox()` du résultat, et recommence — trois fois au plus — jusqu'à ce que
-rien ne dépasse. Elle allonge le cadre en priorité (jusqu'à `VB_HMAX`, 660) et
-ne réduit l'échelle qu'en dernier recours ; la silhouette de 1,75 m suivant la
-même réduction, le rapport de taille reste exact dans tous les cas. Avant ça,
-le cadre était figé à 320 unités et tout ce qui dépassait — le mât du voilier,
-les ponts hauts des yachts, la carène sous la flottaison — était tranché. Ne
-remplace pas cette mesure par une table de hauteurs par classe : elle serait
-fausse dès le premier dessin livré, dont on ne connaît pas les proportions à
-l'avance.
-
-**Le ponton en bois est le quai de toutes les scènes.** `illustrations/rien.webp`
-ne sert pas qu'au palier « rien du tout » : c'est le quai sur lequel se tient la
-silhouette à chaque palier, posé à la même échelle que le reste — minuscule à
-côté d'un superyacht de 180 m, ce qui est juste. Son extrémité affleure le nez
-du bateau et le reste continue vers la terre, hors cadre. Sans bateau, il avance
-dans le cadre : l'échelle ne change pas — sinon il rétrécirait d'un coup à
-l'apparition du premier bateau — seule sa position bouge.
+Une conséquence à connaître : **le repli procédural n'existe plus**. Sans
+photo, la carte ne montre que la silhouette. Comme les photos arrivent dans
+un second script, la carte est masquée pendant la seconde qui précède, avec
+une des sept lignes de chargement de `contenu.json` à la place. Ne remets
+pas les photos en tête du script pour « régler » ça : c'est huit secondes
+d'attente contre une.
 
 **Les dessins montrent l'objet entier, pas coupé à la flottaison.** C'est ce que
 livrent les générateurs, et c'est plus lisible. `illustrations/reperes.json`
@@ -159,11 +148,6 @@ bateaux : le fil rouge. Vide au niveau 0 avec la photo du bateau posée dessus,
 occupé du niveau 1 au 3, vide de nouveau au niveau 4 — l'assistant se tient
 debout à côté, le commandant reste invisible. C'est une trouvaille de John,
 pas du brief. Ne la casse pas.
-
-Quand un dessin est présent, le cadre de la scène s'allonge — jusqu'à 660
-unités de haut — plutôt que de rapetisser le bateau pour faire tenir un mât.
-Le chemin procédural, lui, garde son cadre plat de 320 : rien n'a changé pour
-ce que le jeu affiche aujourd'hui.
 
 Trois outils préparent les fichiers déposés, dans cet ordre, à chaque
 publication :
@@ -196,8 +180,8 @@ John, et son absence est signalée sans faire échouer le build.
 il retire le fond **par remplissage depuis les bords** — d'où la survie des
 hublots sombres au milieu d'une coque — puis rogne les marges. C'est pour ça
 que les prompts imposent un fond noir uni `#0A0A0B` : uni, il se détoure sans
-peine ; noir, le moindre liseré résiduel reste invisible sur la scène du jeu,
-qui est noire elle aussi.
+peine ; noir, le moindre liseré résiduel reste discret sur la carte, dont le
+fond est sombre.
 
 La propagation se fait **de proche en proche, avec une tolérance locale** :
 elle traverse un vignettage ou un dégradé doux, et s'arrête sur la marche
@@ -376,8 +360,7 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
    `illustrations/` suffit, il n'y a pas de code à écrire à la livraison, y
    compris dessin par dessin.
 
-   Le cadrage a été réparé au passage, pour les deux chemins à la fois : voir
-   `poserScene()` ci-dessous.
+   Livrées : les vingt-six bateaux et les cinq capitaines.
 2. **Le vrai push quotidien** (phase 8b). Voir la limite ci-dessous.
 3. **Le mode multi-actifs.** Le même moteur marche avec des actions. C'est ce qui
    ouvrirait un second public.
@@ -600,6 +583,16 @@ node --check sw.js
 # les deux sorties sont bien identiques
 cmp index.html yachtometre.html && echo 'OK'
 ```
+
+**L'invariant n° 1 se teste maintenant sur la carte, et pour de bon.**
+`dessinerCarte` publie dans `carteDessinee` ce qu'elle a réellement dessiné —
+l'échelle en pixels par mètre, la hauteur de la silhouette, le rectangle du
+bateau, celui de la fenêtre. Un test peut donc vérifier sur les vingt-six
+paliers, sans relire le code, que la silhouette vaut 1,75 m à l'échelle, que
+la largeur du bateau vaut sa longueur à la même échelle, que rien ne sort de
+la fenêtre et qu'aucune photo n'est écrasée. Ne mesure pas ça aux pixels du
+canvas : la silhouette claire et une coque de yacht blanche ont la même
+couleur, le premier essai comptait les deux.
 
 Et sur le téléphone : après une mise à jour, ferme complètement l'application
 posée sur l'écran d'accueil avant de la rouvrir. Sinon tu regardes l'ancien

@@ -104,12 +104,6 @@ body{
 .hint.live{color:var(--btc)}
 
 /* ── scène ───────────────────────────────────────────── */
-.scene{
-  margin-top:18px;border:1px solid var(--bordure);border-bottom:0;
-  background:var(--noir);
-  overflow:hidden;
-}
-.scene svg{display:block;width:100%;height:auto}
 @media (prefers-reduced-motion:no-preference){
   .bob{animation:bob 5.5s ease-in-out infinite}
   @keyframes bob{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-5px) rotate(-.35deg)}}
@@ -240,6 +234,11 @@ body{
 .install p{margin:0;flex:1 1 240px;font-size:14px;color:var(--gris)}
 .install[hidden]{display:none}
 
+.carte-une{margin:22px 0 6px;text-align:center}
+.carte-une canvas{width:100%;max-width:340px;height:auto;border-radius:14px;display:block;margin:0 auto;
+  box-shadow:0 18px 44px rgba(0,0,0,.55)}
+.carte-attente{font-family:var(--mono);font-size:12px;color:var(--gris);margin:10px 0 0;letter-spacing:1px}
+.carte-une .share-actions{margin-top:14px}
 .vers-carte{display:block;width:100%;margin-top:18px;padding:14px 16px;text-align:left;
   background:linear-gradient(135deg,#1C1710,var(--pont));border:1px solid var(--btc);
   border-radius:10px;color:inherit;font:inherit;cursor:pointer}
@@ -307,7 +306,16 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
     </div>
   </div>
 
-  <div class="scene"><div id="scene"></div></div>
+  <div class="carte-une">
+    <canvas id="carte" width="1080" height="1620" aria-label="Ta carte du jour"></canvas>
+    <p class="carte-attente" id="carteAttente"></p>
+    <div class="share-actions">
+      <button class="chip" type="button" id="dlCard">Partager la carte</button>
+      <button class="chip" type="button" id="cpCap">Copier la légende</button>
+      <button class="chip" type="button" id="rerollCap">Autre légende</button>
+      <span class="cap-preview" id="capText"></span>
+    </div>
+  </div>
 
   <div class="ruler">
     <div class="ruler-track" id="track">
@@ -331,7 +339,7 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
       <p class="line" id="capLine"></p>
     </div>
     <button type="button" class="vers-carte" id="versCarte">
-      <span class="vc-label">Ta carte du jour</span>
+      <span class="vc-label">Ta collection</span>
       <span class="vc-nom" id="vcNom">—</span>
       <span class="vc-rar" id="vcRar"></span>
     </button>
@@ -420,19 +428,6 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
   </div>
 
   <div class="panneau" id="p-partage" role="tabpanel" hidden>
-    <section class="block">
-      <div class="block-head"><h2>Ta carte de collection</h2><p>1080 × 1620</p></div>
-      <div class="share">
-        <canvas id="carte" width="1080" height="1620" aria-label="Aperçu de la carte de partage"></canvas>
-        <div class="share-actions">
-          <button class="chip" type="button" id="dlCard">Partager la carte</button>
-          <button class="chip" type="button" id="cpCap">Copier la légende</button>
-          <button class="chip" type="button" id="rerollCap">Autre légende</button>
-          <span class="cap-preview" id="capText"></span>
-        </div>
-      </div>
-    </section>
-
     <section class="block">
       <div class="block-head"><h2>Ta collection</h2><p id="collCompte">—</p></div>
       <p class="hint" id="collNote"></p>
@@ -548,244 +543,9 @@ function mesure(m){
   return metres(m);
 }
 
-/* ══════════════════════════════════════════════════════
-   BATEAUX — silhouette humaine constante à 1,75 m
-   ══════════════════════════════════════════════════════ */
-const VB_W=1000, VB_H0=320, WATER0=244, MER0=76, X0=96, HUMAIN=1.75, VB_HMAX=660;
-/* Le palier « rien du tout » n'a pas de longueur : on donne au ponton une
-   taille plausible pour qu'il passe par le même chemin que les bateaux. */
-const PONTON_M=6;
-/* Le cadre est plat par défaut. Un dessin livré peut demander plus d'air —
-   un mât fait facilement une fois et demie la longueur du bateau — alors on
-   allonge le cadre plutôt que de rapetisser le bateau. Ces deux valeurs sont
-   fixées en tête de bateauSVG et lues par tout ce qu'elle appelle. */
-let VB_H=VB_H0, WATER=WATER0;
-
-/* Silhouette pleine plutôt qu'un bonhomme bâton : à côté d'une photo elle
-   tient la comparaison, et à huit pixels de haut — le superyacht de 180 m —
-   une forme pleine reste lisible là où un trait disparaît.
-   Hauteur totale exactement HUMAIN mètres, pieds sur la flottaison. */
-function humainSVG(x,pxm,sol){
-  const h=HUMAIN*pxm, y=(sol===undefined?WATER:sol);
-  const t=h*0.082, ep=h*0.055;
-  const R = (cx,cy,w,ht) => `<rect x="${cx}" y="${cy}" width="${w}" height="${ht}" rx="${w/2}"/>`;
-  return `<g fill="var(--gris)" opacity=".9">
-    <circle cx="${x}" cy="${y-h+t}" r="${t}"/>
-    <path d="M ${x-h*0.105} ${y-h*0.795}
-             q ${h*0.105} ${-h*0.055} ${h*0.21} 0
-             l 0 ${h*0.315}
-             q ${-h*0.105} ${h*0.045} ${-h*0.21} 0 z"/>
-    ${R(x-h*0.145, y-h*0.79, ep, h*0.37)}
-    ${R(x+h*0.145-ep, y-h*0.79, ep, h*0.37)}
-    ${R(x-h*0.080, y-h*0.50, ep, h*0.50)}
-    ${R(x+h*0.080-ep, y-h*0.50, ep, h*0.50)}
-  </g>`;
-}
-function coque(x0,x1,p){
-  const len=x1-x0, y=WATER;
-  return `M ${x0} ${y-p*0.5} L ${x1} ${y-p*0.95} L ${x1-len*0.03} ${y+p*0.85}
-          Q ${x0+len*0.32} ${y+p*1.2} ${x0+len*0.015} ${y+p*0.55} Z`;
-}
-
-/* `ill` est le dessin livré pour ce palier : l'objet seul, coupé net à la
-   ligne de flottaison. Sa largeur vaut donc la longueur du bateau, et sa
-   hauteur suit. C'est le jeu qui décide de l'échelle, jamais l'illustrateur :
-   c'est ce qui garde le bonhomme de 1,75 m exact. */
-function bateauSVG(cls,L,ill,VH,bas,k){
-  const dessin = (ill && ill.w>0 && ill.h>0) ? ill : null;
-  const P = ILLUS._ponton || {};
-  const ponton = dessin && cls==='rien';
-  const cadre=Math.max(L,7), large=VB_W-X0-60;
-  VB_H=VH||VB_H0; WATER=VB_H-(bas||MER0);
-  const pxm=(k||1)*large/cadre;
-  const x0=X0, x1=X0+L*pxm, len=Math.max(x1-x0,2);
-  const B='var(--blanc)', O='var(--btc)', N='var(--noir)', G='var(--gris)';
-  let g='';
-
-  if(dessin && ponton){
-    g='';   // le ponton est le quai, dessiné plus bas pour tous les paliers
-  } else if(dessin){
-    // Le dessin livré montre l'objet entier, carène comprise. On l'enfonce
-    // donc de la part déclarée dans reperes.json, sinon le bateau est posé
-    // sur l'eau comme un jouet de bain.
-    const h=len*(dessin.h/dessin.w), sous=h*(dessin.im||0);
-    g=`<image href="${dessin.u}" x="${x0}" y="${WATER-h+sous}" width="${len}" height="${h}"/>`;
-  } else if(cls==='rien'){
-    g=`<text x="${VB_W/2}" y="${WATER-40}" text-anchor="middle" fill="var(--gris)"
-        font-family="var(--mono)" font-size="17" letter-spacing="3">RIEN À L'HORIZON</text>`;
-  } else if(cls==='duck'){
-    const r=len*0.42;
-    g=`<ellipse cx="${x0+len*0.5}" cy="${WATER-r*0.15}" rx="${r}" ry="${r*0.55}" fill="${O}"/>
-       <ellipse cx="${x0+len*0.5}" cy="${WATER-r*0.15}" rx="${r*0.45}" ry="${r*0.24}" fill="${N}"/>
-       <circle cx="${x0+len*0.86}" cy="${WATER-r*0.95}" r="${r*0.34}" fill="${O}"/>
-       <circle cx="${x0+len*0.93}" cy="${WATER-r*1.05}" r="${r*0.07}" fill="${N}"/>
-       <path d="M ${x0+len*1.13} ${WATER-r*0.92} l ${r*0.3} ${r*0.1} l ${-r*0.3} ${r*0.14} z" fill="${B}"/>`;
-  } else if(cls==='noodle'){
-    g=`<rect x="${x0}" y="${WATER-len*0.09}" width="${len}" height="${len*0.14}" rx="${len*0.07}" fill="${O}"/>`;
-  } else if(cls==='mattress'){
-    g=`<rect x="${x0}" y="${WATER-len*0.11}" width="${len}" height="${len*0.16}" rx="${len*0.03}" fill="${B}" opacity=".9"/>
-       <rect x="${x0}" y="${WATER-len*0.11}" width="${len}" height="${len*0.05}" fill="${O}"/>
-       <circle cx="${x0+len*0.72}" cy="${WATER-len*0.16}" r="${len*0.022}" fill="${G}" opacity=".8"/>
-       <circle cx="${x0+len*0.78}" cy="${WATER-len*0.24}" r="${len*0.015}" fill="${G}" opacity=".6"/>
-       <circle cx="${x0+len*0.74}" cy="${WATER-len*0.31}" r="${len*0.01}" fill="${G}" opacity=".45"/>`;
-  } else if(cls==='kayak'){
-    g=`<path d="M ${x0} ${WATER-len*0.02} Q ${x0+len*0.5} ${WATER-len*0.2} ${x1} ${WATER-len*0.02}
-                Q ${x0+len*0.5} ${WATER+len*0.13} ${x0} ${WATER-len*0.02} Z" fill="${O}"/>
-       <ellipse cx="${x0+len*0.5}" cy="${WATER-len*0.05}" rx="${len*0.17}" ry="${len*0.045}" fill="${N}"/>`;
-  } else if(cls==='paddle'){
-    g=`<rect x="${x0}" y="${WATER-len*0.045}" width="${len}" height="${len*0.05}" rx="${len*0.025}" fill="${B}"/>
-       ${humainSVG(x0+len*0.45,pxm)}
-       <line x1="${x0+len*0.56}" y1="${WATER-HUMAIN*pxm*1.05}" x2="${x0+len*0.62}" y2="${WATER+6}"
-             stroke="${O}" stroke-width="${Math.max(2,pxm*0.05)}"/>`;
-  } else if(cls==='pedalo'){
-    const p=len*0.28;
-    g=`<path d="${coque(x0,x1,p)}" fill="${B}"/>
-       <rect x="${x0+len*0.18}" y="${WATER-p*2.4}" width="${len*0.5}" height="${p*0.22}" fill="${O}"/>
-       <line x1="${x0+len*0.2}" y1="${WATER-p*2.3}" x2="${x0+len*0.2}" y2="${WATER-p*0.6}" stroke="${B}" stroke-width="3"/>
-       <line x1="${x0+len*0.64}" y1="${WATER-p*2.3}" x2="${x0+len*0.64}" y2="${WATER-p*0.6}" stroke="${B}" stroke-width="3"/>
-       <path d="M ${x0+len*0.1} ${WATER-p*2.2} Q ${x0-len*0.14} ${WATER-p*1.2} ${x0-len*0.16} ${WATER+p*0.4}"
-             stroke="${O}" stroke-width="${Math.max(4,p*0.28)}" fill="none" stroke-linecap="round"/>`;
-  } else if(cls==='barque'){
-    const p=len*0.2;
-    g=`<path d="${coque(x0,x1,p)}" fill="${B}"/>
-       <rect x="${x0+len*0.3}" y="${WATER-p*0.62}" width="${len*0.3}" height="${p*0.16}" fill="${N}"/>
-       <rect x="${x0-len*0.02}" y="${WATER-p*1.5}" width="${len*0.1}" height="${p*1.05}" fill="${N}"/>`;
-  } else if(cls==='jetski'){
-    const p=len*0.24;
-    g=`<path d="M ${x0} ${WATER-p*0.2} L ${x0+len*0.72} ${WATER-p*0.75} L ${x1} ${WATER-p*0.15}
-                L ${x1-len*0.08} ${WATER+p*0.5} L ${x0+len*0.05} ${WATER+p*0.45} Z" fill="${O}"/>
-       <path d="M ${x0+len*0.36} ${WATER-p*0.8} l ${len*0.2} ${-p*0.5} l ${len*0.1} ${p*0.1}"
-             stroke="${B}" stroke-width="${Math.max(2,p*0.12)}" fill="none" stroke-linecap="round"/>`;
-  } else if(cls==='rib'){
-    const p=len*0.18;
-    g=`<path d="${coque(x0,x1,p)}" fill="${N}"/>
-       <rect x="${x0}" y="${WATER-p*0.85}" width="${len}" height="${p*0.5}" rx="${p*0.25}" fill="${B}"/>
-       <rect x="${x0+len*0.4}" y="${WATER-p*1.9}" width="${len*0.16}" height="${p*1.1}" fill="${O}"/>`;
-  } else if(cls==='open'){
-    const p=len*0.17;
-    g=`<path d="${coque(x0,x1,p)}" fill="${B}"/>
-       <path d="M ${x0+len*0.42} ${WATER-p*0.75} l ${len*0.16} ${-p*0.85} l ${len*0.09} ${p*0.2} l ${-len*0.06} ${p*0.7} z" fill="${O}" opacity=".8"/>
-       <rect x="${x0+len*0.1}" y="${WATER-p*0.8}" width="${len*0.24}" height="${p*0.12}" fill="${N}"/>`;
-  } else if(cls==='sail'){
-    const p=len*0.14, mh=len*0.95;
-    g=`<path d="${coque(x0,x1,p)}" fill="${B}"/>
-       <line x1="${x0+len*0.45}" y1="${WATER-p*0.7}" x2="${x0+len*0.45}" y2="${WATER-mh}" stroke="${G}" stroke-width="${Math.max(2,p*0.14)}"/>
-       <path d="M ${x0+len*0.47} ${WATER-mh*0.97} L ${x0+len*0.47} ${WATER-p*1.4} L ${x0+len*0.84} ${WATER-p*1.4} Z" fill="${B}" opacity=".9"/>
-       <path d="M ${x0+len*0.43} ${WATER-mh*0.94} L ${x0+len*0.43} ${WATER-p*1.4} L ${x0+len*0.16} ${WATER-p*1.4} Z" fill="${O}" opacity=".75"/>`;
-  } else if(cls==='vedette'){
-    const p=len*0.15;
-    g=`<path d="${coque(x0,x1,p)}" fill="${B}"/>
-       <path d="M ${x0+len*0.24} ${WATER-p*0.8} L ${x0+len*0.62} ${WATER-p*0.8} L ${x0+len*0.56} ${WATER-p*2.1} L ${x0+len*0.3} ${WATER-p*2.1} Z" fill="${B}" opacity=".85"/>
-       <rect x="${x0+len*0.32}" y="${WATER-p*1.95}" width="${len*0.2}" height="${p*0.5}" fill="${N}" opacity=".8"/>
-       <line x1="${x0+len*0.42}" y1="${WATER-p*2.1}" x2="${x0+len*0.42}" y2="${WATER-p*3.1}" stroke="${G}" stroke-width="2"/>`;
-  } else {
-    const grand = cls==='super';
-    const p = len*(grand?0.085:0.12);
-    const ponts = L<26?2 : L<45?3 : L<80?4 : 5;
-    const hp = p*1.15;
-    if(L>=100){
-      const s=0.42, sx0=x0+len*0.02, sl=len*s, sp=p*0.7;
-      g+=`<g opacity=".22" transform="translate(0,${-p*2.2})">
-            <path d="${coque(sx0,sx0+sl,sp)}" fill="${G}"/>
-            <rect x="${sx0+sl*0.1}" y="${WATER-sp*1.9}" width="${sl*0.42}" height="${sp*1.2}" fill="${G}"/></g>`;
-    }
-    g+=`<path d="${coque(x0,x1,p)}" fill="${B}"/>`;
-    g+=`<path d="M ${x0+len*0.02} ${WATER-p*0.12} L ${x1-len*0.05} ${WATER-p*0.5}"
-          stroke="${O}" stroke-width="${Math.max(1.4,p*0.11)}"/>`;
-    for(let i=0;i<ponts;i++){
-      const xa=x0+len*(0.07+i*0.055), xb=x0+len*(0.70-i*0.075);
-      const ya=WATER-p*0.7-hp*(i+1);
-      if(xb<=xa) break;
-      g+=`<rect x="${xa}" y="${ya}" width="${xb-xa}" height="${hp}" fill="${B}" opacity="${0.92-i*0.08}"/>
-          <rect x="${xa+(xb-xa)*0.06}" y="${ya+hp*0.3}" width="${(xb-xa)*0.82}" height="${hp*0.28}" fill="${N}" opacity=".6"/>`;
-    }
-    const sommet = WATER-p*0.7-hp*ponts;
-    g+=`<line x1="${x0+len*0.2}" y1="${sommet}" x2="${x0+len*0.2}" y2="${sommet-hp*1.5}" stroke="${G}" stroke-width="${Math.max(1.2,p*0.09)}"/>
-        <circle cx="${x0+len*0.2}" cy="${sommet-hp*1.5}" r="${Math.max(2,p*0.22)}" fill="${G}"/>`;
-    if(L>=60){
-      const cx=x0+len*0.83, cy=WATER-p*1.05, r=len*0.052;
-      g+=`<ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${r*0.3}" fill="none" stroke="${O}" stroke-width="${Math.max(1,r*0.14)}"/>
-          <text x="${cx}" y="${cy+r*0.16}" text-anchor="middle" fill="${O}" font-family="var(--mono)"
-                font-size="${Math.max(6,r*0.7)}" font-weight="600">H</text>`;
-    }
-    if(L>=80){
-      const sl=len*0.055, sx=x0+len*0.10, sy=WATER-p*0.95;
-      g+=`<ellipse cx="${sx}" cy="${sy}" rx="${sl}" ry="${sl*0.42}" fill="${O}"/>
-          <circle cx="${sx+sl*0.4}" cy="${sy}" r="${sl*0.2}" fill="${N}"/>`;
-    }
-  }
-
-  // La mer est peinte APRÈS le bateau : elle tranche la carène à la flottaison,
-  // au lieu de laisser voir la partie immergée avec les vagues par-dessus. Le
-  // quai, lui, passe encore après : c'est une structure, pas de l'eau.
-  const mer=`<defs><linearGradient id="mer" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="var(--mer)"/><stop offset="1" stop-color="var(--mer-fond)"/>
-    </linearGradient></defs>
-    <rect x="0" y="${WATER}" width="${VB_W}" height="${VB_H-WATER}" fill="url(#mer)"/>`;
-  const eau=`<line x1="0" y1="${WATER}" x2="${VB_W}" y2="${WATER}" stroke="#2C6B87" stroke-width="1.5"/>
-    <path d="M 0 ${WATER+16} q 30 -7 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0"
-      stroke="#2C6B87" stroke-width="1" fill="none" opacity=".55"/>
-    <path d="M 0 ${WATER+34} q 40 -8 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0 t 80 0"
-      stroke="#2C6B87" stroke-width="1" fill="none" opacity=".32"/>`;
-  /* Le ponton en bois est le quai de toutes les scènes, pas seulement de
-     celle du palier « rien du tout ». Il est posé à l'échelle comme le reste :
-     à côté d'un superyacht de 180 m il devient minuscule, ce qui est juste.
-     Son extrémité affleure le nez du bateau, le reste continue vers la terre
-     hors du cadre. La silhouette se tient dessus. */
-  const pont = ILLUS.rien;
-  let quai, humain;
-  if(pont && pont.w>0){
-    const pw=(P.longueur_m||4.2)*pxm, ph=pw*(pont.h/pont.w);
-    // Sans bateau, on avance le ponton dans le cadre : son échelle ne change
-    // pas — sinon il rétrécirait d'un coup à l'apparition du premier bateau —
-    // seule sa position bouge, et la scène du vide respire.
-    const bout=(cls==='rien') ? VB_W*0.52 : X0-8;
-    const px=bout-pw, py=WATER-ph+ph*(P.immersion||0.2);
-    quai=`<image href="${pont.u}" x="${px}" y="${py}" width="${pw}" height="${ph}"/>`;
-    humain=humainSVG(px+pw*(P.poste||0.87), pxm, py+ph*(P.pont||0.09));
-  } else {
-    quai=`<rect x="0" y="${WATER}" width="${X0-34}" height="${VB_H-WATER}" fill="var(--carte)"/>
-      <line x1="0" y1="${WATER}" x2="${X0-34}" y2="${WATER}" stroke="var(--gris)" stroke-width="2"/>`;
-    humain=humainSVG(X0-62,pxm);
-  }
-  if(!dessin && cls==='paddle') humain='';   // le paddle procédural a son rameur
-
-  const echelle=`<text x="${VB_W-14}" y="${VB_H-12}" text-anchor="end" fill="var(--gris)"
-    font-family="var(--mono)" font-size="11" letter-spacing="1.5">SILHOUETTE = 1,75 M</text>`;
-
-  // Le décor — quai, mer, légende — est fixe et tient toujours dans le cadre.
-  // Seul le groupe « mesure » sert à décider de la taille du cadre.
-  return `<svg viewBox="0 0 ${VB_W} ${VB_H}" xmlns="http://www.w3.org/2000/svg" role="img"
-    aria-label="Silhouette du bateau à l'échelle"><g id="mesure">${quai}${humain}<g class="bob">${g}</g></g>${mer}${eau}${echelle}</svg>`;
-}
-
-/* Un mât fait facilement une fois et demie la longueur du bateau, et le cadre
-   par défaut n'offre que 244 unités d'air : tout ce qui dépasse était coupé.
-   Plutôt que de deviner la hauteur de chaque classe — et de se tromper dès
-   qu'un dessin livré arrive — on dessine une fois, on mesure ce qui sort du
-   cadre, et on redessine avec la place qu'il faut. On allonge le cadre en
-   priorité ; on ne réduit l'échelle que si l'allonger ne suffit pas. La
-   silhouette de 1,75 m suit la même réduction, donc le rapport reste exact. */
-function poserScene(hote,cls,L,ill){
-  let VH=VB_H0, bas=MER0, k=1, svg='';
-  for(let essai=0; essai<3; essai++){
-    svg=bateauSVG(cls,L,ill,VH,bas,k);
-    hote.innerHTML=svg;
-    const el=hote.querySelector('#mesure');
-    if(!el || !el.getBBox) return svg;
-    let bb; try{ bb=el.getBBox(); }catch(_){ return svg; }
-    if(bb.y>=4 && bb.y+bb.height<=VB_H-4) return svg;
-
-    // Hauteurs réellement occupées, ramenées à l'échelle 1 pour rester
-    // comparables d'un essai à l'autre.
-    const haut=(WATER-bb.y)/k;
-    const prof=Math.max(MER0, (bb.y+bb.height-WATER)/k);
-    VH  = Math.min(Math.round((haut+prof+14)/10)*10, VB_HMAX);
-    bas = Math.min(Math.round(prof), Math.round(VH*0.4));
-    k   = Math.min(1, (VH-bas-14)/haut);
-  }
-  return svg;
-}
+/* La silhouette humaine vaut exactement 1,75 m à l'échelle du bateau :
+   c'est l'invariant n° 1 du jeu, et la carte le tient toute seule. */
+const HUMAIN=1.75;
 
 /* ══════════════════════════════════════════════════════
    COULEURS DE LA CARTE
@@ -1225,8 +985,15 @@ async function dessinerCarte(pal,L,annee){
     c.save(); c.translate(ox+ow/2,sol); c.scale(1,0.20); c.translate(-(ox+ow/2),-sol);
     c.fillStyle=flaque; c.fillRect(ox-ow,sol-ow,ow*3,ow*2); c.restore();
     c.drawImage(im, ox, sol-oh, ow, oh);
+    carteDessinee.objet={x:ox, y:sol-oh, w:ow, h:oh};
   }
   humainCarte(c, gx+HUMW*ech/2, sol, HUMAIN*ech);
+  /* Ce qui a réellement été dessiné, en pixels. C'est ce qui rend
+     l'invariant n° 1 vérifiable de l'extérieur : un test peut comparer la
+     hauteur de la silhouette à la longueur du bateau sans relire le code. */
+  carteDessinee.ech=ech;
+  carteDessinee.humain=HUMAIN*ech;
+  carteDessinee.fenetre={x:wx, y:fy, w:ww, h:fh};
 
   // foil : réservé aux raretés hautes, c'est ce qui les fait désirer
   if(R.foil){
@@ -1410,9 +1177,6 @@ function rendre(){
   const LAuj=longueurPourBudget(budgetAuj), LFut=longueurPourBudget(budgetFut);
   const pFut=palierPourBudget(budgetFut), iP=PALIERS.indexOf(pFut);
 
-  const LDessin=(pFut.L||LFut)
-    || (ILLUS[pFut.id] ? ((ILLUS._ponton||{}).longueur_m || PONTON_M) : 0);
-  poserScene($('scene'),pFut.cls,LDessin,ILLUS[pFut.id]);
   $('marker').style.left=posRegle(LFut)+'%';
   $('marker').querySelector('b').textContent=metres(LFut);
   $('ghost').style.left=posRegle(LAuj)+'%';
@@ -1521,17 +1285,25 @@ function rendre(){
 
   // La carte du jour se gagne au premier rendu du jour, avant d'être dessinée.
   gagnerCarte(pFut);
+  /* Les photos arrivent dans un second script, en bas de page : pendant la
+     seconde qui précède, la carte n'aurait qu'une silhouette à montrer. On
+     annonce l'attente plutôt que de livrer une carte à moitié vide. */
+  const pretes=Object.keys(ILLUS).length>0;
+  $('carte').style.visibility = pretes ? 'visible' : 'hidden';
+  $('carteAttente').textContent = pretes ? ''
+    : pick(CONTENU.systeme.chargement, releve);
+  $('carteAttente').hidden = pretes;
   dessinerCarte(pFut,LFut,annee);
   rendreCollection();
   const vue=carteDessinee||{pal:pFut,L:LFut};
-  /* Le raccourci vers la carte, dans le flux principal. La barre d'onglets
-     est sous le capitaine : sur un iPhone elle tombe juste sous le pli, et
-     on peut consulter le jeu tous les jours sans jamais soupçonner qu'il y a
-     des cartes. Ce bloc-là, lui, se voit. */
+  /* Le raccourci vers la collection, dans le flux principal. La barre
+     d'onglets tombe juste sous le pli sur un iPhone : sans ce bloc, on peut
+     consulter le jeu tous les jours sans jamais soupçonner qu'on accumule
+     des cartes. */
+  const n=Object.keys(memLire().cartes||{}).length;
   const rVue=rarete(PALIERS.indexOf(vue.pal));
-  $('vcNom').textContent=vue.pal.nom;
-  $('vcRar').textContent=rVue.nom+' · '+(memLire().cartes ?
-    Object.keys(memLire().cartes).length : 0)+' / '+totalCartes()+' EN COLLECTION';
+  $('vcNom').textContent=n+' carte'+(n>1?'s':'')+' sur '+totalCartes();
+  $('vcRar').textContent='DERNIÈRE : '+vue.pal.nom.toUpperCase()+' · '+rVue.nom;
   $('vcRar').style.color=rVue.teinte;
   $('capText').textContent=remplir(CONTENU.partage[legendeIdx%CONTENU.partage.length],
     {longueur:metres(vue.L),annee:annee,nom:vue.pal.nom});
@@ -1670,7 +1442,7 @@ $('avertissement').textContent=CONTENU.systeme.avertissement;
 
   $('versCarte').onclick=()=>{
     montrer('p-partage');
-    $('p-partage').scrollIntoView({block:'start', behavior:'smooth'});
+    $('collection').scrollIntoView({block:'start', behavior:'smooth'});
   };
 })();
 
