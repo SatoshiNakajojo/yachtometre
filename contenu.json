@@ -13,10 +13,13 @@
       "{ans}": "nombre d'années"
     }
   },
-
   "paliers": [
     {
-      "id": "rien", "prix": 0, "longueur": 0, "classe": "rien", "cap": 0,
+      "id": "rien",
+      "prix": 0,
+      "longueur": 0,
+      "classe": "rien",
+      "cap": 0,
       "nom": "Rien du tout",
       "punch": [
         "Tu peux te permettre de regarder des photos de bateaux. C'est gratuit, et ça ne coule pas.",
@@ -28,7 +31,11 @@
       ]
     },
     {
-      "id": "canard", "prix": 5, "longueur": 1.1, "classe": "duck", "cap": 1,
+      "id": "canard",
+      "prix": 5,
+      "longueur": 1.1,
+      "classe": "duck",
+      "cap": 1,
       "nom": "Bouée canard",
       "punch": [
         "Elle a un visage. Ça fait déjà un membre d'équipage de plus que prévu.",
@@ -40,7 +47,11 @@
       ]
     },
     {
-      "id": "frite", "prix": 12, "longueur": 1.6, "classe": "noodle", "cap": 1,
+      "id": "frite",
+      "prix": 12,
+      "longueur": 1.6,
+      "classe": "noodle",
+      "cap": 1,
       "nom": "Frite de piscine",
       "punch": [
         "Techniquement plus longue que la bouée canard, et deux fois moins chère. Le marché est irrationnel.",
@@ -52,7 +63,11 @@
       ]
     },
     {
-      "id": "matelas", "prix": 25, "longueur": 1.9, "classe": "mattress", "cap": 1,
+      "id": "matelas",
+      "prix": 25,
+      "longueur": 1.9,
+      "classe": "mattress",
+      "cap": 1,
       "nom": "Matelas gonflable Décathlon",
       "punch": [
         "Il a une fuite. Le vendeur le savait. Toi aussi, maintenant.",
@@ -64,7 +79,11 @@
       ]
     },
     {
-      "id": "kayak", "prix": 90, "longueur": 2.0, "classe": "kayak", "cap": 1,
+      "id": "kayak",
+      "prix": 90,
+      "longueur": 2.0,
+      "classe": "kayak",
+      "cap": 1,
       "nom": "Kayak gonflable",
       "punch": [
         "Deux mètres. Le premier vrai bateau de la liste. Ne le dis à personne.",
@@ -76,7 +95,11 @@
       ]
     },
     {
-      "id": "paddle", "prix": 400, "longueur": 3.2, "classe": "paddle", "cap": 1,
+      "id": "paddle",
+      "prix": 400,
+      "longueur": 3.2,
+      "classe": "paddle",
+      "cap": 1,
       "nom": "Paddle",
       "punch": [
         "Debout, les bras qui brûlent, à quatre cents mètres du bord. C'est ça, la liberté financière.",
@@ -88,7 +111,11 @@
       ]
     },
     {
-      "id": "pedalo", "prix": 1200, "longueur": 3.0, "classe": "pedalo", "cap": 1,
+      "id": "pedalo",
+      "prix": 1200,
+      "longueur": 3.0,
+      "classe": "pedalo",
+      "cap": 1,
       "nom": "Pédalo avec toboggan",
       "punch": [
         "Il y a un toboggan. Personne ne pourra jamais t'enlever ça.",
@@ -100,7 +127,11 @@
       ]
     },
     {
-      "id": "barque", "prix": 2500, "longueur": 4.5, "classe": "barque", "cap": 1,
+      "id": "barque",
+      "prix": 2500,
+      "longueur": 4.5,
+      "classe": "barque",
+      "cap": 1,
       "nom": "Barque de pêche",
       "punch": [
         "Un moteur de six chevaux, une glacière, et beaucoup de temps pour réfléchir.",
@@ -112,7 +143,11 @@
       ]
     },
     {
-      "id": "jetski", "prix": 5000, "longueur": 3.3, "classe": "jetski", "cap": 1,
+      "id": "jetski",
+      "prix": 5000,
+      "longueur": 3.3,
+      "classe": "jetski",
+      "cap": 1,
       "nom": "Jet-ski « vendu en l'état »",
       "punch": [
         "« Vendu en l'état » signifie qu'il démarre une fois sur trois, et jamais devant témoin.",
@@ -124,7 +159,11 @@
       ]
     },
     {
-      "id": "rib", "prix": 12000, "longueur": 5.5, "classe": "rib", "cap": 2,
+      "id": "rib",
+      "prix": 12000,
+      "longueur": 5.5,
+      "classe": "rib",
+      "cap": 2,
       "nom": "Semi-rigide",
       "punch": [
         "Rapide, bruyant, mouillé. Tes invités rentreront en taxi.",
@@ -136,7 +175,11 @@
       ]
     },
     {
-      "id": "open7", "prix": 30000, "longueur": 7.0, "classe": "open", "cap": 2,
+      "id": "open7",
+      "prix": 30000,
+      "longueur": 7.0,
+      "classe": "open",
+      "cap": 2,
       "nom": "Bateau open 7 m",
       "punch": [
         "Assez grand pour un apéro, trop petit pour la nuit. Le format est assumé.",
@@ -148,7 +191,11 @@
       ]
     },
     {
-      "id": "voilier", "prix": 70000, "longueur": 9.5, "classe": "sail", "cap": 2,
+      "id": "voilier",
+      "prix": 70000,
+      "longueur": 9.5,
+      "classe": "sail",
+      "cap": 2,
       "nom": "Voilier de croisière",
       "punch": [
         "Gratuit à faire avancer, ruineux à posséder. Le grand classique.",
@@ -160,7 +207,11 @@
       ]
     },
     {
-      "id": "vedette", "prix": 250000, "longueur": 12, "classe": "vedette", "cap": 2,
+      "id": "vedette",
+      "prix": 250000,
+      "longueur": 12,
+      "classe": "vedette",
+      "cap": 2,
       "nom": "Vedette 12 m",
       "punch": [
         "Tu as une couchette, un frigo, et une place de port qui coûte plus cher qu'un studio.",
@@ -172,7 +223,11 @@
       ]
     },
     {
-      "id": "y15", "prix": 500000, "longueur": 15.5, "classe": "yacht", "cap": 2,
+      "id": "y15",
+      "prix": 500000,
+      "longueur": 15.5,
+      "classe": "yacht",
+      "cap": 2,
       "nom": "Yacht 15 m",
       "punch": [
         "On commence à dire « à bord » au lieu de « dedans ». C'est un cap.",
@@ -184,7 +239,11 @@
       ]
     },
     {
-      "id": "y20", "prix": 1100000, "longueur": 20, "classe": "yacht", "cap": 2,
+      "id": "y20",
+      "prix": 1100000,
+      "longueur": 20,
+      "classe": "yacht",
+      "cap": 2,
       "nom": "Yacht 20 m",
       "punch": [
         "Tu franchis la ligne à partir de laquelle il faut quelqu'un pour t'aider à te garer.",
@@ -196,7 +255,11 @@
       ]
     },
     {
-      "id": "y26", "prix": 2500000, "longueur": 26, "classe": "yacht", "cap": 3,
+      "id": "y26",
+      "prix": 2500000,
+      "longueur": 26,
+      "classe": "yacht",
+      "cap": 3,
       "nom": "Yacht 26 m",
       "punch": [
         "Équipage de deux. Ils te vouvoient. Tu ne sais absolument pas quoi en faire.",
@@ -208,7 +271,11 @@
       ]
     },
     {
-      "id": "y32", "prix": 6000000, "longueur": 32, "classe": "yacht", "cap": 3,
+      "id": "y32",
+      "prix": 6000000,
+      "longueur": 32,
+      "classe": "yacht",
+      "cap": 3,
       "nom": "Yacht 32 m",
       "punch": [
         "Le flybridge. La vraie raison pour laquelle tu as tenu jusqu'ici.",
@@ -220,7 +287,11 @@
       ]
     },
     {
-      "id": "s41", "prix": 12000000, "longueur": 41, "classe": "super", "cap": 3,
+      "id": "s41",
+      "prix": 12000000,
+      "longueur": 41,
+      "classe": "super",
+      "cap": 3,
       "nom": "Superyacht 41 m",
       "punch": [
         "Un bateau assez grand pour que tu y perdes ton téléphone pendant deux jours.",
@@ -232,7 +303,11 @@
       ]
     },
     {
-      "id": "s52", "prix": 24000000, "longueur": 52, "classe": "super", "cap": 3,
+      "id": "s52",
+      "prix": 24000000,
+      "longueur": 52,
+      "classe": "super",
+      "cap": 3,
       "nom": "Superyacht 52 m",
       "punch": [
         "Carré d'équipage, buanderie, et un budget gasoil qui se compte en pleins de voiture par heure.",
@@ -244,7 +319,11 @@
       ]
     },
     {
-      "id": "s60", "prix": 35000000, "longueur": 60, "classe": "super", "cap": 3,
+      "id": "s60",
+      "prix": 35000000,
+      "longueur": 60,
+      "classe": "super",
+      "cap": 3,
       "nom": "Superyacht 60 m — héliport",
       "punch": [
         "Héliport. Tu n'as pas d'hélicoptère. Ce n'est pas la question.",
@@ -256,7 +335,11 @@
       ]
     },
     {
-      "id": "s72", "prix": 58000000, "longueur": 72, "classe": "super", "cap": 3,
+      "id": "s72",
+      "prix": 58000000,
+      "longueur": 72,
+      "classe": "super",
+      "cap": 3,
       "nom": "Superyacht 72 m",
       "punch": [
         "Beach club à l'arrière, cinéma au milieu. Tu regardes des séries à huit nœuds.",
@@ -268,7 +351,11 @@
       ]
     },
     {
-      "id": "s80", "prix": 78000000, "longueur": 80, "classe": "super", "cap": 3,
+      "id": "s80",
+      "prix": 78000000,
+      "longueur": 80,
+      "classe": "super",
+      "cap": 3,
       "nom": "Superyacht 80 m — sous-marin",
       "punch": [
         "Sous-marin de poche. Il sert deux fois par an, il coûte plus cher que ta maison, et il est parfait.",
@@ -280,7 +367,11 @@
       ]
     },
     {
-      "id": "s100", "prix": 150000000, "longueur": 100, "classe": "super", "cap": 4,
+      "id": "s100",
+      "prix": 150000000,
+      "longueur": 100,
+      "classe": "super",
+      "cap": 4,
       "nom": "Superyacht 100 m — shadow boat",
       "punch": [
         "À cette taille, tu achètes un deuxième bateau pour transporter le premier. Ça s'appelle un shadow boat et ça existe vraiment.",
@@ -292,7 +383,11 @@
       ]
     },
     {
-      "id": "s120", "prix": 245000000, "longueur": 120, "classe": "super", "cap": 4,
+      "id": "s120",
+      "prix": 245000000,
+      "longueur": 120,
+      "classe": "super",
+      "cap": 4,
       "nom": "Superyacht 120 m",
       "punch": [
         "Deux hélicoptères. Ils ne se croisent jamais. C'est une règle, et personne ne sait pourquoi.",
@@ -304,7 +399,11 @@
       ]
     },
     {
-      "id": "s140", "prix": 375000000, "longueur": 140, "classe": "super", "cap": 4,
+      "id": "s140",
+      "prix": 375000000,
+      "longueur": 140,
+      "classe": "super",
+      "cap": 4,
       "nom": "Superyacht 140 m",
       "punch": [
         "Ton équipage est plus nombreux que ton village natal. Certains y sont nés à bord.",
@@ -316,7 +415,11 @@
       ]
     },
     {
-      "id": "s180", "prix": 760000000, "longueur": 180, "classe": "super", "cap": 4,
+      "id": "s180",
+      "prix": 760000000,
+      "longueur": 180,
+      "classe": "super",
+      "cap": 4,
       "nom": "Superyacht 180 m",
       "punch": [
         "Trop grand pour entrer à Monaco. Tu mouilles au large et tu te fais chier, en regardant le port avec des jumelles.",
@@ -328,18 +431,32 @@
       ]
     }
   ],
-
   "bandes": [
-    { "off": -0.56, "nom": "Ton beau-frère qui dit que c'est une bulle" },
-    { "off": -0.28, "nom": "Réaliste" },
-    { "off":  0.00, "nom": "Optimiste raisonnable" },
-    { "off":  0.28, "nom": "Ton pote du Bitcoin Club" },
-    { "off":  0.56, "nom": "Michael Saylor" }
+    {
+      "off": -0.56,
+      "nom": "Ton beau-frère qui dit que c'est une bulle"
+    },
+    {
+      "off": -0.28,
+      "nom": "Réaliste"
+    },
+    {
+      "off": 0.0,
+      "nom": "Optimiste raisonnable"
+    },
+    {
+      "off": 0.28,
+      "nom": "Ton pote du Bitcoin Club"
+    },
+    {
+      "off": 0.56,
+      "nom": "Michael Saylor"
+    }
   ],
-
   "capitaine": [
     {
-      "niveau": 0, "role": "Personne",
+      "niveau": 0,
+      "role": "Personne",
       "portrait": "Aucun équipage. Un fauteuil vide et une photo de bateau.",
       "repliques": [
         "Il n'y a personne à bord. Il n'y a pas de bord.",
@@ -347,7 +464,8 @@
       ]
     },
     {
-      "niveau": 1, "role": "Le mousse",
+      "niveau": 1,
+      "role": "Le mousse",
       "portrait": "Un ado en tongs qui vapote, casquette à l'envers, ne se lève pas.",
       "repliques": [
         "Ouais. Bonjour.",
@@ -363,7 +481,8 @@
       ]
     },
     {
-      "niveau": 2, "role": "Le skipper",
+      "niveau": 2,
+      "role": "Le skipper",
       "portrait": "Chemise blanche repassée, lunettes de soleil, légèrement condescendant.",
       "repliques": [
         "Bonjour. Nous appareillons dans vingt minutes.",
@@ -379,7 +498,8 @@
       ]
     },
     {
-      "niveau": 3, "role": "Le commandant",
+      "niveau": 3,
+      "role": "Le commandant",
       "portrait": "Monégasque en blazer, galons dorés, ne te regarde pas dans les yeux.",
       "repliques": [
         "Monsieur.",
@@ -395,7 +515,8 @@
       ]
     },
     {
-      "niveau": 4, "role": "Son assistant",
+      "niveau": 4,
+      "role": "Son assistant",
       "portrait": "Un jeune homme en polo brodé, tablette à la main. Le commandant reste invisible.",
       "repliques": [
         "Le commandant fait savoir qu'il est en manœuvre.",
@@ -411,10 +532,12 @@
       ]
     }
   ],
-
   "notifications": {
     "krach": {
-      "seuil": [-1.0, -0.10],
+      "seuil": [
+        -1.0,
+        -0.1
+      ],
       "lignes": [
         "Le BTC a pris {pct} cette nuit. Ton bateau a perdu {delta}. Le chantier a rappelé pour reprendre la moitié arrière.",
         "{pct}. Ton bateau mesure {longueur}. L'équipage a été prévenu par un autre canal.",
@@ -427,7 +550,10 @@
       ]
     },
     "baisse": {
-      "seuil": [-0.10, -0.04],
+      "seuil": [
+        -0.1,
+        -0.04
+      ],
       "lignes": [
         "{pct} cette nuit. Ton bateau perd {delta}. Le skipper a démissionné par SMS.",
         "{delta} de moins. On a retiré le jacuzzi. Il reste le trou.",
@@ -439,7 +565,10 @@
       ]
     },
     "grignotage": {
-      "seuil": [-0.04, -0.01],
+      "seuil": [
+        -0.04,
+        -0.01
+      ],
       "lignes": [
         "Petite érosion cette nuit : {delta}. Un transat en moins sur le pont arrière.",
         "{pct}. Rien de dramatique. On a juste retiré une bouée de sauvetage.",
@@ -449,7 +578,10 @@
       ]
     },
     "plat": {
-      "seuil": [-0.01, 0.01],
+      "seuil": [
+        -0.01,
+        0.01
+      ],
       "lignes": [
         "Rien n'a bougé. Ton bateau fait toujours {longueur}. L'équipage s'ennuie.",
         "Marché plat. {longueur}. C'est reposant, un marché plat. Profites-en.",
@@ -459,7 +591,10 @@
       ]
     },
     "hausse": {
-      "seuil": [0.01, 0.04],
+      "seuil": [
+        0.01,
+        0.04
+      ],
       "lignes": [
         "{pct}. Tu gagnes {delta}. On a rajouté un transat.",
         "Ton bateau a grandi de {delta}. C'est peu, mais c'est dans le bon sens.",
@@ -469,7 +604,10 @@
       ]
     },
     "envolee": {
-      "seuil": [0.04, 0.10],
+      "seuil": [
+        0.04,
+        0.1
+      ],
       "lignes": [
         "{pct} cette nuit. {delta} de bateau en plus. Le jacuzzi est de retour.",
         "Ton bateau atteint {longueur}. Le chantier a rappelé, cette fois pour te féliciter.",
@@ -480,7 +618,10 @@
       ]
     },
     "moon": {
-      "seuil": [0.10, 10.0],
+      "seuil": [
+        0.1,
+        10.0
+      ],
       "lignes": [
         "{pct}. {delta} de bateau en une nuit. Va au port. Regarde les autres. Souris.",
         "Ton bateau fait {longueur}. Hier il était plus court de {delta}. Ne dis rien à personne, savoure.",
@@ -490,10 +631,12 @@
       ]
     }
   },
-
   "opportunite": {
     "negligeable": {
-      "seuil_m": [0, 0.01],
+      "seuil_m": [
+        0,
+        0.01
+      ],
       "lignes": [
         "Ça ne se voit même pas sur la coque. Vas-y.",
         "Invisible à l'œil nu, y compris au tien. Fais-toi plaisir.",
@@ -502,7 +645,10 @@
       ]
     },
     "visible": {
-      "seuil_m": [0.01, 0.5],
+      "seuil_m": [
+        0.01,
+        0.5
+      ],
       "lignes": [
         "Tu viens de raboter {delta} de bateau. C'est une décision, pas un accident.",
         "{delta} en moins. Ça se voit, si on cherche bien.",
@@ -511,7 +657,10 @@
       ]
     },
     "douloureux": {
-      "seuil_m": [0.5, 3],
+      "seuil_m": [
+        0.5,
+        3
+      ],
       "lignes": [
         "{delta} de yacht. C'est une cabine. Tu viens d'échanger une cabine contre {objet}.",
         "Sur un bateau, {delta}, c'est un endroit où dormir. Tu l'as échangé contre {objet}.",
@@ -520,7 +669,10 @@
       ]
     },
     "catastrophique": {
-      "seuil_m": [3, 999],
+      "seuil_m": [
+        3,
+        999
+      ],
       "lignes": [
         "{delta} de bateau. On ne parle plus d'un achat, on parle d'un arbitrage de vie.",
         "Tu viens de rayer {delta} de ton bateau pour {objet}. Le capitaine s'est assis.",
@@ -529,7 +681,6 @@
       ]
     }
   },
-
   "entretien": {
     "confortable": {
       "note": "entretien ≤ 4 % du stack",
@@ -564,7 +715,6 @@
       ]
     }
   },
-
   "paper_hands": {
     "note": "mode phase 9a — l'utilisateur a déclaré une vente",
     "vide": "Rien de vendu, rien à regretter. Ce bloc restera vide, et c'est très bien ainsi.",
@@ -581,7 +731,6 @@
       "Ton bateau réel : néant. Ton bateau fantôme : {longueur}. Bonne journée."
     ]
   },
-
   "systeme": {
     "chargement": [
       "Relevé du cours…",
@@ -609,70 +758,183 @@
       "date_passee": "On ne projette pas dans le passé. Le rainbow chart n'a pas de marche arrière."
     },
     "adresse": "satoshinakajojo.github.io/yachtometre",
-    "avertissement": "Le rainbow chart est une régression logarithmique sur le passé. C'est une courbe rigolote, pas une prédiction."
+    "avertissement": "Le rainbow chart est une régression logarithmique sur le passé. C'est une courbe rigolote, pas une prédiction.",
+    "collection": {
+      "vide": "Ta première carte arrive au prochain relevé. Une par jour, celle du bateau que tu as ce jour-là.",
+      "gagnees": "Une carte par jour, tirée sur la date. Le même bateau ne donne pas deux fois la même option — c'est là qu'est la collection. Touche une carte pour la revoir en grand."
+    }
   },
-
   "cartes": {
     "note": "Cartes de collection. Une série = une entrée dans series, avec ses options. En ajouter une ne demande aucun code. Chaque option : texte, prix en euros.",
     "raretes": [
-      { "jusqua": 6,  "nom": "COMMUN",      "teinte": "#6E8CA8", "foil": false },
-      { "jusqua": 12, "nom": "PEU COMMUN",  "teinte": "#4FB3A6", "foil": false },
-      { "jusqua": 17, "nom": "RARE",        "teinte": "#C8873D", "foil": true  },
-      { "jusqua": 21, "nom": "TRÈS RARE",   "teinte": "#E0B04A", "foil": true  },
-      { "jusqua": 99, "nom": "LÉGENDAIRE",  "teinte": "#F7931A", "foil": true  }
+      {
+        "jusqua": 6,
+        "nom": "COMMUN",
+        "teinte": "#6E8CA8",
+        "foil": false
+      },
+      {
+        "jusqua": 12,
+        "nom": "PEU COMMUN",
+        "teinte": "#4FB3A6",
+        "foil": false
+      },
+      {
+        "jusqua": 17,
+        "nom": "RARE",
+        "teinte": "#C8873D",
+        "foil": true
+      },
+      {
+        "jusqua": 21,
+        "nom": "TRÈS RARE",
+        "teinte": "#E0B04A",
+        "foil": true
+      },
+      {
+        "jusqua": 99,
+        "nom": "LÉGENDAIRE",
+        "teinte": "#F7931A",
+        "foil": true
+      }
     ],
     "series": [
       {
         "numero": "I",
         "nom": "Le grand confort",
         "lignes": [
-          ["Porte-gobelet gyroscopique en or massif. Il tient un verre.", 45020],
-          ["Coque repeinte à la feuille d'or. Elle sera rayée avant l'été.", 88000],
-          ["Voile taillée dans un carré de soie. Ne pas sortir par vent fort.", 66610],
-          ["Sellerie en cuir pleine fleur, cousue main. Par quelqu'un d'autre.", 24000],
-          ["Éclairage sous-marin à variateur. Personne ne le verra jamais.", 17400],
-          ["Cave à champagne réfrigérée. Six bouteilles, un après-midi.", 31200],
-          ["Ancre plaquée or. Elle touche la vase comme les autres.", 12800],
-          ["Table de cockpit en marbre de Carrare. Quarante kilos. Sur un bateau.", 28900],
-          ["Nom gravé au laser sur la coque. Impossible à revendre.", 4200],
-          ["Système audio douze enceintes. Le voisin de ponton connaît tes goûts.", 19500],
-          ["Passerelle télescopique motorisée. Deux mètres quarante de fierté.", 74000],
-          ["Coffre-fort scellé dans la coque. Tu as perdu le code.", 9800],
-          ["Antifouling à l'argent colloïdal. Les algues s'en moquent.", 6400],
-          ["Douche de pont à eau chaude. Deux minutes d'eau chaude.", 5100],
-          ["Pavillon brodé main. Il se décolore en trois semaines.", 2300],
-          ["Guindeau électrique. Tu remonteras l'ancre à la main un jour.", 11700]
+          [
+            "Porte-gobelet gyroscopique en or massif. Il tient un verre.",
+            45020
+          ],
+          [
+            "Coque repeinte à la feuille d'or. Elle sera rayée avant l'été.",
+            88000
+          ],
+          [
+            "Voile taillée dans un carré de soie. Ne pas sortir par vent fort.",
+            66610
+          ],
+          [
+            "Sellerie en cuir pleine fleur, cousue main. Par quelqu'un d'autre.",
+            24000
+          ],
+          [
+            "Éclairage sous-marin à variateur. Personne ne le verra jamais.",
+            17400
+          ],
+          [
+            "Cave à champagne réfrigérée. Six bouteilles, un après-midi.",
+            31200
+          ],
+          [
+            "Ancre plaquée or. Elle touche la vase comme les autres.",
+            12800
+          ],
+          [
+            "Table de cockpit en marbre de Carrare. Quarante kilos. Sur un bateau.",
+            28900
+          ],
+          [
+            "Nom gravé au laser sur la coque. Impossible à revendre.",
+            4200
+          ],
+          [
+            "Système audio douze enceintes. Le voisin de ponton connaît tes goûts.",
+            19500
+          ],
+          [
+            "Passerelle télescopique motorisée. Deux mètres quarante de fierté.",
+            74000
+          ],
+          [
+            "Coffre-fort scellé dans la coque. Tu as perdu le code.",
+            9800
+          ],
+          [
+            "Antifouling à l'argent colloïdal. Les algues s'en moquent.",
+            6400
+          ],
+          [
+            "Douche de pont à eau chaude. Deux minutes d'eau chaude.",
+            5100
+          ],
+          [
+            "Pavillon brodé main. Il se décolore en trois semaines.",
+            2300
+          ],
+          [
+            "Guindeau électrique. Tu remonteras l'ancre à la main un jour.",
+            11700
+          ]
         ]
       },
       {
         "numero": "II",
         "nom": "Le service",
         "lignes": [
-          ["Un équipier à demeure. Il vouvoie tout le monde, toi compris.", 42000],
-          ["Un chef à bord. Il a un avis sur ta glacière.", 58000],
-          ["Une hôtesse formée à Monaco. Elle plie les serviettes en cygne.", 39000],
-          ["Un mécanicien de permanence. Il dort près du moteur, et il l'entend.", 47000],
-          ["Un boulanger embarqué. Il ne fait que du pain.", 36000],
-          ["Un photographe de bord. Personne ne lui a demandé.", 22000]
+          [
+            "Un équipier à demeure. Il vouvoie tout le monde, toi compris.",
+            42000
+          ],
+          [
+            "Un chef à bord. Il a un avis sur ta glacière.",
+            58000
+          ],
+          [
+            "Une hôtesse formée à Monaco. Elle plie les serviettes en cygne.",
+            39000
+          ],
+          [
+            "Un mécanicien de permanence. Il dort près du moteur, et il l'entend.",
+            47000
+          ],
+          [
+            "Un boulanger embarqué. Il ne fait que du pain.",
+            36000
+          ],
+          [
+            "Un photographe de bord. Personne ne lui a demandé.",
+            22000
+          ]
         ]
       }
     ]
   },
-
   "partage": [
     "{longueur} de yacht. Le reste, c'est de la conviction.",
     "Mon bateau en {annee} : {longueur}. Mesuré au Yachtomètre.",
     "{longueur}. Silhouette humaine à l'échelle, pour information.",
     "En {annee} je suis à {longueur}. On en reparle."
   ],
-
   "raccourcis_depense": [
-    ["un café", 3],
-    ["un plein", 85],
-    ["une soirée resto", 60],
-    ["un iPhone", 1200],
-    ["un loyer", 900],
-    ["des vacances", 2500],
-    ["une voiture", 22000]
+    [
+      "un café",
+      3
+    ],
+    [
+      "un plein",
+      85
+    ],
+    [
+      "une soirée resto",
+      60
+    ],
+    [
+      "un iPhone",
+      1200
+    ],
+    [
+      "un loyer",
+      900
+    ],
+    [
+      "des vacances",
+      2500
+    ],
+    [
+      "une voiture",
+      22000
+    ]
   ]
 }

@@ -48,6 +48,12 @@ foil, le matricule et le duel de prix bateau/option. Une série est une entrée
 dans `contenu.json` — l'ajouter multiplie le catalogue sans une ligne de code
 ni une image de plus. 2 séries × 22 options × 26 paliers = 572 cartes.
 
+La collection, elle, se remplit à raison d'**une carte par jour** : celle du
+bateau qu'on a ce jour-là, avec une option tirée sur la date. Le même bateau
+ne donne donc pas deux fois la même carte, et le tirage ne se refait pas en
+rechargeant la page. Les cartes gagnées vivent dans `localStorage`, sous
+l'onglet Cartes, et se rouvrent en grand d'une tape.
+
 ### Phase 8a — Hébergement et écran d'accueil ✅
 Publié sur <https://satoshinakajojo.github.io/yachtometre/>, installable en
 Partager → Sur l'écran d'accueil : icône, plein écran, ouverture hors ligne.
