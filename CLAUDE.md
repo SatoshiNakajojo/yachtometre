@@ -103,7 +103,9 @@ du script principal, et garde-le en `let` — c'est le second script qui
 l'affecte, puis rappelle `rendre()`.
 
 **La carte est l'écran d'accueil.** Elle vient juste sous les quatre champs,
-en grand, et le mètre de yacht passe dessous. C'est une décision de John, et
+en grand, et le mètre de yacht passe **directement** dessous : les boutons de
+partage, qui s'étaient glissés entre les deux, sont partis dans l'onglet
+Cartes avec la collection. Rien ne doit revenir s'intercaler là. C'est une décision de John, et
 elle a coûté la scène : le bloc SVG qui montrait le bateau posé sur l'eau
 avec son ponton et sa silhouette a été supprimé, parce qu'il affichait
 exactement le même bateau que la carte, deux blocs plus haut.
@@ -253,6 +255,24 @@ ne connaissent rien au Bitcoin :
   progression est un ressort comique en soi, ne la casse pas.
 - **Test de sélection** : une ligne n'entre dans le JSON que si elle fait encore
   sourire à la relecture le lendemain. Dans le doute, on jette.
+
+**Ce que la relecture de John a montré, et qui vaut pour la suite.** Il a
+trouvé « beaucoup » de lignes pas drôles, et il avait raison sur un motif
+précis : **une réplique sans chute n'est pas une réplique**. Le skipper
+disait « Bonjour. Nous appareillons dans vingt minutes. » ou « Je vous
+conseille de ne pas laisser vos affaires sur le pont. » — ce sont des
+consignes, pas des blagues. Elles sont devenues « J'ai dit dix heures. Il est
+dix heures dix. » et « Ne laissez rien sur le pont. Vous l'avez déjà fait
+deux fois. » : même personnage, mais la seconde phrase retourne la première.
+
+Deuxième motif : **une chute qui énonce l'effet au lieu de le montrer**.
+« Deux mètres quarante de fierté » dit au lecteur ce qu'il doit ressentir.
+« Trente secondes pendant lesquelles tout le quai te regarde » le lui fait
+voir. Pareil pour « Personne ne le verra jamais », devenu « Il attire les
+méduses » — concret, vrai, et plus drôle.
+
+Troisième : **un niveau à deux répliques se répète et s'use en deux jours**.
+Le niveau 0 en avait deux, il en a six.
 
 ---
 
@@ -431,6 +451,13 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
   peut plus les reprendre. Ce script applique la même fonction aux `.webp`
   déjà publiés. Il demande Pillow et ne tourne pas à la publication. Une image
   livrée après coup passe par `recadrer.py` et n'en a pas besoin.
+- **L'option d'une carte se lit à son index, sans décalage par le palier.**
+  Le code faisait `lignes[(iP + iOpt) % lignes.length]` : le texte affiché
+  dépendait donc de la longueur de la série, et **ajouter une option
+  réécrivait rétroactivement toutes les cartes déjà gagnées**. Une carte doit
+  rester ce qu'elle était le jour où elle est tombée. Les séries s'allongent
+  maintenant sans rien casser — à condition d'**ajouter en fin de liste** et
+  de ne jamais réordonner.
 - **Une carte par jour, tirée sur la date, jamais sur `Math.random`.** Le
   tirage vient de `jour + id du palier` : recharger la page ne le refait pas.
   C'est ce qui fait qu'une carte se gagne au lieu de s'obtenir. Ne le

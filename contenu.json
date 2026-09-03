@@ -460,7 +460,11 @@
       "portrait": "Aucun équipage. Un fauteuil vide et une photo de bateau.",
       "repliques": [
         "Il n'y a personne à bord. Il n'y a pas de bord.",
-        "Je suis payé pour ne rien faire. C'est le seul poste rentable de la flotte."
+        "Je suis payé pour ne rien faire. C'est le seul poste rentable de la flotte.",
+        "L'équipage est au complet. Il est composé de toi.",
+        "Le transat est libre. Il l'a toujours été.",
+        "La photo sur la table, c'est un bateau. Ce n'est pas le tien.",
+        "Aucun entretien à prévoir. C'est le seul avantage."
       ]
     },
     {
@@ -485,15 +489,17 @@
       "role": "Le skipper",
       "portrait": "Chemise blanche repassée, lunettes de soleil, légèrement condescendant.",
       "repliques": [
-        "Bonjour. Nous appareillons dans vingt minutes.",
-        "Je vous conseille de ne pas laisser vos affaires sur le pont.",
+        "J'ai dit dix heures. Il est dix heures dix.",
+        "Ne laissez rien sur le pont. Vous l'avez déjà fait deux fois.",
         "La météo est correcte. Correcte, pas bonne.",
-        "Non, on ne peut pas s'arrêter là. Il y a des rochers.",
+        "Non, pas là. Il y a des rochers, et ils sont sur la carte.",
         "Vous pouvez tenir la barre. Je reste à côté.",
-        "La consommation est ce qu'elle est, monsieur.",
-        "Nous rentrerons avant la tombée du jour. Ce n'est pas négociable.",
+        "Quarante litres à l'heure. Vous m'avez demandé d'aller vite.",
+        "Nous rentrerons avant la nuit. Ce n'est pas négociable.",
         "Vos amis ont beaucoup apprécié. Le pont, un peu moins.",
         "J'ai réparé ça ce matin. Je le répare tous les matins.",
+        "Le nœud que vous avez fait a tenu. C'est déjà ça.",
+        "J'ai sorti les défenses avant l'accostage. Vous alliez oublier.",
         "Une bière au retour, pas avant. Je tiens à mon permis."
       ]
     },
@@ -522,13 +528,15 @@
         "Le commandant fait savoir qu'il est en manœuvre.",
         "Le commandant a pris note de votre message.",
         "Le commandant ne se déplace plus pour les questions de restauration.",
-        "Le commandant vous fait dire que tout va bien à bord.",
+        "Tout va bien à bord. Le commandant tenait à ce que vous l'appreniez par moi.",
         "Le commandant demande si votre requête peut attendre lundi.",
         "Le commandant est actuellement sur l'autre navire.",
         "Je transmettrai. Je ne peux pas vous garantir de réponse.",
         "Le commandant fait savoir qu'il ne fait pas savoir.",
         "Le commandant vous remercie et poursuit sa journée.",
-        "Le commandant n'a pas souhaité que je vous transmette sa réponse."
+        "Le commandant n'a pas souhaité que je vous transmette sa réponse.",
+        "Le commandant a validé votre proposition. C'est lui qui l'avait faite.",
+        "Je suis son assistant à bord. Il en a un autre à terre."
       ]
     }
   ],
@@ -816,11 +824,11 @@
             66610
           ],
           [
-            "Sellerie en cuir pleine fleur, cousue main. Par quelqu'un d'autre.",
+            "Sellerie en cuir blanc. Elle prend le jean bleu.",
             24000
           ],
           [
-            "Éclairage sous-marin à variateur. Personne ne le verra jamais.",
+            "Éclairage sous-marin bleu. Il attire les méduses.",
             17400
           ],
           [
@@ -844,7 +852,7 @@
             19500
           ],
           [
-            "Passerelle télescopique motorisée. Deux mètres quarante de fierté.",
+            "Passerelle télescopique motorisée. Trente secondes pendant lesquelles tout le quai te regarde.",
             74000
           ],
           [
@@ -866,6 +874,26 @@
           [
             "Guindeau électrique. Tu remonteras l'ancre à la main un jour.",
             11700
+          ],
+          [
+            "Jacuzzi sur le pont supérieur. Rempli deux fois depuis l'achat.",
+            52000
+          ],
+          [
+            "Wifi par satellite. Tu reçois les mails du chantier en mer.",
+            14600
+          ],
+          [
+            "Annexe assortie à la coque. Elle coûte le prix de ton premier bateau.",
+            96000
+          ],
+          [
+            "Échappement chromé. Il noircit en un été.",
+            8300
+          ],
+          [
+            "Cabine armateur avec vue. Sur le bateau d'à côté.",
+            61000
           ]
         ]
       },
@@ -882,7 +910,7 @@
             58000
           ],
           [
-            "Une hôtesse formée à Monaco. Elle plie les serviettes en cygne.",
+            "Un maître d'hôtel formé à Monaco. Il plie les serviettes en cygne. Tous les jours.",
             39000
           ],
           [
@@ -896,6 +924,18 @@
           [
             "Un photographe de bord. Personne ne lui a demandé.",
             22000
+          ],
+          [
+            "Un second capitaine, pour les jours de repos du premier.",
+            51000
+          ],
+          [
+            "Un moniteur de plongée. Il attend que tu descendes.",
+            29000
+          ],
+          [
+            "Un matelot de plus l'été. C'est le neveu du commandant.",
+            24000
           ]
         ]
       }
