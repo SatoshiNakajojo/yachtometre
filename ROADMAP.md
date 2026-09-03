@@ -48,6 +48,11 @@ foil, le matricule et le duel de prix bateau/option. Une série est une entrée
 dans `contenu.json` — l'ajouter multiplie le catalogue sans une ligne de code
 ni une image de plus. 2 séries × 22 options × 26 paliers = 572 cartes.
 
+Depuis, la carte **est** l'écran d'accueil : elle vient sous les quatre
+champs, en grand, et le mètre de yacht passe dessous. La scène qui montrait
+le bateau sur l'eau a été supprimée — elle affichait le même bateau que la
+carte, deux blocs plus haut.
+
 La collection, elle, se remplit à raison d'**une carte par jour** : celle du
 bateau qu'on a ce jour-là, avec une option tirée sur la date. Le même bateau
 ne donne donc pas deux fois la même carte, et le tirage ne se refait pas en
