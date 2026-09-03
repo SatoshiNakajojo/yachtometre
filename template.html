@@ -238,7 +238,6 @@ body{
 .carte-une canvas{width:100%;max-width:340px;height:auto;border-radius:14px;display:block;margin:0 auto;
   box-shadow:0 18px 44px rgba(0,0,0,.55)}
 .carte-attente{font-family:var(--mono);font-size:12px;color:var(--gris);margin:10px 0 0;letter-spacing:1px}
-.carte-une .share-actions{margin-top:14px}
 .vers-carte{display:block;width:100%;margin-top:18px;padding:14px 16px;text-align:left;
   background:linear-gradient(135deg,#1C1710,var(--pont));border:1px solid var(--btc);
   border-radius:10px;color:inherit;font:inherit;cursor:pointer}
@@ -309,12 +308,6 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
   <div class="carte-une">
     <canvas id="carte" width="1080" height="1620" aria-label="Ta carte du jour"></canvas>
     <p class="carte-attente" id="carteAttente"></p>
-    <div class="share-actions">
-      <button class="chip" type="button" id="dlCard">Partager la carte</button>
-      <button class="chip" type="button" id="cpCap">Copier la légende</button>
-      <button class="chip" type="button" id="rerollCap">Autre légende</button>
-      <span class="cap-preview" id="capText"></span>
-    </div>
   </div>
 
   <div class="ruler">
@@ -428,6 +421,16 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
   </div>
 
   <div class="panneau" id="p-partage" role="tabpanel" hidden>
+    <section class="block">
+      <div class="block-head"><h2>Partager ta carte</h2><p id="partNom">—</p></div>
+      <div class="share-actions">
+        <button class="chip" type="button" id="dlCard">Partager la carte</button>
+        <button class="chip" type="button" id="cpCap">Copier la légende</button>
+        <button class="chip" type="button" id="rerollCap">Autre légende</button>
+        <span class="cap-preview" id="capText"></span>
+      </div>
+    </section>
+
     <section class="block">
       <div class="block-head"><h2>Ta collection</h2><p id="collCompte">—</p></div>
       <p class="hint" id="collNote"></p>
@@ -629,7 +632,7 @@ function rendreCollection(){
     const serie=SERIES().find(s=>s.numero===numSerie);
     if(!pal||!serie) return '';
     const iP=PALIERS.indexOf(pal), R=rarete(iP);
-    const ligne=serie.lignes[(iP+ +iOpt)%serie.lignes.length]||['',0];
+    const ligne=serie.lignes[iOpt]||['',0];
     const choisie=carteChoisie && carteChoisie.cle===cle;
     return `<button type="button" class="vignette" data-cle="${cle}"
       aria-current="${choisie?'true':'false'}" style="border-left-color:${R.teinte}">
@@ -852,7 +855,11 @@ async function dessinerCarte(pal,L,annee){
 
   const iP=PALIERS.indexOf(pal);
   const R=rarete(iP), teinte=R.teinte;
-  const [texteOption,prixOption]=serie.lignes[(iP+iOpt)%serie.lignes.length];
+  /* L'option est lue à son index, sans décalage par le palier. Le décalage
+     faisait dépendre le texte affiché de la longueur de la série : ajouter
+     une option changeait rétroactivement toutes les cartes déjà gagnées.
+     Une carte doit être ce qu'elle était le jour où elle est tombée. */
+  const [texteOption,prixOption]=serie.lignes[iOpt] || serie.lignes[0];
   // La légende de partage doit parler du bateau dessiné, pas de celui du
   // jour : on partage la carte affichée, pas une autre.
   carteDessinee={pal, L};
@@ -1307,6 +1314,7 @@ function rendre(){
   $('vcRar').style.color=rVue.teinte;
   $('capText').textContent=remplir(CONTENU.partage[legendeIdx%CONTENU.partage.length],
     {longueur:metres(vue.L),annee:annee,nom:vue.pal.nom});
+  $('partNom').textContent=vue.pal.nom;
 
   memEcrire({...memLire(), btc:$('btc').value, annee:$('annee').value, bande:$('bande').value,
              depense:$('depense').value, depenseNom:$('depenseNom').value,

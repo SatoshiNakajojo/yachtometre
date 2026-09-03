@@ -238,7 +238,6 @@ body{
 .carte-une canvas{width:100%;max-width:340px;height:auto;border-radius:14px;display:block;margin:0 auto;
   box-shadow:0 18px 44px rgba(0,0,0,.55)}
 .carte-attente{font-family:var(--mono);font-size:12px;color:var(--gris);margin:10px 0 0;letter-spacing:1px}
-.carte-une .share-actions{margin-top:14px}
 .vers-carte{display:block;width:100%;margin-top:18px;padding:14px 16px;text-align:left;
   background:linear-gradient(135deg,#1C1710,var(--pont));border:1px solid var(--btc);
   border-radius:10px;color:inherit;font:inherit;cursor:pointer}
@@ -309,12 +308,6 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
   <div class="carte-une">
     <canvas id="carte" width="1080" height="1620" aria-label="Ta carte du jour"></canvas>
     <p class="carte-attente" id="carteAttente"></p>
-    <div class="share-actions">
-      <button class="chip" type="button" id="dlCard">Partager la carte</button>
-      <button class="chip" type="button" id="cpCap">Copier la légende</button>
-      <button class="chip" type="button" id="rerollCap">Autre légende</button>
-      <span class="cap-preview" id="capText"></span>
-    </div>
   </div>
 
   <div class="ruler">
@@ -429,6 +422,16 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
 
   <div class="panneau" id="p-partage" role="tabpanel" hidden>
     <section class="block">
+      <div class="block-head"><h2>Partager ta carte</h2><p id="partNom">—</p></div>
+      <div class="share-actions">
+        <button class="chip" type="button" id="dlCard">Partager la carte</button>
+        <button class="chip" type="button" id="cpCap">Copier la légende</button>
+        <button class="chip" type="button" id="rerollCap">Autre légende</button>
+        <span class="cap-preview" id="capText"></span>
+      </div>
+    </section>
+
+    <section class="block">
       <div class="block-head"><h2>Ta collection</h2><p id="collCompte">—</p></div>
       <p class="hint" id="collNote"></p>
       <div class="collection" id="collection"></div>
@@ -443,7 +446,7 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
   <footer>
     <span id="avertissement"></span><br>
     Ton stack reste sur ton téléphone. Aucune donnée n'est envoyée nulle part.<br>
-    <span class="build">version e65ab7fecf</span>
+    <span class="build">version 40829bf061</span>
   </footer>
 </div>
 
@@ -910,7 +913,11 @@ const CONTENU = {
    "portrait": "Aucun équipage. Un fauteuil vide et une photo de bateau.",
    "repliques": [
     "Il n'y a personne à bord. Il n'y a pas de bord.",
-    "Je suis payé pour ne rien faire. C'est le seul poste rentable de la flotte."
+    "Je suis payé pour ne rien faire. C'est le seul poste rentable de la flotte.",
+    "L'équipage est au complet. Il est composé de toi.",
+    "Le transat est libre. Il l'a toujours été.",
+    "La photo sur la table, c'est un bateau. Ce n'est pas le tien.",
+    "Aucun entretien à prévoir. C'est le seul avantage."
    ]
   },
   {
@@ -935,15 +942,17 @@ const CONTENU = {
    "role": "Le skipper",
    "portrait": "Chemise blanche repassée, lunettes de soleil, légèrement condescendant.",
    "repliques": [
-    "Bonjour. Nous appareillons dans vingt minutes.",
-    "Je vous conseille de ne pas laisser vos affaires sur le pont.",
+    "J'ai dit dix heures. Il est dix heures dix.",
+    "Ne laissez rien sur le pont. Vous l'avez déjà fait deux fois.",
     "La météo est correcte. Correcte, pas bonne.",
-    "Non, on ne peut pas s'arrêter là. Il y a des rochers.",
+    "Non, pas là. Il y a des rochers, et ils sont sur la carte.",
     "Vous pouvez tenir la barre. Je reste à côté.",
-    "La consommation est ce qu'elle est, monsieur.",
-    "Nous rentrerons avant la tombée du jour. Ce n'est pas négociable.",
+    "Quarante litres à l'heure. Vous m'avez demandé d'aller vite.",
+    "Nous rentrerons avant la nuit. Ce n'est pas négociable.",
     "Vos amis ont beaucoup apprécié. Le pont, un peu moins.",
     "J'ai réparé ça ce matin. Je le répare tous les matins.",
+    "Le nœud que vous avez fait a tenu. C'est déjà ça.",
+    "J'ai sorti les défenses avant l'accostage. Vous alliez oublier.",
     "Une bière au retour, pas avant. Je tiens à mon permis."
    ]
   },
@@ -972,13 +981,15 @@ const CONTENU = {
     "Le commandant fait savoir qu'il est en manœuvre.",
     "Le commandant a pris note de votre message.",
     "Le commandant ne se déplace plus pour les questions de restauration.",
-    "Le commandant vous fait dire que tout va bien à bord.",
+    "Tout va bien à bord. Le commandant tenait à ce que vous l'appreniez par moi.",
     "Le commandant demande si votre requête peut attendre lundi.",
     "Le commandant est actuellement sur l'autre navire.",
     "Je transmettrai. Je ne peux pas vous garantir de réponse.",
     "Le commandant fait savoir qu'il ne fait pas savoir.",
     "Le commandant vous remercie et poursuit sa journée.",
-    "Le commandant n'a pas souhaité que je vous transmette sa réponse."
+    "Le commandant n'a pas souhaité que je vous transmette sa réponse.",
+    "Le commandant a validé votre proposition. C'est lui qui l'avait faite.",
+    "Je suis son assistant à bord. Il en a un autre à terre."
    ]
   }
  ],
@@ -1266,11 +1277,11 @@ const CONTENU = {
       66610
      ],
      [
-      "Sellerie en cuir pleine fleur, cousue main. Par quelqu'un d'autre.",
+      "Sellerie en cuir blanc. Elle prend le jean bleu.",
       24000
      ],
      [
-      "Éclairage sous-marin à variateur. Personne ne le verra jamais.",
+      "Éclairage sous-marin bleu. Il attire les méduses.",
       17400
      ],
      [
@@ -1294,7 +1305,7 @@ const CONTENU = {
       19500
      ],
      [
-      "Passerelle télescopique motorisée. Deux mètres quarante de fierté.",
+      "Passerelle télescopique motorisée. Trente secondes pendant lesquelles tout le quai te regarde.",
       74000
      ],
      [
@@ -1316,6 +1327,26 @@ const CONTENU = {
      [
       "Guindeau électrique. Tu remonteras l'ancre à la main un jour.",
       11700
+     ],
+     [
+      "Jacuzzi sur le pont supérieur. Rempli deux fois depuis l'achat.",
+      52000
+     ],
+     [
+      "Wifi par satellite. Tu reçois les mails du chantier en mer.",
+      14600
+     ],
+     [
+      "Annexe assortie à la coque. Elle coûte le prix de ton premier bateau.",
+      96000
+     ],
+     [
+      "Échappement chromé. Il noircit en un été.",
+      8300
+     ],
+     [
+      "Cabine armateur avec vue. Sur le bateau d'à côté.",
+      61000
      ]
     ]
    },
@@ -1332,7 +1363,7 @@ const CONTENU = {
       58000
      ],
      [
-      "Une hôtesse formée à Monaco. Elle plie les serviettes en cygne.",
+      "Un maître d'hôtel formé à Monaco. Il plie les serviettes en cygne. Tous les jours.",
       39000
      ],
      [
@@ -1346,6 +1377,18 @@ const CONTENU = {
      [
       "Un photographe de bord. Personne ne lui a demandé.",
       22000
+     ],
+     [
+      "Un second capitaine, pour les jours de repos du premier.",
+      51000
+     ],
+     [
+      "Un moniteur de plongée. Il attend que tu descendes.",
+      29000
+     ],
+     [
+      "Un matelot de plus l'été. C'est le neveu du commandant.",
+      24000
      ]
     ]
    }
@@ -1568,7 +1611,7 @@ function rendreCollection(){
     const serie=SERIES().find(s=>s.numero===numSerie);
     if(!pal||!serie) return '';
     const iP=PALIERS.indexOf(pal), R=rarete(iP);
-    const ligne=serie.lignes[(iP+ +iOpt)%serie.lignes.length]||['',0];
+    const ligne=serie.lignes[iOpt]||['',0];
     const choisie=carteChoisie && carteChoisie.cle===cle;
     return `<button type="button" class="vignette" data-cle="${cle}"
       aria-current="${choisie?'true':'false'}" style="border-left-color:${R.teinte}">
@@ -1791,7 +1834,11 @@ async function dessinerCarte(pal,L,annee){
 
   const iP=PALIERS.indexOf(pal);
   const R=rarete(iP), teinte=R.teinte;
-  const [texteOption,prixOption]=serie.lignes[(iP+iOpt)%serie.lignes.length];
+  /* L'option est lue à son index, sans décalage par le palier. Le décalage
+     faisait dépendre le texte affiché de la longueur de la série : ajouter
+     une option changeait rétroactivement toutes les cartes déjà gagnées.
+     Une carte doit être ce qu'elle était le jour où elle est tombée. */
+  const [texteOption,prixOption]=serie.lignes[iOpt] || serie.lignes[0];
   // La légende de partage doit parler du bateau dessiné, pas de celui du
   // jour : on partage la carte affichée, pas une autre.
   carteDessinee={pal, L};
@@ -2246,6 +2293,7 @@ function rendre(){
   $('vcRar').style.color=rVue.teinte;
   $('capText').textContent=remplir(CONTENU.partage[legendeIdx%CONTENU.partage.length],
     {longueur:metres(vue.L),annee:annee,nom:vue.pal.nom});
+  $('partNom').textContent=vue.pal.nom;
 
   memEcrire({...memLire(), btc:$('btc').value, annee:$('annee').value, bande:$('bande').value,
              depense:$('depense').value, depenseNom:$('depenseNom').value,
