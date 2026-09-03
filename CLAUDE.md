@@ -240,6 +240,7 @@ Structure :
 | `systeme` | chargement, vides, erreurs, consignes d'installation, avertissement légal |
 | `partage` | légendes de la carte |
 | `cartes` | raretés (bornes de palier, teinte, foil) et séries d'options |
+| `systeme.collection` | les deux lignes de l'onglet Cartes |
 
 Les seaux se sélectionnent par la fonction `seau()`, qui lit les bornes
 `seuil` / `seuil_m` déclarées dans le JSON. Pour ajouter un seau, il suffit de
@@ -436,6 +437,28 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
   peut plus les reprendre. Ce script applique la même fonction aux `.webp`
   déjà publiés. Il demande Pillow et ne tourne pas à la publication. Une image
   livrée après coup passe par `recadrer.py` et n'en a pas besoin.
+- **Une carte par jour, tirée sur la date, jamais sur `Math.random`.** Le
+  tirage vient de `jour + id du palier` : recharger la page ne le refait pas.
+  C'est ce qui fait qu'une carte se gagne au lieu de s'obtenir. Ne le
+  remplace pas par un tirage aléatoire, tu casserais la collection en une
+  ligne.
+- **Le tirage porte sur toutes les options mises à plat, pas série puis
+  option.** Tirer la série d'abord rendrait une série de six options aussi
+  fréquente qu'une série de seize, donc ses cartes presque trois fois plus
+  communes sans que personne ne l'ait décidé.
+- **Le hachage du tirage est un FNV-1a suivi d'une avalanche.** Un `h*31+c`
+  ne suffit pas : d'un jour au suivant, ce qui change est la fin de la
+  chaîne, donc les bits de poids faible — et deux jours consécutifs
+  tombaient sur la même carte une fois sur cinq. Mesuré après correction sur
+  730 jours × 26 paliers : les 22 options sont touchées, entre 807 et 917
+  fois pour une moyenne de 863, et les répétitions d'un jour sur l'autre
+  tombent à 1/22, la valeur d'un tirage uniforme.
+- **`jourISO` est un `const` de module : `window.jourISO = …` ne le remplace
+  pas.** Un `const` de premier niveau dans un script classique n'est pas une
+  propriété de `window`. Un test qui simulait une semaine en réassignant
+  `window.jourISO` ne simulait rien du tout et donnait une collection qui
+  avait l'air cassée. Pour simuler des jours, utilise l'horloge du navigateur
+  (`page.clock.setFixedTime` avec Playwright).
 - **Le palier « rien du tout » n'expose rien sur sa carte.** Le ponton est
   photographié pour être coupé à la flottaison ; sorti de l'eau, pilotis
   compris, c'est une caisse en bois. La carte ne montre que la silhouette,

@@ -240,6 +240,17 @@ body{
 .install p{margin:0;flex:1 1 240px;font-size:14px;color:var(--gris)}
 .install[hidden]{display:none}
 
+.collection{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:12px}
+.vignette{background:var(--pont);border:1px solid var(--bordure);border-left-width:4px;border-radius:8px;
+  padding:10px 12px;text-align:left;cursor:pointer;font:inherit;color:inherit;display:block;width:100%}
+.vignette:hover,.vignette:focus-visible{border-color:var(--btc);outline:none}
+.vignette[aria-current="true"]{border-color:var(--btc);background:#1F1A12}
+.vignette>span{display:block}
+.vignette .num{font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--gris)}
+.vignette .nom{font-size:13px;font-weight:600;margin:2px 0 4px;line-height:1.25}
+.vignette .rar{font-family:var(--mono);font-size:10px;letter-spacing:1px}
+.vignette .opt{font-size:11px;color:var(--gris);line-height:1.35;margin-top:4px}
+.collection .vide{grid-column:1/-1;color:var(--gris);font-size:13px}
 .build{opacity:.55;letter-spacing:1px}
 footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font-family:var(--mono);font-size:11px;color:var(--gris);line-height:1.7}
 </style>
@@ -318,7 +329,7 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
     <button type="button" role="tab" data-cible="p-metre" aria-controls="p-metre" aria-selected="false">Mètre</button>
     <button type="button" role="tab" data-cible="p-paperhands" aria-controls="p-paperhands" aria-selected="false">Fantôme</button>
     <button type="button" role="tab" data-cible="p-demain" aria-controls="p-demain" aria-selected="false">Demain</button>
-    <button type="button" role="tab" data-cible="p-partage" aria-controls="p-partage" aria-selected="false">Partage</button>
+    <button type="button" role="tab" data-cible="p-partage" aria-controls="p-partage" aria-selected="false">Cartes</button>
   </nav>
 
   <div class="panneau" id="p-entretien" role="tabpanel" hidden>
@@ -407,6 +418,12 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
           <span class="cap-preview" id="capText"></span>
         </div>
       </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head"><h2>Ta collection</h2><p id="collCompte">—</p></div>
+      <p class="hint" id="collNote"></p>
+      <div class="collection" id="collection"></div>
     </section>
   </div>
 
@@ -769,7 +786,98 @@ function lignesTexte(ctx,txt,maxW){
     if(ctx.measureText(t).width>maxW && l){ out.push(l); l=m; } else l=t; }
   if(l) out.push(l); return out;
 }
-let legendeIdx=0, cartePNG=null, releve=0, optionIdx=0;
+let legendeIdx=0, cartePNG=null, releve=0;
+
+/* ── la collection ──────────────────────────────────────────────────────
+   Une carte par jour, et une seule : celle du bateau que tu as ce jour-là,
+   avec une option tirée sur la date. Le même bateau ne donne donc pas la
+   même carte d'un jour à l'autre — sans quoi il n'y aurait rien à
+   collectionner, juste vingt-six images à voir une fois.
+
+   Le tirage vient de la date et de l'id du palier, jamais de Math.random :
+   recharger la page ne refait pas le tirage. C'est ce qui fait qu'une carte
+   se gagne au lieu de s'obtenir. */
+function carteDuJour(idPalier, jour){
+  /* Toutes les options de toutes les séries à plat, et un tirage uniforme
+     dedans. Tirer d'abord la série puis l'option rendrait une série de six
+     options aussi fréquente qu'une série de seize, donc ses cartes presque
+     trois fois plus communes sans que personne ne l'ait décidé.
+
+     Le hachage est un FNV-1a suivi d'une avalanche. Un simple h*31+c ne
+     suffit pas : ce qui change d'un jour au suivant, c'est la fin de la
+     chaîne, donc les bits de poids faible — et deux jours consécutifs
+     tombaient sur la même carte une fois sur cinq. */
+  const options=[];
+  for(const serie of SERIES())
+    serie.lignes.forEach((_,i)=>options.push({serie, iOpt:i}));
+  if(!options.length) return {serie:SERIES()[0], iOpt:0};
+
+  let h=2166136261;
+  for(const ch of jour+'|'+idPalier){
+    h=(h ^ ch.charCodeAt(0))>>>0;
+    h=Math.imul(h,16777619)>>>0;
+  }
+  h=(h ^ (h>>>15))>>>0; h=Math.imul(h,2246822507)>>>0; h=(h ^ (h>>>13))>>>0;
+  return options[h % options.length];
+}
+const cleCarte = (idPalier,serie,iOpt) => idPalier+'|'+serie.numero+'|'+iOpt;
+
+/* Carte affichée : par défaut celle du jour, ou celle qu'on a choisie dans
+   la collection. */
+let carteChoisie=null, carteDessinee=null;
+
+function gagnerCarte(pal){
+  if(!pal) return;
+  const jour=jourISO(), t=carteDuJour(pal.id,jour);
+  const cle=cleCarte(pal.id,t.serie,t.iOpt);
+  const m=memLire(), cartes=m.cartes||{};
+  if(cartes[cle]) return;
+  cartes[cle]=jour;
+  memEcrire({...m, cartes});
+}
+
+const totalCartes = () =>
+  PALIERS.length * SERIES().reduce((n,s)=>n+s.lignes.length,0);
+
+function rendreCollection(){
+  const hote=$('collection'); if(!hote) return;
+  const cartes=memLire().cartes||{};
+  const cles=Object.keys(cartes).sort((a,b)=>
+    cartes[b].localeCompare(cartes[a]) || a.localeCompare(b));
+
+  $('collCompte').textContent=cles.length+' / '+totalCartes();
+  $('collNote').textContent = cles.length
+    ? CONTENU.systeme.collection.gagnees
+    : CONTENU.systeme.collection.vide;
+
+  hote.innerHTML = cles.map(cle=>{
+    const [idPalier,numSerie,iOpt]=cle.split('|');
+    const pal=PALIERS.find(p=>p.id===idPalier);
+    const serie=SERIES().find(s=>s.numero===numSerie);
+    if(!pal||!serie) return '';
+    const iP=PALIERS.indexOf(pal), R=rarete(iP);
+    const ligne=serie.lignes[(iP+ +iOpt)%serie.lignes.length]||['',0];
+    const choisie=carteChoisie && carteChoisie.cle===cle;
+    return `<button type="button" class="vignette" data-cle="${cle}"
+      aria-current="${choisie?'true':'false'}" style="border-left-color:${R.teinte}">
+      <span class="num">N°${String(iP+1).padStart(3,'0')} · SÉRIE ${serie.numero}</span>
+      <span class="nom">${pal.nom}</span>
+      <span class="rar" style="color:${R.teinte}">${R.nom}</span>
+      <span class="opt">${ligne[0]}</span>
+    </button>`;
+  }).join('') || `<p class="vide">${CONTENU.systeme.collection.vide}</p>`;
+
+  hote.querySelectorAll('.vignette').forEach(b=>{
+    b.onclick=()=>{
+      const [idPalier,numSerie,iOpt]=b.dataset.cle.split('|');
+      // Un second tap sur la carte choisie revient à celle du jour.
+      carteChoisie = (carteChoisie && carteChoisie.cle===b.dataset.cle)
+        ? null : {cle:b.dataset.cle, idPalier, numSerie, iOpt:+iOpt};
+      rendre();
+      $('carte').scrollIntoView({block:'center', behavior:'smooth'});
+    };
+  });
+}
 
 /* ══════════════════════════════════════════════════════
    CARTE DE COLLECTION
@@ -953,13 +1061,28 @@ async function dessinerCarte(pal,L,annee){
   const W=1080, H=1620, M=40;
   if(cv.width!==W || cv.height!==H){ cv.width=W; cv.height=H; }
   const c=cv.getContext('2d');
-  const N=COULEURS, iP=PALIERS.indexOf(pal);
-  const R=rarete(iP), teinte=R.teinte;
+  const N=COULEURS;
 
-  const series=SERIES();
-  const serie=series[Math.floor(optionIdx/1e4)%series.length] || series[0];
-  const iOpt=optionIdx%serie.lignes.length;
+  /* Ce qu'on dessine : la carte du jour, ou celle qu'on a choisie dans la
+     collection. Une carte choisie amène son propre palier avec elle — on
+     n'affiche pas un canard aux dimensions d'un superyacht. */
+  let serie, iOpt;
+  if(carteChoisie){
+    const p2=PALIERS.find(x=>x.id===carteChoisie.idPalier);
+    if(p2){ pal=p2; L=p2.L||0; }
+    serie=SERIES().find(x=>x.numero===carteChoisie.numSerie) || SERIES()[0];
+    iOpt=carteChoisie.iOpt % serie.lignes.length;
+  } else {
+    const t=carteDuJour(pal.id, jourISO());
+    serie=t.serie; iOpt=t.iOpt;
+  }
+
+  const iP=PALIERS.indexOf(pal);
+  const R=rarete(iP), teinte=R.teinte;
   const [texteOption,prixOption]=serie.lignes[(iP+iOpt)%serie.lignes.length];
+  // La légende de partage doit parler du bateau dessiné, pas de celui du
+  // jour : on partage la carte affichée, pas une autre.
+  carteDessinee={pal, L};
 
   const mat=matricule(pal.id,serie.numero,iOpt);
   const dé=semeur(mat);
@@ -1383,9 +1506,13 @@ function rendre(){
       <div class="msg">${txt}</div></div>`;
   }).join('');
 
+  // La carte du jour se gagne au premier rendu du jour, avant d'être dessinée.
+  gagnerCarte(pFut);
   dessinerCarte(pFut,LFut,annee);
+  rendreCollection();
+  const vue=carteDessinee||{pal:pFut,L:LFut};
   $('capText').textContent=remplir(CONTENU.partage[legendeIdx%CONTENU.partage.length],
-    {longueur:metres(LFut),annee:annee,nom:pFut.nom});
+    {longueur:metres(vue.L),annee:annee,nom:vue.pal.nom});
 
   memEcrire({...memLire(), btc:$('btc').value, annee:$('annee').value, bande:$('bande').value,
              depense:$('depense').value, depenseNom:$('depenseNom').value,
