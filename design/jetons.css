@@ -1,0 +1,27 @@
+/* Le Yachtomètre — les jetons de style actuels
+ *
+ * Extrait tel quel de template.html. C'est le seul endroit où les couleurs
+ * et les polices sont déclarées : tout le reste du CSS y fait référence par
+ * var(--…). Redéfinir ce bloc suffit donc à reteinter l'application entière.
+ *
+ * Les trois familles sont chargées depuis Google Fonts par un seul <link>.
+ * En ajouter une coûte une requête de plus et, hors ligne, un repli.
+ */
+:root{
+  --noir:#0A0A0B;
+  --carte:#141416;
+  --pont:#1A1A1D;
+  --bordure:#26262B;
+  --gris:#8A8A93;
+  --blanc:#FAF8F5;
+  --btc:#F7931A;
+  --btc-clair:#FFB55C;
+  --btc-sombre:#7A4A0D;
+  --mer:#123B52;
+  --mer-fond:#061620;
+  --vert:#16C784;
+  --rouge:#EA3943;
+
+  --display:'Archivo Black','Arial Black',Impact,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --sans:'Inter',system-ui,-apple-system,sans-serif;
