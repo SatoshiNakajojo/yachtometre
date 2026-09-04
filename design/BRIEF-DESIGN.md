@@ -56,12 +56,14 @@ Tout ce qui suit se refait librement, et mérite d'être refait :
   clair : Archivo Black pour les titres, JetBrains Mono pour les chiffres et
   les étiquettes, Inter pour le texte courant. Les tailles ont été posées au
   jugé, une par une.
-- **Les quatre champs du haut.** Ils fonctionnent mais sont bruts, et le
-  sélecteur « ton niveau de foi » tronque son libellé (« Optimiste ra⌄ ») —
-  c'est visible sur toutes les captures.
-- **Le mètre de yacht** (la règle 1 · 10 · 60 · 180). Deux repères s'y
-  chevauchent quand les deux bateaux sont proches, et les étiquettes se
-  marchent dessus.
+- **Les quatre champs du haut.** Ils fonctionnent mais sont bruts. Deux
+  défauts ont été corrigés depuis les captures : « ton niveau de foi » prend
+  maintenant toute la largeur avec une police qui se réduit sur les petits
+  écrans — quatre noms de bande sur cinq étaient illisibles sur un iPhone 13,
+  455 px de texte dans 150 px — et les étiquettes du mètre de yacht s'écartent
+  quand les deux bateaux se rapprochent. Le reste est à refaire.
+- **Le mètre de yacht** (la règle 1 · 10 · 60 · 180). L'échelle logarithmique
+  écrase tout le bas : du canard au voilier, presque rien ne bouge.
 - **Les panneaux d'onglets**, qui se ressemblent tous : un titre, un
   sous-titre gris, un bloc de texte. Rien ne distingue visuellement une
   simulation d'un avertissement.

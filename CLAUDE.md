@@ -489,6 +489,18 @@ Voir `ROADMAP.md` pour le détail. Par ordre de valeur :
   parfaitement plat fait rétrécir le bateau d'un millième de millimètre, et le
   bandeau virait au rouge. Les bornes du seau viennent du JSON, un nouveau seau
   se colore donc tout seul.
+- **Le champ « niveau de foi » prend toute la largeur, et ce n'est pas une
+  préférence.** Ses noms sont longs — « Ton beau-frère qui dit que c'est une
+  bulle » mesure 455 px en 18 px de mono. Dans une demi-cellule de 150 px sur
+  iPhone 13, **quatre noms sur cinq** étaient coupés en plein mot par le rendu
+  natif du sélecteur : on choisissait son niveau de foi sans pouvoir le
+  relire. Attention en mesurant ce genre de défaut : sur un `<select>`,
+  `scrollWidth` vaut `clientWidth` même quand le texte est tronqué — il faut
+  mesurer la largeur du texte au canvas avec la police calculée.
+- **Les deux étiquettes du mètre de yacht s'écartent quand les repères se
+  rapprochent.** Les poser à des hauteurs différentes ne suffit pas : leurs
+  boîtes font 19 et 16 px pour 11 px d'écart, donc elles se recouvrent. Si les
+  deux annoncent la même longueur, la seconde est masquée — elle ne dit rien.
 - **`paireMetres()` existe pour une seule raison :** deux longueurs qui
   encadrent 10 mètres tombaient sur des précisions différentes — « 10,00 m →
   10,0 m » avait l'air d'une faute de frappe.
