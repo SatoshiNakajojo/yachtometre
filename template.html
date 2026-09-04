@@ -92,6 +92,14 @@ body{
   gap:1px;background:var(--bordure);border:1px solid var(--bordure);margin-top:18px;
 }
 .cell{background:var(--carte);padding:12px 14px}
+/* Les noms de bande sont longs — « Ton beau-frère qui dit que c'est une
+   bulle » fait 455 px en 18 px de mono. Dans une demi-cellule de 150 px,
+   quatre noms sur cinq étaient coupés en plein mot par le rendu natif du
+   sélecteur : on choisissait son niveau de foi sans pouvoir le relire.
+   La cellule prend donc toute la largeur, et la police se réduit sur les
+   petits écrans jusqu'à ce que le plus long tienne. */
+.cell.large{grid-column:1/-1}
+.cell.large select{font-size:clamp(11px,3vw,18px)}
 .cell label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gris);margin-bottom:6px}
 .cell input,.cell select{
   width:100%;background:transparent;border:0;color:var(--blanc);
@@ -124,6 +132,9 @@ body{
 }
 .ghost{position:absolute;bottom:0;transform:translateX(-50%);transition:left .7s cubic-bezier(.22,1,.36,1)}
 .ghost i{display:block;width:2px;height:18px;background:var(--btc-sombre);margin:0 auto}
+/* Écartement d'urgence quand les deux repères se superposent. */
+.marker.ecarte b{transform:translateX(-50%) translateX(30px)}
+.ghost.ecarte b{transform:translateX(-50%) translateX(-30px)}
 .ghost b{position:absolute;bottom:21px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;color:var(--btc-sombre);white-space:nowrap}
 .ruler-legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--gris);margin-top:24px}
 .ruler-legend span::before{content:'';display:inline-block;width:14px;height:2px;vertical-align:middle;margin-right:6px}
@@ -293,12 +304,12 @@ footer{margin-top:38px;border-top:1px solid var(--bordure);padding-top:16px;font
       <select id="annee"></select>
       <div class="hint" id="hintAnnee"></div>
     </div>
-    <div class="cell">
+    <div class="cell large">
       <label for="bande">Ton niveau de foi</label>
       <select id="bande"></select>
       <div class="hint" id="hintBande"></div>
     </div>
-    <div class="cell">
+    <div class="cell large">
       <label for="prix">Cours du BTC</label>
       <input id="prix" type="number" step="100" min="1" value="68000" inputmode="decimal">
       <div class="hint" id="hintPrix">en euros</div>
@@ -1184,10 +1195,21 @@ function rendre(){
   const LAuj=longueurPourBudget(budgetAuj), LFut=longueurPourBudget(budgetFut);
   const pFut=palierPourBudget(budgetFut), iP=PALIERS.indexOf(pFut);
 
-  $('marker').style.left=posRegle(LFut)+'%';
-  $('marker').querySelector('b').textContent=metres(LFut);
-  $('ghost').style.left=posRegle(LAuj)+'%';
-  $('ghost').querySelector('b').textContent=metres(LAuj);
+  const xFut=posRegle(LFut), xAuj=posRegle(LAuj);
+  const [mFut,mAuj]=paireMetres(LFut,LAuj);
+  $('marker').style.left=xFut+'%';
+  $('marker').querySelector('b').textContent=mFut;
+  $('ghost').style.left=xAuj+'%';
+  $('ghost').querySelector('b').textContent=mAuj;
+  /* Les deux étiquettes sont posées à des hauteurs différentes, ce qui ne
+     suffit pas : leurs boîtes de texte font 19 et 16 px pour 11 px d'écart,
+     donc elles se recouvrent dès que les deux bateaux se rapprochent. Quand
+     elles annoncent la même longueur, la seconde ne dit rien — on la retire.
+     Sinon on les écarte horizontalement. */
+  const colles=Math.abs(xFut-xAuj)<9;
+  $('ghost').querySelector('b').hidden = colles && mFut===mAuj;
+  $('ghost').classList.toggle('ecarte', colles && mFut!==mAuj);
+  $('marker').classList.toggle('ecarte', colles && mFut!==mAuj);
   $('legAnnee').textContent='en '+annee;
 
   // Le stack déborde l'échelle : au-delà du dernier palier, la longueur est
